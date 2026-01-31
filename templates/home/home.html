@@ -1,0 +1,24 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="home-wrap">
+  <h2 class="home-section-title">🏫 Trường nổi bật</h2>
+
+  <div class="home-grid">
+    {% for t in truong_noi_bat %}
+      <div class="home-card">
+        <div class="home-card-img">
+          <img src="{% static 'img/TDH/' %}{{ t.logo }}" alt="{{ t.tentruong }}">
+        </div>
+        <h3 class="home-card-title">{{ t.tentruong }}</h3>
+        <p class="home-card-sub">{{ t.loaitruong }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

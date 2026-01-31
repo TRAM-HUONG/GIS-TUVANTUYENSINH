@@ -1,0 +1,180 @@
+{% load static %}
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}GIS Tư Vấn Tuyển Sinh{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ✅ HERO SLIDER FULL -->
+  <header class="hero">
+    <div class="hero-slider" id="heroSlider">
+
+      <!-- 3 ảnh banner -->
+      <div class="hero-slide active" style="background-image:url('{% static 'img/banner/Bk.jpg' %}')"></div>
+      <div class="hero-slide" style="background-image:url('{% static 'img/banner/DTM.jpg' %}')"></div>
+      <div class="hero-slide" style="background-image:url('{% static 'img/banner/HCMUS.png' %}')"></div>
+
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <div class="wrap hero-top">
+
+          <!-- HÀNG 1 -->
+          <div class="row row-1">
+            <a class="brand" href="{% url 'home' %}">
+              <!-- ✅ LOGO ẢNH -->
+              <span class="logo" aria-hidden="true"></span>
+              <span class="brand-text">Tư Vấn Tuyển Sinh</span>
+            </a>
+
+            <div class="auth">
+              <a class="btn" href="{% url 'login' %}">🔐 Đăng nhập</a>
+              <a class="btn" href="{% url 'register' %}">🧾 Đăng ký</a>
+            </div>
+          </div>
+
+          <!-- HÀNG 2 -->
+          <div class="row row-2">
+            <nav class="menu">
+              <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+              <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+              <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+              <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+            </nav>
+
+            <form class="search" action="{% url 'tracuu' %}" method="get">
+              <input class="search-input" type="text" name="q" placeholder="🔍 Tìm trường / ngành..." />
+              <button class="search-btn" type="submit">Tìm</button>
+            </form>
+          </div>
+
+        </div>
+
+        <!-- Dots -->
+        <div class="dots" id="heroDots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <div class="palette" title="Bảng màu"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="card">
+        {% block content %}{% endblock %}
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+  <div class="wrap footer-grid">
+
+    <!-- CỘT 1: Đăng ký nhận bản tin -->
+    <div class="footer-col">
+      <h3 class="footer-title">ĐĂNG KÝ NHẬN BẢN TIN TUYỂN SINH</h3>
+      <form class="footer-newsletter" action="#" method="post">
+        <input class="footer-input" type="email" name="email" placeholder="Email" required>
+        <button class="footer-submit" type="submit">Đăng ký</button>
+      </form>
+
+      <div class="footer-brand">
+        <div class="footer-logo"></div>
+        <div>
+          <div class="footer-brand-name">GIS TƯ VẤN TUYỂN SINH</div>
+          <div class="footer-brand-sub">Hỗ trợ tra cứu trường/ngành • Bản đồ • Khảo sát</div>
+        </div>
+      </div>
+
+      <div class="footer-info">
+        <div><b>Địa chỉ:</b> 143/2 Nguyễn Trãi, P. Chợ Quán, TP.HCM</div>
+        <div><b>Email:</b> contact@gistuvantuyensinh.vn</div>
+        <div><b>Đơn vị thực hiện:</b> Nhóm WebGIS Tư vấn tuyển sinh</div>
+      </div>
+    </div>
+
+    <!-- CỘT 2 -->
+    <div class="footer-col">
+      <h4 class="footer-head">Giới thiệu</h4>
+      <a class="footer-link" href="{% url 'gioithieu' %}">Về dự án</a>
+      <a class="footer-link" href="{% url 'gioithieu' %}">Mục tiêu & phạm vi</a>
+      <a class="footer-link" href="{% url 'gioithieu' %}">Hướng dẫn sử dụng</a>
+      <a class="footer-link" href="{% url 'gioithieu' %}">Câu hỏi thường gặp</a>
+
+      <h4 class="footer-head mt">Hỗ trợ</h4>
+      <a class="footer-link" href="#">Liên hệ</a>
+      <a class="footer-link" href="#">Chính sách bảo mật</a>
+      <a class="footer-link" href="#">Điều khoản sử dụng</a>
+    </div>
+
+    <!-- CỘT 3 -->
+    <div class="footer-col">
+      <h4 class="footer-head">Tra cứu</h4>
+      <a class="footer-link" href="{% url 'tracuu' %}">Tìm trường / ngành</a>
+      <a class="footer-link" href="{% url 'tracuu' %}">Lọc theo khối/nguyện vọng</a>
+      <a class="footer-link" href="{% url 'tracuu' %}">Gợi ý trường phù hợp</a>
+
+      <h4 class="footer-head mt">Bản đồ GIS</h4>
+      <a class="footer-link" href="{% url 'tracuu' %}">Xem trường trên bản đồ</a>
+      <a class="footer-link" href="{% url 'tracuu' %}">Tìm theo khu vực</a>
+      <a class="footer-link" href="{% url 'tracuu' %}">Tìm theo khoảng cách</a>
+    </div>
+
+    <!-- CỘT 4 -->
+    <div class="footer-col">
+      <h4 class="footer-head">Khảo sát</h4>
+      <a class="footer-link" href="{% url 'khaosat' %}">Khảo sát nhu cầu</a>
+      <a class="footer-link" href="{% url 'khaosat' %}">Định hướng ngành học</a>
+      <a class="footer-link" href="{% url 'khaosat' %}">Đề xuất lộ trình</a>
+
+      <h4 class="footer-head mt">Thống kê</h4>
+      <a class="footer-link" href="#">Số liệu tổng quan</a>
+      <a class="footer-link" href="#">Xu hướng tuyển sinh</a>
+      <a class="footer-link" href="#">Báo cáo</a>
+    </div>
+
+  </div>
+
+  <div class="wrap footer-bottom">
+    <div>© {% now "Y" %} GIS Tư Vấn Tuyển Sinh • All rights reserved.</div>
+    <div class="footer-badges">
+      <span class="badge">WebGIS</span>
+      <span class="badge">Leaflet</span>
+      <span class="badge">Django</span>
+    </div>
+  </div>
+</footer>
+
+
+  <!-- ✅ Auto slide 3s -->
+  <script>
+    (function () {
+      const slides = document.querySelectorAll('#heroSlider .hero-slide');
+      const dots = document.querySelectorAll('#heroDots .dot');
+      let i = 0;
+
+      function show(idx){
+        slides.forEach((s, k) => s.classList.toggle('active', k === idx));
+        dots.forEach((d, k) => d.classList.toggle('active', k === idx));
+      }
+
+      setInterval(() => {
+        i = (i + 1) % slides.length;
+        show(i);
+      }, 3000);
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
