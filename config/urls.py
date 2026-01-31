@@ -6,7 +6,7 @@ def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
 
 def tracuu(request):
-    return render(request, "tracuu/tracuu.html")
+    return render(request, "map/map.html")
 
 def khaosat(request):
     return render(request, "khaosat/khaosat.html")
