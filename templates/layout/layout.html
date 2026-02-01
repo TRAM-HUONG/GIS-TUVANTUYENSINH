@@ -48,11 +48,23 @@
               <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
               <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
             </nav>
+<<<<<<< HEAD
 
             <form class="search" action="{% url 'tracuu' %}" method="get">
               <input class="search-input" type="text" name="q" placeholder="🔍 Tìm trường / ngành..." />
               <button class="search-btn" type="submit">Tìm</button>
             </form>
+=======
+            
+           {% block search %}
+    {% if "dang-nhap" not in request.path and "dang-ky" not in request.path %}
+        <form class="search" action="{% url 'tracuu' %}" method="get">
+            <input class="search-input" type="text" name="q" placeholder="🔍 Tìm trường / ngành..." />
+            <button class="search-btn" type="submit">Tìm</button>
+        </form>
+    {% endif %}
+{% endblock %}
+>>>>>>> feature/layout
           </div>
 
         </div>
@@ -82,7 +94,11 @@
 
     <!-- CỘT 1: Đăng ký nhận bản tin -->
     <div class="footer-col">
+<<<<<<< HEAD
       <h3 class="footer-title">ĐĂNG KÝ NHẬN BẢN TIN TUYỂN SINH</h3>
+=======
+<h3 class="footer-title">ĐĂNG KÝ NHẬN BẢN TIN TUYỂN SINH</h3>
+>>>>>>> feature/layout
       <form class="footer-newsletter" action="#" method="post">
         <input class="footer-input" type="email" name="email" placeholder="Email" required>
         <button class="footer-submit" type="submit">Đăng ký</button>
@@ -147,7 +163,8 @@
 
   <div class="wrap footer-bottom">
     <div>© {% now "Y" %} GIS Tư Vấn Tuyển Sinh • All rights reserved.</div>
-    <div class="footer-badges">
+
+<div class="footer-badges">
       <span class="badge">WebGIS</span>
       <span class="badge">Leaflet</span>
       <span class="badge">Django</span>
@@ -177,4 +194,8 @@
 
   {% block extra_js %}{% endblock %}
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> feature/layout
