@@ -1,0 +1,145 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Giới thiệu - Tương Lai Việt{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/gioithieu.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="about-wrap">
+
+  <!-- 1) Lời mở đầu -->
+  <article class="about-section">
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="about-title">🎓Lời mở đầu</h2>
+        <p>
+          Đứng trước ngưỡng cửa đại học, chắc hẳn bạn đang mang trong mình hàng trăm nỗi lo:
+          Chọn ngành mình thích hay ngành xã hội cần? Trường nào phù hợp với năng lực tài chính của gia đình?
+          Bạn sẽ làm gì nếu chọn sai trường, sai ngành?
+          <strong>Đừng lo lắng, vì chúng tôi ở đây để đồng hành cùng bạn.</strong>
+        </p>
+      </div>
+
+      <div class="about-media">
+        <img src="{% static 'img/01-loi-mo-dau.jpg' %}" alt="Lời mở đầu - Tương Lai Việt">
+      </div>
+    </div>
+  </article>
+
+  <!-- 2) Chúng tôi là ai? -->
+  <article class="about-section">
+    <div class="about-grid reverse">
+      <div class="about-text">
+        <h2 class="about-title">👥Chúng tôi là ai?</h2>
+        <p>
+          <strong>Tư vấn tuyển sinh</strong> là hệ thống tra cứu và tư vấn tuyển sinh trực tuyến,
+          một người bạn đồng hành đáng tin cậy, kết nối hàng triệu học sinh với hơn
+          <strong>200 trường Đại học, Cao đẳng</strong> trên khắp <strong>63 tỉnh thành Việt Nam</strong>.
+        </p>
+        <p>
+          Chúng tôi không chỉ cung cấp dữ liệu, chúng tôi cung cấp <strong>giải pháp cho tương lai</strong> của bạn,
+          giúp bạn đưa ra những quyết định sáng suốt nhất cho hành trình học vấn của mình.
+        </p>
+      </div>
+
+      <div class="about-media">
+        <img src="{% static 'img/02-chung-toi-la-ai.jpg' %}" alt="Chúng tôi là ai - Tương Lai Việt">
+      </div>
+    </div>
+  </article>
+
+  <!-- 3) Giá trị cốt lõi - 3K -->
+  <article class="about-section">
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="about-title">🛡️Giá trị cốt lõi - “3K”</h2>
+        <p>
+          Chúng tôi tin rằng mọi quyết định quan trọng cần dựa trên sự thấu hiểu và thông tin chính xác.
+          Đó là lý do Tư vấn tuyển sinh luôn hoạt động dựa trên <strong>3 giá trị cốt lõi</strong>:
+        </p>
+
+        <ul class="about-list">
+          <li>
+            <strong>⚖️Khách quan:</strong> Thông tin tổng hợp minh bạch, không thiên vị, giúp bạn có cái nhìn toàn diện.
+          </li>
+          <li>
+            <strong>🧠Khoa học:</strong> Ứng dụng trắc nghiệm (MBTI, Holland) và thuật toán lọc thông minh để định hướng.
+          </li>
+          <li>
+            <strong>🔗Kết nối:</strong> Cầu nối giữa thí sinh và tuyển sinh nhà trường, hỗ trợ giải đáp nhanh chóng.
+          </li>
+        </ul>
+      </div>
+
+      <div class="about-media">
+        <img src="{% static 'img/03-gia-tri-3k.jpg' %}" alt="Giá trị cốt lõi 3K - Tương Lai Việt">
+      </div>
+    </div>
+  </article>
+
+  <!-- 4) Bạn sẽ tìm thấy gì tại Tương Lai Việt? -->
+  <article class="about-section">
+    <div class="about-grid reverse">
+      <div class="about-text">
+        <h2 class="about-title">📌Bạn sẽ tìm thấy gì tại Tư vấn tuyển sinh?</h2>
+        <p>
+          Tại Tư vấn tuyển sinh, chúng tôi mang đến cho bạn một kho tàng thông tin và công cụ hữu ích để khám phá con đường học vấn:
+        </p>
+
+        <div class="about-cards">
+          <div class="about-card">
+            <h3>📊Tra cứu điểm chuẩn</h3>
+            <p>Dữ liệu điểm sàn, điểm chuẩn qua các năm của các ngành học, giúp bạn đánh giá cơ hội trúng tuyển.</p>
+          </div>
+
+          <div class="about-card">
+            <h3>📚Cẩm nang nghề nghiệp</h3>
+            <p>Mô tả công việc, mức lương, cơ hội thăng tiến và kỹ năng cần thiết cho từng ngành.</p>
+          </div>
+
+          <div class="about-card">
+            <h3>⭐Đánh giá “người thật việc thật”</h3>
+            <p>Chia sẻ chân thực về môi trường học tập, cơ sở vật chất, kinh nghiệm từ sinh viên đang theo học.</p>
+          </div>
+
+          <div class="about-card">
+            <h3>💬Tư vấn 1:1</h3>
+            <p>Chuyên gia hỗ trợ hồ sơ, thủ tục nhập học và lộ trình học tập, giúp bạn tự tin hơn.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-media">
+        <img src="{% static 'img/04-ban-se-tim-thay-gi.jpg' %}" alt="Tính năng - Tương Lai Việt">
+      </div>
+    </div>
+  </article>
+
+  <!-- 5) Lời kết -->
+  <article class="about-section">
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="about-title">🚀Lời kết</h2>
+        <p>
+          Tương lai nằm trong tay bạn, và chúng tôi sẽ giúp bạn đặt những viên gạch đầu tiên thật vững chắc.
+          Hãy để <strong>Tư vấn tuyển sinh</strong> biến hành trình chọn trường của bạn trở nên dễ dàng,
+          thú vị và đầy hy vọng hơn bao giờ hết!
+        </p>
+
+        <div class="about-cta">
+          <a href="/home" class="btn-home">Về trang chủ</a>
+          <a class="btn-outline" href="{% url 'khaosat' %}">Làm khảo sát ngành</a>
+        </div>
+      </div>
+
+      <div class="about-media">
+        <img src="{% static 'img/05-loi-ket.jpg' %}" alt="Lời kết - Tương Lai Việt">
+      </div>
+    </div>
+  </article>
+
+</section>
+{% endblock %}
