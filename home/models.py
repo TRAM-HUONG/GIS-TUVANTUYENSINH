@@ -16,7 +16,25 @@ class TruongDaiHoc(models.Model):
     def __str__(self): 
         return f"{self.matruong} - {self.tentruong}"
 
+# TruongDaiHoc (University) model
+class TruongDaiHoc(models.Model): 
+    matruong = models.CharField(db_column="MATRUONG", max_length=5, primary_key=True) 
+    tentruong = models.CharField(db_column="TENTRUONG", max_length=200) 
+    loaitruong = models.CharField(db_column="LOAITRUONG", max_length=50, null=True, blank=True) 
+    logo = models.CharField(db_column="LOGO", max_length=255, null=True, blank=True) 
+    # Additional details for the university 
+    madvhc = models.CharField(db_column="MADVHC", max_length=5, null=True, blank=True) 
+    diachi = models.TextField(db_column="DIACHI", null=True, blank=True) 
+    website = models.CharField(db_column="WEBSITE", max_length=255, null=True, blank=True) 
+    email = models.CharField(db_column="EMAIL", max_length=100, null=True, blank=True) 
+    dienthoai = models.CharField(db_column="DIENTHOAI", max_length=30, null=True, blank=True) 
 
+    class Meta: 
+        managed = False 
+        db_table = "TRUONGDAIHOC" # Table name in the database 
+
+    def __str__(self): 
+        return f"{self.matruong} - {self.tentruong}"
 # HinhAnh (Image) model to store images related to universities
 class HinhAnh(models.Model):
     mahinh = models.CharField(db_column="MAHINH", primary_key=True, max_length=5)
@@ -31,6 +49,10 @@ class HinhAnh(models.Model):
 
     def __str__(self):
         return self.tenfile
+
+
+# CHITIETTRUONG (University Detail) model
+
 class CHITIETTRUONG(models.Model):
     matruong = models.CharField(db_column="MATRUONG", max_length=5, primary_key=True)
     mota = models.TextField(db_column="MOTA", null=True, blank=True)
@@ -38,11 +60,18 @@ class CHITIETTRUONG(models.Model):
 
     class Meta:
         managed = False
+
         db_table = "CHITIETTRUONG"  # Tên bảng trong cơ sở dữ liệu
+
+        db_table = "CHITIETTRUONG"  # Table name in the database
+
 
     def __str__(self):
         return f"{self.matruong} - {self.mota}"
     
+
+# NganhHoc (Major) model
+
 class NganhHoc(models.Model):
     manganh = models.CharField(db_column="MANGANH", primary_key=True, max_length=5)
     tennganh = models.CharField(db_column="TENNGANH", max_length=200)
@@ -51,10 +80,19 @@ class NganhHoc(models.Model):
 
     class Meta:
         managed = False
+
         db_table = "NGANHHOC"  # Tên bảng trong cơ sở dữ liệu
 
     def __str__(self):
         return f"{self.manganh} - {self.tennganh}"
+
+        db_table = "NGANHHOC"  # Table name in the database
+
+    def __str__(self):
+        return f"{self.manganh} - {self.tennganh}"
+
+# ChiTietNganh (Major Details) model
+
 class ChiTietNganh(models.Model):
     MACTN = models.CharField(db_column="MACTN", primary_key=True, max_length=5)  # Thay id bằng MACTN làm khóa chính
     matruong = models.ForeignKey('TruongDaiHoc', on_delete=models.CASCADE, db_column="MATRUONG")
@@ -66,4 +104,7 @@ class ChiTietNganh(models.Model):
         db_table = "CHITIETNGANH"
 
     def __str__(self):
+
+        return f"{self.matruong.tentruong}"
+
         return f"{self.matruong.tentruong}"

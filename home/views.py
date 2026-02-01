@@ -27,5 +27,3 @@ def truong_detail(request, matruong):
         "ctt": ctt,  # Truyền mô tả trường vào template
         "ct_nganh": ct_nganh,  # Truyền chi tiết ngành học vào template
     })
-
-
