@@ -35,11 +35,6 @@ class TruongDaiHoc(models.Model):
 
     def __str__(self): 
         return f"{self.matruong} - {self.tentruong}"
-<<<<<<< HEAD
-=======
-
-
->>>>>>> feature/home
 # HinhAnh (Image) model to store images related to universities
 class HinhAnh(models.Model):
     mahinh = models.CharField(db_column="MAHINH", primary_key=True, max_length=5)
@@ -54,14 +49,6 @@ class HinhAnh(models.Model):
 
     def __str__(self):
         return self.tenfile
-
-<<<<<<< HEAD
-
-# CHITIETTRUONG (University Detail) model
-
-=======
-# CHITIETTRUONG (University Detail) model
->>>>>>> feature/home
 class CHITIETTRUONG(models.Model):
     matruong = models.CharField(db_column="MATRUONG", max_length=5, primary_key=True)
     mota = models.TextField(db_column="MOTA", null=True, blank=True)
@@ -69,9 +56,7 @@ class CHITIETTRUONG(models.Model):
 
     class Meta:
         managed = False
-<<<<<<< HEAD
 
-        db_table = "CHITIETTRUONG"  # Tên bảng trong cơ sở dữ liệu
 
         db_table = "CHITIETTRUONG"  # Table name in the database
 
@@ -80,16 +65,9 @@ class CHITIETTRUONG(models.Model):
         return f"{self.matruong} - {self.mota}"
     
 
-# NganhHoc (Major) model
 
-=======
-        db_table = "CHITIETTRUONG"  # Table name in the database
-
-    def __str__(self):
-        return f"{self.matruong} - {self.mota}"
     
-# NganhHoc (Major) model
->>>>>>> feature/home
+
 class NganhHoc(models.Model):
     manganh = models.CharField(db_column="MANGANH", primary_key=True, max_length=5)
     tennganh = models.CharField(db_column="TENNGANH", max_length=200)
@@ -98,25 +76,12 @@ class NganhHoc(models.Model):
 
     class Meta:
         managed = False
-<<<<<<< HEAD
-
-        db_table = "NGANHHOC"  # Tên bảng trong cơ sở dữ liệu
-
-    def __str__(self):
-        return f"{self.manganh} - {self.tennganh}"
-
-=======
->>>>>>> feature/home
         db_table = "NGANHHOC"  # Table name in the database
 
     def __str__(self):
         return f"{self.manganh} - {self.tennganh}"
 
 # ChiTietNganh (Major Details) model
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/home
 class ChiTietNganh(models.Model):
     MACTN = models.CharField(db_column="MACTN", primary_key=True, max_length=5)  # Thay id bằng MACTN làm khóa chính
     matruong = models.ForeignKey('TruongDaiHoc', on_delete=models.CASCADE, db_column="MATRUONG")
@@ -128,10 +93,5 @@ class ChiTietNganh(models.Model):
         db_table = "CHITIETNGANH"
 
     def __str__(self):
-<<<<<<< HEAD
 
-        return f"{self.matruong.tentruong}"
-
-=======
->>>>>>> feature/home
         return f"{self.matruong.tentruong}"
