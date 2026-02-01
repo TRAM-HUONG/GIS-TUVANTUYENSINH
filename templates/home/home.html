@@ -7,18 +7,68 @@
 
 {% block content %}
 <section class="home-wrap">
-  <h2 class="home-section-title">🏫 Trường nổi bật</h2>
 
-  <div class="home-grid">
-    {% for t in truong_noi_bat %}
-      <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
-        <div class="home-card-img">
-          <img src="{% static 'img/TDH/' %}{{ t.logo }}" alt="{{ t.tentruong }}">
-        </div>
-        <h3 class="home-card-title">{{ t.tentruong }}</h3>
-        <p class="home-card-sub">{{ t.loaitruong }}</p>
-      </a>
-    {% endfor %}
+  <div class="home-layout">
+    <!-- Cột trái (sidebar) -->
+    <aside class="home-left">
+      <div class="additional-info">
+        <h3>Cẩm nang cho học sinh sau THPT</h3>
+        <ul>
+          <li><a href="https://www.tuyensinh247.com/huong-dan-chon-nganh-hoc.html">Hướng dẫn chọn ngành học</a></li>
+          <li><a href="https://www.topica.edu.vn/tin-tuc/tu-van-nghe-nghiep-va-co-hoi-viec-lam">Tư vấn nghề nghiệp và cơ hội việc làm</a></li>
+          <li><a href="https://www.vietnamworks.com/blog/ky-nang-can-thiet-cho-sinh-vien">Kỹ năng cần thiết cho sinh viên</a></li>
+        </ul>
+
+        <h3>Hướng nghiệp sinh viên</h3>
+        <ul>
+          <li><a href="https://www.vietbaokhung.com/tim-hieu-cac-nganh-nghe-tiem-nang">Tìm hiểu các ngành nghề tiềm năng</a></li>
+          <li><a href="https://vnexpress.net/loc-chon-hoc-tap-sau-dai-hoc">Các lựa chọn học tập sau đại học</a></li>
+          <li><a href="https://tuoitre.vn/phat-trien-ban-than-trong-moi-truong-dai-hoc-20210430123951451.htm">Phát triển bản thân trong môi trường đại học</a></li>
+        </ul>
+
+        <h3>Bài báo về hướng nghiệp</h3>
+        <ul>
+          <li><a href="https://vnexpress.net/huong-nghiep-cho-hoc-sinh-thpt-20170815053551242.html">Bài báo 1: Hướng nghiệp cho học sinh THPT</a></li>
+          <li><a href="https://vietnamnet.vn/vn/giao-duc/bao-lau-moi-co-kha-nang-thanh-cong-trong-nghe-nghiep-660463.html">Bài báo 2: Tầm quan trọng của kỹ năng mềm</a></li>
+          <li><a href="https://www.vnexpress.net/nganh-hoc-va-co-hoi-nghe-nghiep-trong-tuong-lai-20200218090504688.html">Bài báo 3: Ngành học và cơ hội nghề nghiệp trong tương lai</a></li>
+        </ul>
+      </div>
+
+      <!-- ✅ Lịch hoạt động -->
+      <div class="activity-schedule">
+        <h3>Lịch hoạt động</h3>
+        <ul>
+          <li>Thứ 2, 3, 4, 5, 6: 14:00 - 21:00</li>
+          <li>Thứ 7: 9:00 - 12:00</li>
+          <li>Ngày nghỉ hàng tuần: Từ 12:00 trưa Thứ 7 & cả ngày Chủ nhật</li>
+        </ul>
+      </div>
+
+      <!-- ✅ Icon chat (gợi ý) -->
+      <div class="chat-icon">
+        <a href="https://www.example.com/chat" class="chat-link">
+          <img src="{% static 'img/chat-icon.png' %}" alt="Chat" />
+        </a>
+      </div>
+    </aside>
+
+    <!-- Cột phải (grid trường) -->
+    <main class="home-right">
+      <h2 class="home-section-title">🏫 Trường nổi bật</h2>
+
+      <div class="home-grid">
+        {% for t in truong_noi_bat %}
+          <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
+            <div class="home-card-img">
+              <img src="{% static 'img/TDH/' %}{{ t.logo }}" alt="{{ t.tentruong }}">
+            </div>
+            <h3 class="home-card-title">{{ t.tentruong }}</h3>
+            <p class="home-card-sub">{{ t.loaitruong }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    </main>
   </div>
+
 </section>
 {% endblock %}
