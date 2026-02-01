@@ -1,0 +1,169 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Khảo sát chọn trường{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/khaosat.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ks-wrap">
+
+  <div class="ks-head">
+    <div>
+      <h1 class="ks-title">🧠 Khảo sát định hướng chọn trường đại học</h1>
+      <p class="ks-sub">Chọn mức phù hợp nhất với bạn. (10 câu • ~2 phút)</p>
+    </div>
+
+    <div class="ks-badges">
+      <div class="ks-badge"><span class="ks-badge-ic">✅</span><span>10 câu</span></div>
+      <div class="ks-badge"><span class="ks-badge-ic">⏱️</span><span>~2 phút</span></div>
+    </div>
+  </div>
+
+  <form class="ks-form" method="post">
+    {% csrf_token %}
+
+    <div class="ks-grid">
+
+      <!-- Câu 1 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 1</div></div>
+        <h3 class="ks-question">Bạn có thích làm việc độc lập và tự lập trong công việc không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q1" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q1" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q1" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q1" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q1" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 2 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 2</div></div>
+        <h3 class="ks-question">Bạn có thích giải quyết vấn đề theo cách thực tế và cụ thể không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q2" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q2" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q2" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q2" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q2" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 3 (mới) -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 3</div></div>
+        <h3 class="ks-question">Bạn có tư duy logic, suy nghĩ mạch lạc, chặt chẽ không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q3" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q3" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q3" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q3" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q3" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 4 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 4</div></div>
+        <h3 class="ks-question">Bạn có dễ dàng thích nghi với môi trường làm việc mới không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q4" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q4" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q4" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q4" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q4" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 5 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 5</div></div>
+        <h3 class="ks-question">Bạn có thích làm việc với máy móc và thiết bị kỹ thuật không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q5" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q5" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q5" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q5" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q5" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 6 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 6</div></div>
+        <h3 class="ks-question">Bạn có thích các công việc thủ công như gấp giấy, cắt dán, đan, móc không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q6" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q6" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q6" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q6" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q6" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 7 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 7</div></div>
+        <h3 class="ks-question">Bạn có thích làm việc với thiên nhiên, động vật hoặc thực vật không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q7" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q7" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q7" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q7" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q7" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 8 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 8</div></div>
+        <h3 class="ks-question">Bạn có thích những công việc đòi hỏi sự khéo léo của đôi tay không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q8" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q8" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q8" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q8" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q8" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 9 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 9</div></div>
+        <h3 class="ks-question">Bạn có thích những công việc mang lại kết quả cụ thể, rõ ràng không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q9" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q9" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q9" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q9" value="4"><span class="ks-like-dot"></span><span class="ks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q9" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+      <!-- Câu 10 -->
+      <article class="ks-card">
+        <div class="ks-card-top"><div class="ks-qno">Câu 10</div></div>
+        <h3 class="ks-question">Bạn có thích làm việc ngoài trời hơn là trong văn phòng không?</h3>
+        <div class="ks-likert">
+          <label class="ks-like"><input type="radio" name="q10" value="1"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q10" value="2"><span class="ks-like-dot"></span><span class="ks-like-txt">Không thích</span></label>
+          <label class="ks-like"><input type="radio" name="q10" value="3"><span class="ks-like-dot"></span><span class="ks-like-txt">Bình thường</span></label>
+          <label class="ks-like"><input type="radio" name="q10" value="4"><span class="ks-like-dot"></span><span class="ksks-like-txt">Thích</span></label>
+          <label class="ks-like"><input type="radio" name="q10" value="5"><span class="ks-like-dot"></span><span class="ks-like-txt">Rất thích</span></label>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="ks-actions">
+      <button class="ks-btn" type="submit">📌 Gửi khảo sát</button>
+      <button class="ks-btn ks-btn--ghost" type="reset">🔁 Làm lại</button>
+    </div>
+  </form>
+
+</section>
+{% endblock %}

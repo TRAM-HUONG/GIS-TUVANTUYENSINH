@@ -1,0 +1,106 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/truong_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="td-wrap">
+
+  <!-- HERO -->
+  <div class="td-hero">
+    <div class="td-hero-left">
+      <div class="td-brand">
+        <div class="td-titlebox">
+          <h1 class="td-title">{{ truong.tentruong }}</h1>
+          <div class="td-badges">
+            <span class="badge badge-a">🏛️ {{ truong.loaitruong }}</span>
+            <span class="badge badge-b">🆔 {{ truong.matruong }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="td-meta">
+        <div class="meta-item">
+          <div class="meta-label">📍 Địa chỉ</div>
+          <div class="meta-value">{{ truong.diachi }}</div>
+        </div>
+
+        <div class="meta-item">
+          <div class="meta-label">🌐 Website</div>
+          <div class="meta-value">
+            <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">
+              {{ truong.website }}
+            </a>
+          </div>
+        </div>
+
+        {% if ctt %}
+        <div class="meta-item">
+          <div class="meta-label">📝 Ghi chú</div>
+          <div class="meta-value">{{ ctt.ghichu }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ẢNH TRƯỜNG -->
+    <div class="td-hero-right">
+      {% if hinh_truong %}
+        <img class="td-cover" src="{% static 'img/TDH/' %}{{ hinh_truong.tenfile }}" alt="Ảnh {{ truong.tentruong }}">
+      {% else %}
+        <div class="td-cover-empty">
+          📷 Chưa có ảnh trường trong HINHANH
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="td-grid">
+
+    <!-- MÔ TẢ TRƯỜNG -->
+    <div class="card">
+      <div class="card-head">
+        <h2 class="card-title">✨ Mô tả trường</h2>
+      </div>
+      <div class="card-body">
+        {% if ctt %}
+          <p class="desc">{{ ctt.mota }}</p>
+        {% else %}
+          <p class="desc muted">Chưa có mô tả. (Thêm vào bảng CHITIETTRUONG)</p>
+        {% endif %}
+      </div>
+    </div>
+
+   <!-- NGÀNH LIÊN QUAN -->
+    <div class="card">
+      <div class="card-head">
+        <h2 class="card-title">🎓 Ngành đào tạo liên quan</h2>
+        <div class="card-sub">Danh sách ngành theo trường</div>
+      </div>
+
+      <div class="card-body">
+        {% if ct_nganh %}
+          <div class="major-list">
+            {% for x in ct_nganh %}
+              <div class="major-item">
+                <div class="major-top">
+                  <div class="major-name">{{ x.manganh.tennganh }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="desc muted">Chưa có ngành liên quan. (Thêm vào bảng CHITIETNGANH)</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <a class="back-btn" href="{% url 'home' %}">⬅ Quay lại Trang Chủ</a>
+
+</section>
+{% endblock %}

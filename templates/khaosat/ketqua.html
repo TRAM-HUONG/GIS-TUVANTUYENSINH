@@ -1,0 +1,37 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Kết quả khảo sát{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/khaosat.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="ks-wrap">
+  <div class="kq-head">
+    <h1 class="ks-title">🎯 Kết quả khảo sát</h1>
+    <p class="ks-sub">Đây là gợi ý nhóm trường phù hợp với phong cách của bạn.</p>
+  </div>
+
+  <div class="kq-card">
+    <div class="kq-row">
+      <span class="kq-label">Tổng điểm</span>
+      <span class="kq-value">{{ total|default:"--" }}</span>
+    </div>
+
+    <div class="kq-divider"></div>
+
+    <div class="kq-main">
+      <div class="kq-chip">✅ Nhóm trường gợi ý</div>
+      <div class="kq-title">{{ level|default:"Chưa có kết quả" }}</div>
+      <p class="kq-desc">{{ summary|default:"Vui lòng làm khảo sát để xem kết quả." }}</p>
+    </div>
+
+    <div class="kq-actions">
+      <a class="ks-btn" href="/tracuu/">🔎 Tra cứu trường phù hợp</a>
+      <a class="ks-btn ks-btn--ghost" href="/khao-sat/">↩️ Làm lại khảo sát</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

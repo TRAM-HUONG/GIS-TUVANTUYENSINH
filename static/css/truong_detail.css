@@ -1,0 +1,255 @@
+/* Các biến màu sắc */
+:root {
+  --c1: #FF99FF;
+  --c2: #CC99FF;
+  --c3: #9999FF;
+  --c4: #6699FF;
+  --c5: #3399FF;
+  --c6: #0099FF;
+
+  --ink: #0f172a;
+  --muted: #475569;
+  --card: rgba(255, 255, 255, .78);
+  --line: rgba(15, 23, 42, .10);
+  --shadow: 0 18px 50px rgba(2, 8, 23, .12);
+}
+
+/* Các container chính */
+.td-wrap {
+  padding: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* HERO section */
+.td-hero {
+  display: grid;
+  grid-template-columns: 1.25fr .9fr;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--c1), var(--c6));
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.td-hero::after {
+  content: "";
+  position: absolute;
+  inset: -80px -80px auto auto;
+  width: 280px;
+  height: 280px;
+  background: rgba(255, 255, 255, .22);
+  filter: blur(1px);
+  border-radius: 50%;
+}
+
+.td-hero-left {
+  position: relative;
+  z-index: 1;
+}
+
+/* Thẻ thông tin trường */
+.td-title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.15;
+  color: #071026;
+  font-weight: 900;
+}
+
+/* Thẻ badge */
+.td-badges {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .35);
+  color: #071026;
+  font-weight: 700;
+}
+
+/* Các thông tin meta trường */
+.td-meta {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.meta-item {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .35);
+  border: 1px solid rgba(255, 255, 255, .45);
+}
+
+.meta-label {
+  font-size: 12px;
+  color: rgba(7, 16, 38, .85);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.meta-value {
+  color: #071026;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.td-link {
+  color: #071026;
+  text-decoration: underline;
+  font-weight: 800;
+}
+
+/* Ảnh trường */
+.td-hero-right {
+  position: relative;
+  z-index: 1;
+}
+
+.td-cover {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .35);
+}
+
+.td-cover-empty {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .25);
+  color: #071026;
+  font-weight: 800;
+  text-align: center;
+  padding: 12px;
+}
+
+/* Content Grid */
+.td-grid {
+  margin-top: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(2, 8, 23, .08);
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, rgba(255, 153, 255, .25), rgba(0, 153, 255, .18));
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.card-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 14px 16px;
+}
+
+.desc {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.back-btn {
+  margin-top: 20px;
+  text-decoration: none;
+  font-size: 16px;
+  color: var(--c5);
+  font-weight: 600;
+}
+
+.back-btn:hover {
+  color: var(--c4);
+}
+/* Danh sách ngành đào tạo liên quan */
+.major-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Khoảng cách giữa các tên ngành */
+  padding: 10px;
+}
+
+.major-item {
+  background-color: var(--c2);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #071026;
+  text-transform: capitalize;
+  box-shadow: 0 4px 12px rgba(2, 8, 23, .1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.major-item:hover {
+  background-color: var(--c5); /* Thay đổi màu khi hover */
+  transform: translateY(-4px); /* Hiệu ứng nâng lên khi hover */
+}
+
+.major-item:last-child {
+  margin-right: 0;
+}
+
+/* Nút Quay lại Trang Chủ */
+.back-btn {
+  margin-top: 30px;
+  font-size: 18px;
+  color: var(--c5);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  background-color: var(--c6);
+  display: inline-block;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: var(--c4);
+  color: white;
+  transform: translateY(-3px);
+}
+
+.back-btn:active {
+  transform: translateY(1px);
+}

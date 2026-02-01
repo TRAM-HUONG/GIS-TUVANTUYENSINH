@@ -19,8 +19,7 @@ def register_view(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
-    path("", include("home.urls")),  # ✅ trang chủ do app home xử lý
+    path("", include("home.urls")),
     path("gioi-thieu/", gioithieu, name="gioithieu"),
     path("tra-cuu/", tracuu, name="tracuu"),
     path("khao-sat/", khaosat, name="khaosat"),
