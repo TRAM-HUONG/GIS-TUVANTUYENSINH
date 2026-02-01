@@ -12,10 +12,10 @@ def khaosat(request):
     return render(request, "khaosat/khaosat.html")
 
 def login_view(request):
-    return render(request, "auth/login.html")
+    return render(request, "auth/dang-nhap.html")
 
 def register_view(request):
-    return render(request, "auth/register.html")
+    return render(request, "auth/dang-ky.html")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

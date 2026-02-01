@@ -1,0 +1,105 @@
+/* ====== 1) KHUNG TRẮNG (BK1) => CHÈN ẢNH ====== */
+.form-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 88, 175, 0.1);
+
+  /* Giữ nguyên đường dẫn ảnh */
+  background-image: url("../img/login1.png"); /* Giữ đúng tên ảnh */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Giữ lại nền mờ đục */
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(2, 8, 23, 0.18); /* Đổ bóng */
+}
+
+/* ====== FORM STYLE ====== */
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  font-size: 16px;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+form input {
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+form button {
+  padding: 14px;
+  background: linear-gradient(90deg, rgba(255, 153, 255, 0.95), rgba(0, 153, 255, 0.695)); /* Gradient hồng-xanh */
+  border: none;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(11, 133, 255, 0.28);
+}
+
+/* CSS cho phần liên kết đăng nhập */
+.redirect-login {
+  text-align: center; /* Căn giữa văn bản */
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.redirect-login a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.redirect-login a:hover {
+  text-decoration: underline;
+}
+
+/* CSS cho dấu * màu đỏ */
+.required {
+  color: red; /* Tô màu đỏ cho dấu * */
+  font-weight: bold;
+  margin-left: 5px; /* Thêm khoảng cách giữa label và dấu * */
+}
+/* Cải thiện phần liên kết đăng ký */
+.redirect-register {
+  text-align: center; /* Căn giữa văn bản */
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.redirect-register a {
+  color: var(--primary); /* Màu chữ cho liên kết */
+  font-weight: 700;
+  text-decoration: none; /* Bỏ gạch chân */
+  transition: color 0.3s ease; /* Thêm hiệu ứng chuyển màu mượt mà */
+}
+
+.redirect-register a:hover {
+  text-decoration: underline; /* Gạch chân khi hover */
+  /* color: #dc2626; /* Thay màu khi hover (màu đỏ hoặc màu em muốn) */
+}
