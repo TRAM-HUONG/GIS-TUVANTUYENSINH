@@ -66,7 +66,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'GIS_TUVANTUYENSINH',   # ví dụ: gis_tuyensinh
         'USER': 'postgres',
-        'PASSWORD': 'Huong@',
+        'PASSWORD': '3112',
         'HOST': 'localhost',
         'PORT': '5432',
     }
