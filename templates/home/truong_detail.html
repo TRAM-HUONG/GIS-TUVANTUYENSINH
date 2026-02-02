@@ -35,11 +35,6 @@
             </a>
           </div>
         </div>
-
-<<<<<<< HEAD
-    
-=======
->>>>>>> feature/home-detail
         {% if ctt %}
         <div class="meta-item">
           <div class="meta-label">📝 Ghi chú</div>
@@ -87,14 +82,15 @@
 
       <div class="card-body">
         {% if ct_nganh %}
-          <div class="major-list">
-            {% for x in ct_nganh %}
-              <div class="major-item">
-                <div class="major-top">
-                  <div class="major-name">{{ x.manganh.tennganh }}</div>
+        <div class="major-list">
+          {% for x in ct_nganh %}
+            <div class="major-item">
+               <div class="major-top">
+                  <a href="{% url 'nganh_detail' x.manganh.id %}" class="major-name">{{ x.manganh.tennganh }}</a>
                 </div>
-              </div>
-            {% endfor %}
+           </div>
+          {% endfor %}
+        </div>
           </div>
         {% else %}
           <div class="desc muted">Chưa có ngành liên quan. (Thêm vào bảng CHITIETNGANH)</div>
