@@ -235,22 +235,34 @@
 .back-btn {
   margin-top: 30px;
   font-size: 18px;
-  color: var(--c5);
+  color: var(--c5); /* Sử dụng màu xanh dương */
   font-weight: 600;
   text-decoration: none;
-  padding: 10px 20px;
-  border-radius: 50px;
-  background-color: var(--c6);
-  display: inline-block;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  padding: 12px 24px; /* Tăng kích thước để nút nhìn đẹp hơn */
+  border-radius: 50px; /* Bo tròn nút để mềm mại hơn */
+  background-color: var(--c6); /* Màu nền sáng của nút */
+  display: inline-block; /* Để nút hiển thị trên cùng một dòng */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Hiệu ứng khi hover và nhấn */
+  text-align: center;
 }
 
 .back-btn:hover {
-  background-color: var(--c4);
-  color: white;
-  transform: translateY(-3px);
+  background-color: var(--c4); /* Khi hover, đổi sang màu đậm hơn */
+  color: white; /* Đổi màu chữ khi hover */
+  transform: translateY(-3px); /* Hiệu ứng nâng lên khi hover */
 }
 
 .back-btn:active {
-  transform: translateY(1px);
+  transform: translateY(1px); /* Khi nhấn, nút sẽ hạ xuống */
+}
+
+/* Bản đồ */
+.card iframe {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(2, 8, 23, .08); /* Thêm bóng đổ cho bản đồ */
+}
+
+.card-body {
+  padding: 14px 16px;
 }

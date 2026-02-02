@@ -81,17 +81,21 @@ class NganhHoc(models.Model):
     def __str__(self):
         return f"{self.manganh} - {self.tennganh}"
 
-# ChiTietNganh (Major Details) model
 class ChiTietNganh(models.Model):
-    MACTN = models.CharField(db_column="MACTN", primary_key=True, max_length=5)  # Thay id bằng MACTN làm khóa chính
+    MACTN = models.CharField(db_column="MACTN", primary_key=True, max_length=5)
     matruong = models.ForeignKey('TruongDaiHoc', on_delete=models.CASCADE, db_column="MATRUONG")
     manganh = models.ForeignKey('NganhHoc', on_delete=models.CASCADE, db_column="MANGANH")
-    # Các trường khác như học phí, thời gian học
+    hocphi = models.DecimalField(db_column="HOCPHI", max_digits=10, decimal_places=2, null=True, blank=True)  # Thêm học phí
+    thoigianhoc = models.CharField(db_column="THOIGIANHOC", max_length=100, null=True, blank=True)  # Thêm thời gian học
 
     class Meta:
         managed = False
         db_table = "CHITIETNGANH"
 
     def __str__(self):
+<<<<<<< HEAD
 
         return f"{self.matruong.tentruong}"
+=======
+        return f"{self.matruong.tentruong} - {self.manganh.tennganh}"
+>>>>>>> feature/home
