@@ -57,6 +57,24 @@
     </div>
   </div>
 
+  <!-- Khung bản đồ -->
+  <div class="card">
+    <div class="card-head">
+      <h2 class="card-title">🗺️ Bản đồ trường</h2>
+    </div>
+    <div class="card-body">
+      <!-- Nhúng bản đồ OpenStreetMap -->
+      <iframe
+        width="100%"
+        height="400"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=106.55%2C10.70%2C106.80%2C10.90&layer=mapnik"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="OpenStreetMap"
+      ></iframe>
+    </div>
+  </div>
+
   <!-- CONTENT GRID -->
   <div class="td-grid">
 
@@ -74,7 +92,7 @@
       </div>
     </div>
 
-   <!-- NGÀNH LIÊN QUAN -->
+    <!-- NGÀNH LIÊN QUAN -->
     <div class="card">
       <div class="card-head">
         <h2 class="card-title">🎓 Ngành đào tạo liên quan</h2>
@@ -87,7 +105,13 @@
           {% for x in ct_nganh %}
             <div class="major-item">
                <div class="major-top">
-                  <a href="{% url 'nganh_detail' x.manganh.id %}" class="major-name">{{ x.manganh.tennganh }}</a>
+                  <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.id }}')" class="major-name">{{ x.manganh.tennganh }}</a>
+                </div>
+                <div id="details-{{ x.manganh.id }}" class="major-details" style="display: none;">
+                  <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
+                  <p><b>Mô tả:</b> {{ x.manganh.mota }}</p>
+                  <p><b>Học phí:</b> {{ x.hocphi }}</p>
+                  <p><b>Thời gian học:</b> {{ x.thoigianhoc }}</p>
                 </div>
            </div>
           {% endfor %}
@@ -99,8 +123,21 @@
       </div>
     </div>
 
+    <a class="back-btn" href="{% url 'home' %}">⬅ Quay lại Trang Chủ</a>
   </div>
-<a class="back-btn" href="{% url 'home' %}">⬅ Quay lại Trang Chủ</a>
 
 </section>
+
+<script>
+  // Hàm để hiển thị hoặc ẩn chi tiết ngành
+  function showDetails(majorId) {
+    var detailsDiv = document.getElementById("details-" + majorId);
+    if (detailsDiv.style.display === "none") {
+      detailsDiv.style.display = "block";
+    } else {
+      detailsDiv.style.display = "none";
+    }
+  }
+</script>
+
 {% endblock %}
