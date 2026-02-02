@@ -92,10 +92,6 @@ class ChiTietNganh(models.Model):
         managed = False
         db_table = "CHITIETNGANH"
 
-    def __str__(self):
-<<<<<<< HEAD
+    def __str__(self)
 
         return f"{self.matruong.tentruong}"
-=======
-        return f"{self.matruong.tentruong} - {self.manganh.tennganh}"
->>>>>>> feature/home
