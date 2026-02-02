@@ -85,10 +85,10 @@
           <div class="major-list">
             {% for x in ct_nganh %}
               <div class="major-item">
-                <div class="major-top">
-                  <div class="major-name">{{ x.manganh.tennganh }}</div>
-                </div>
-              </div>
+  <div class="major-top">
+    <a href="{% url 'nganh_detail' x.manganh.id %}" class="major-name">{{ x.manganh.tennganh }}</a>
+  </div>
+</div>
             {% endfor %}
           </div>
         {% else %}
