@@ -4,9 +4,5 @@ from . import views
 urlpatterns = [
     path("", views.home_page, name="home"),
     path("truong/<str:matruong>/", views.truong_detail, name="truong_detail"),
-<<<<<<< HEAD
-    path('nganh/<str:id>/', views.nganh_detail, name='nganh_detail'),  # Đảm bảo có 'nganh_detail'
-=======
-    path('nganh/<str:id>/', views.nganh_detail, name='nganh_detail'),
->>>>>>> feature/home
-]
+
+    path('nganh/<str:id>/', views.nganh_detail, name='nganh_detail'),  ]

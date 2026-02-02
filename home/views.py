@@ -27,18 +27,9 @@ def truong_detail(request, matruong):
         "ctt": ctt,  # Truyền mô tả trường vào template
         "ct_nganh": ct_nganh,  # Truyền chi tiết ngành học vào template
     })
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/home
 def nganh_detail(request, id):
     try:
         chi_tiet_nganh = ChiTietNganh.objects.get(MACTN=id)  # Lấy chi tiết ngành theo MACTN
     except ChiTietNganh.DoesNotExist:
         chi_tiet_nganh = None
-
-<<<<<<< HEAD
     return render(request, 'nganh_detail.html', {'chi_tiet_nganh': chi_tiet_nganh})
-=======
-    return render(request, 'nganh_detail.html', {'chi_tiet_nganh': chi_tiet_nganh})
->>>>>>> feature/home
