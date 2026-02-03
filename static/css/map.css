@@ -1,0 +1,410 @@
+/* ====== Map UI (tĩnh) ====== */
+:root{
+  --bg: #0b1220;
+  --panel: rgba(255,255,255,.08);
+  --panel2: rgba(255,255,255,.06);
+  --line: rgba(255,255,255,.12);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.70);
+  --muted2: rgba(255,255,255,.55);
+  --brand1: rgba(0, 88, 175, 0.95);
+  --brand2: rgba(0, 149, 255, 0.695);
+}
+
+.map-ui{
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+@media (max-width: 1024px){
+  .map-ui{ grid-template-columns: 1fr; }
+}
+
+/* ===== Sidebar ===== */
+.filter{
+  background: linear-gradient(180deg, var(--panel), var(--panel2));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--text);
+}
+
+.filter__head h2{
+  margin: 0 0 4px;
+  font-size: 18px;
+  letter-spacing: .2px;
+}
+.filter__head p{
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field{
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field label{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.field input,
+.field select{
+  width: 100%;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  padding: 0 12px;
+  outline: none;
+}
+
+.field input::placeholder{
+  color: var(--muted2);
+}
+
+.chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip{
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filter__actions{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.btn{
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn--primary{
+  background: linear-gradient(90deg, var(--brand1), var(--brand2));
+  color: white;
+  border: none;
+}
+
+.btn--ghost{
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+}
+
+/* ===== Result list ===== */
+.result{
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.result__head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.result__head h3{
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.badge{
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  background: rgba(0, 149, 255, .45);
+  border: 1px solid rgba(0, 149, 255, .55);
+}
+
+.result__list{
+  display: grid;
+  gap: 10px;
+}
+
+.card{
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  background: rgba(0,0,0,.18);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.card__title{
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.card__meta{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== Map ===== */
+.map{
+  background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.04));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--text);
+  min-height: 560px;
+}
+
+.map__top{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.map__title h1{
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.map__title p{
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.map__tools{
+  display:flex;
+  gap: 8px;
+}
+
+.tool{
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.18);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.map__frame{
+  height: calc(100% - 60px);
+  min-height: 480px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(0,149,255,.14), transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(0,88,175,.16), transparent 50%),
+    rgba(0,0,0,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+}
+
+.placeholder{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  background: rgba(0,0,0,.18);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.placeholder__icon{
+  font-size: 22px;
+}
+
+.placeholder__title{
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.placeholder__sub{
+  font-size: 12px;
+  color: var(--muted);
+}
+.map__iframe{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.map__note{
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+  color: rgba(255,255,255,.80);
+}
+
+.map__frame{
+  position: relative; /* ✅ để note nằm đè lên iframe */
+  overflow: hidden;
+}
+/* =========================
+   TABS: Lọc theo nhu cầu / Lọc theo không gian
+   ========================= */
+
+.filter__tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 12px;
+}
+
+.filter__tabs .tab{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.filter__tabs .tab:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.28);
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+}
+
+.filter__tabs .tab:active{
+  transform: translateY(0);
+}
+
+/* ✅ Active tab */
+.filter__tabs .tab--active{
+  border-color: rgba(255,255,255,.35);
+  background: linear-gradient(135deg,
+    rgba(0, 88, 175, 0.95),
+    rgba(0, 149, 255, 0.695)
+  );
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(0,0,0,.20);
+}
+
+/* ✅ Focus ring (accessibility) */
+.filter__tabs .tab:focus{
+  outline: none;
+}
+.filter__tabs .tab:focus-visible{
+  outline: 3px solid rgba(255,255,255,.45);
+  outline-offset: 2px;
+}
+
+/* Optional: panel spacing (nhìn gọn hơn) */
+.tab__panel{
+  margin-top: 10px;
+}
+/* =========================
+   TABS: Lọc theo nhu cầu / Lọc theo không gian
+   ========================= */
+
+.filter__tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 12px;
+}
+
+.filter__tabs .tab{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.filter__tabs .tab:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.28);
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+}
+
+.filter__tabs .tab:active{
+  transform: translateY(0);
+}
+
+/* ✅ Active tab */
+.filter__tabs .tab--active{
+  border-color: rgba(255,255,255,.35);
+  background: linear-gradient(135deg,
+    rgba(0, 88, 175, 0.95),
+    rgba(0, 149, 255, 0.695)
+  );
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(0,0,0,.20);
+}
+
+/* ✅ Focus ring (accessibility) */
+.filter__tabs .tab:focus{
+  outline: none;
+}
+.filter__tabs .tab:focus-visible{
+  outline: 3px solid rgba(255,255,255,.45);
+  outline-offset: 2px;
+}
+
+/* Optional: panel spacing (nhìn gọn hơn) */
+.tab__panel{
+  margin-top: 10px;
+}

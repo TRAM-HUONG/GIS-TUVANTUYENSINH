@@ -1,0 +1,207 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Bản đồ tư vấn tuyển sinh{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/map.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="map-ui">
+
+  <!-- 🧩 Sidebar Bộ lọc (UI tĩnh) -->
+  <aside class="filter">
+    <div class="filter__head">
+      <h2>🧭 Bộ lọc</h2>
+      <p>Lọc theo nhu cầu / không gian (UI trước, chưa xử lý).</p>
+    </div>
+
+    <!-- ✅ Tabs -->
+    <div class="filter__tabs" role="tablist" aria-label="Bộ lọc tabs">
+      <button type="button"
+              class="tab tab--active"
+              role="tab"
+              aria-selected="true"
+              aria-controls="tab-need"
+              id="tab-need-btn">
+        🎯 Lọc theo nhu cầu
+      </button>
+
+      <button type="button"
+              class="tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-space"
+              id="tab-space-btn">
+        🌍 Lọc theo không gian
+      </button>
+    </div>
+
+    <!-- ✅ Tab content: Lọc theo nhu cầu -->
+    <div class="tab__panel tab__panel--active"
+         id="tab-need"
+         role="tabpanel"
+         aria-labelledby="tab-need-btn">
+
+      <div class="field">
+        <label for="kw">🔎 Từ khóa</label>
+        <input id="kw" type="text" placeholder="Tên trường / ngành..." />
+      </div>
+
+      <div class="field">
+        <label for="city">📍 Tỉnh/Thành</label>
+        <select id="city">
+          <option value="">-- Chọn --</option>
+          <option>TP.HCM</option>
+          <option>Hà Nội</option>
+          <option>Đà Nẵng</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="khoi">🧮 Khối xét tuyển</label>
+        <select id="khoi">
+          <option value="">-- Tất cả --</option>
+          <option>A00</option>
+          <option>A01</option>
+          <option>D01</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="score">📊 Điểm tối thiểu</label>
+        <input id="score" type="number" min="0" max="30" step="0.25" placeholder="VD: 22.5" />
+      </div>
+
+      <div class="field">
+        <label>🧩 Ngành quan tâm</label>
+        <div class="chips">
+          <button type="button" class="chip">CNTT</button>
+          <button type="button" class="chip">AI</button>
+          <button type="button" class="chip">Data</button>
+          <button type="button" class="chip">Kinh tế</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Tab content: Lọc theo không gian -->
+    <div class="tab__panel"
+         id="tab-space"
+         role="tabpanel"
+         aria-labelledby="tab-space-btn"
+         hidden>
+
+      <div class="field">
+        <label for="near">📌 Gần trong bán kính (km)</label>
+        <input id="near" type="number" min="1" max="200" step="1" placeholder="VD: 10" />
+      </div>
+      <div class="field">
+        <label for="sortdist">📏 Sắp xếp</label>
+        <select id="sortdist">
+          <option value="">-- Chọn --</option>
+          <option value="nearest">Gần nhất trước</option>
+          <option value="farthest">Xa nhất trước</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter__actions">
+      <button type="button" class="btn btn--primary">Áp dụng</button>
+      <button type="button" class="btn btn--ghost">Reset</button>
+    </div>
+
+    <div class="result">
+      <div class="result__head">
+        <h3>📌 Kết quả</h3>
+        <span class="badge">2</span>
+      </div>
+
+      <div class="result__list">
+        <a class="card" href="#">
+          <div class="card__title">ĐH Bách Khoa TP.HCM</div>
+          <div class="card__meta">TP.HCM • CNTT • ~26.5</div>
+        </a>
+
+        <a class="card" href="#">
+          <div class="card__title">ĐH KHTN</div>
+          <div class="card__meta">TP.HCM • AI/Data • ~25.0</div>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 🗺️ Khu bản đồ -->
+  <main class="map">
+    <div class="map__top">
+      <div class="map__title">
+        <h1>🗺️ Bản đồ nền (không marker)</h1>
+        <p>Chỉ hiển thị bản đồ, chưa hiển thị vị trí đại học.</p>
+      </div>
+
+      <div class="map__tools">
+        <a class="tool tool--link"
+           href="https://www.openstreetmap.org/#map=12/10.80/106.67"
+           target="_blank" rel="noopener"
+           title="Mở bản đồ lớn">↗</a>
+      </div>
+    </div>
+
+    <section class="map__frame" aria-label="map">
+      <!-- ✅ OpenStreetMap iframe (map nền) -->
+      <iframe
+        class="map__iframe"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=106.55%2C10.70%2C106.80%2C10.90&layer=mapnik"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="OpenStreetMap"
+      ></iframe>
+
+      <!-- ✅ Attribution nhỏ gọn (bắt buộc lịch sự) -->
+      <div class="map__note">
+        Dữ liệu bản đồ © OpenStreetMap contributors
+      </div>
+    </section>
+  </main>
+
+</div>
+
+<!-- ✅ JS: bấm tab đổi panel -->
+<script>
+  (function () {
+    const tabs = document.querySelectorAll('.filter__tabs [role="tab"]');
+    const panels = document.querySelectorAll('.tab__panel[role="tabpanel"]');
+
+    function activateTab(tab) {
+      const targetId = tab.getAttribute('aria-controls');
+
+      // reset tabs
+      tabs.forEach(t => {
+        t.classList.remove('tab--active');
+        t.setAttribute('aria-selected', 'false');
+      });
+
+      // hide panels
+      panels.forEach(p => {
+        p.classList.remove('tab__panel--active');
+        p.setAttribute('hidden', 'hidden');
+      });
+
+      // active clicked tab
+      tab.classList.add('tab--active');
+      tab.setAttribute('aria-selected', 'true');
+
+      // show target panel
+      const panel = document.getElementById(targetId);
+      if (panel) {
+        panel.classList.add('tab__panel--active');
+        panel.removeAttribute('hidden');
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activateTab(tab));
+    });
+  })();
+</script>
+{% endblock %}
