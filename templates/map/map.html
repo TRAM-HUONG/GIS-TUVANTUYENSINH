@@ -14,46 +14,95 @@
   <aside class="filter">
     <div class="filter__head">
       <h2>🧭 Bộ lọc</h2>
-      <p>Lọc theo nhu cầu (UI trước, chưa xử lý).</p>
+      <p>Lọc theo nhu cầu / không gian (UI trước, chưa xử lý).</p>
     </div>
 
-    <div class="field">
-      <label for="kw">🔎 Từ khóa</label>
-      <input id="kw" type="text" placeholder="Tên trường / ngành..." />
+    <!-- ✅ Tabs -->
+    <div class="filter__tabs" role="tablist" aria-label="Bộ lọc tabs">
+      <button type="button"
+              class="tab tab--active"
+              role="tab"
+              aria-selected="true"
+              aria-controls="tab-need"
+              id="tab-need-btn">
+        🎯 Lọc theo nhu cầu
+      </button>
+
+      <button type="button"
+              class="tab"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-space"
+              id="tab-space-btn">
+        🌍 Lọc theo không gian
+      </button>
     </div>
 
-    <div class="field">
-      <label for="city">📍 Tỉnh/Thành</label>
-      <select id="city">
-        <option value="">-- Chọn --</option>
-        <option>TP.HCM</option>
-        <option>Hà Nội</option>
-        <option>Đà Nẵng</option>
-      </select>
+    <!-- ✅ Tab content: Lọc theo nhu cầu -->
+    <div class="tab__panel tab__panel--active"
+         id="tab-need"
+         role="tabpanel"
+         aria-labelledby="tab-need-btn">
+
+      <div class="field">
+        <label for="kw">🔎 Từ khóa</label>
+        <input id="kw" type="text" placeholder="Tên trường / ngành..." />
+      </div>
+
+      <div class="field">
+        <label for="city">📍 Tỉnh/Thành</label>
+        <select id="city">
+          <option value="">-- Chọn --</option>
+          <option>TP.HCM</option>
+          <option>Hà Nội</option>
+          <option>Đà Nẵng</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="khoi">🧮 Khối xét tuyển</label>
+        <select id="khoi">
+          <option value="">-- Tất cả --</option>
+          <option>A00</option>
+          <option>A01</option>
+          <option>D01</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="score">📊 Điểm tối thiểu</label>
+        <input id="score" type="number" min="0" max="30" step="0.25" placeholder="VD: 22.5" />
+      </div>
+
+      <div class="field">
+        <label>🧩 Ngành quan tâm</label>
+        <div class="chips">
+          <button type="button" class="chip">CNTT</button>
+          <button type="button" class="chip">AI</button>
+          <button type="button" class="chip">Data</button>
+          <button type="button" class="chip">Kinh tế</button>
+        </div>
+      </div>
     </div>
 
-    <div class="field">
-      <label for="khoi">🧮 Khối xét tuyển</label>
-      <select id="khoi">
-        <option value="">-- Tất cả --</option>
-        <option>A00</option>
-        <option>A01</option>
-        <option>D01</option>
-      </select>
-    </div>
+    <!-- ✅ Tab content: Lọc theo không gian -->
+    <div class="tab__panel"
+         id="tab-space"
+         role="tabpanel"
+         aria-labelledby="tab-space-btn"
+         hidden>
 
-    <div class="field">
-      <label for="score">📊 Điểm tối thiểu</label>
-      <input id="score" type="number" min="0" max="30" step="0.25" placeholder="VD: 22.5" />
-    </div>
-
-    <div class="field">
-      <label>🧩 Ngành quan tâm</label>
-      <div class="chips">
-        <button type="button" class="chip">CNTT</button>
-        <button type="button" class="chip">AI</button>
-        <button type="button" class="chip">Data</button>
-        <button type="button" class="chip">Kinh tế</button>
+      <div class="field">
+        <label for="near">📌 Gần trong bán kính (km)</label>
+        <input id="near" type="number" min="1" max="200" step="1" placeholder="VD: 10" />
+      </div>
+      <div class="field">
+        <label for="sortdist">📏 Sắp xếp</label>
+        <select id="sortdist">
+          <option value="">-- Chọn --</option>
+          <option value="nearest">Gần nhất trước</option>
+          <option value="farthest">Xa nhất trước</option>
+        </select>
       </div>
     </div>
 
@@ -116,4 +165,43 @@
   </main>
 
 </div>
+
+<!-- ✅ JS: bấm tab đổi panel -->
+<script>
+  (function () {
+    const tabs = document.querySelectorAll('.filter__tabs [role="tab"]');
+    const panels = document.querySelectorAll('.tab__panel[role="tabpanel"]');
+
+    function activateTab(tab) {
+      const targetId = tab.getAttribute('aria-controls');
+
+      // reset tabs
+      tabs.forEach(t => {
+        t.classList.remove('tab--active');
+        t.setAttribute('aria-selected', 'false');
+      });
+
+      // hide panels
+      panels.forEach(p => {
+        p.classList.remove('tab__panel--active');
+        p.setAttribute('hidden', 'hidden');
+      });
+
+      // active clicked tab
+      tab.classList.add('tab--active');
+      tab.setAttribute('aria-selected', 'true');
+
+      // show target panel
+      const panel = document.getElementById(targetId);
+      if (panel) {
+        panel.classList.add('tab__panel--active');
+        panel.removeAttribute('hidden');
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activateTab(tab));
+    });
+  })();
+</script>
 {% endblock %}

@@ -276,3 +276,69 @@
   position: relative; /* ✅ để note nằm đè lên iframe */
   overflow: hidden;
 }
+/* =========================
+   TABS: Lọc theo nhu cầu / Lọc theo không gian
+   ========================= */
+
+.filter__tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 12px;
+}
+
+.filter__tabs .tab{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.filter__tabs .tab:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.28);
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+}
+
+.filter__tabs .tab:active{
+  transform: translateY(0);
+}
+
+/* ✅ Active tab */
+.filter__tabs .tab--active{
+  border-color: rgba(255,255,255,.35);
+  background: linear-gradient(135deg,
+    rgba(0, 88, 175, 0.95),
+    rgba(0, 149, 255, 0.695)
+  );
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(0,0,0,.20);
+}
+
+/* ✅ Focus ring (accessibility) */
+.filter__tabs .tab:focus{
+  outline: none;
+}
+.filter__tabs .tab:focus-visible{
+  outline: 3px solid rgba(255,255,255,.45);
+  outline-offset: 2px;
+}
+
+/* Optional: panel spacing (nhìn gọn hơn) */
+.tab__panel{
+  margin-top: 10px;
+}
