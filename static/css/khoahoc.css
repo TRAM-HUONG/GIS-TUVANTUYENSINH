@@ -1,0 +1,68 @@
+/* Các mục trường (menu trường) */
+.u-menu {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.u-menu:hover {
+  transform: scale(1.05);
+}
+
+.u-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+.u-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.u-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  flex-grow: 1;
+}
+
+.u-arrow {
+  font-size: 20px;
+  color: #007bff;
+}
+
+/* Dropdown chứa khóa học */
+.u-dropdown {
+  display: block;  /* Đảm bảo dropdown được tìm thấy */
+  background-color: #f0f0f0;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  max-height: 0; /* Ẩn nội dung khi không có sự kiện */
+  overflow: hidden; /* Ẩn phần vượt quá chiều cao */
+  transition: max-height 0.3s ease-out; /* Thêm hiệu ứng khi mở/đóng */
+}
+
+/* Khi mở dropdown, thay đổi max-height */
+.u-dropdown.show {
+  max-height: 300px; /* Đặt giá trị max-height phù hợp để hiển thị nội dung */
+  display: block;
+}
+
+
+.u-course {
+  font-size: 16px;
+  padding: 5px 0;
+  color: #555;
+}
+
+.u-course:hover {
+  color: #007bff;
+}

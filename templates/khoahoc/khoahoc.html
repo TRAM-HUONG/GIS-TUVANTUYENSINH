@@ -1,0 +1,111 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Danh sách trường{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/khoahoc.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="u-page">
+
+  <div class="u-inner">
+    <!-- Grid cards -->
+    <div class="u-grid">
+
+      <!-- NEU -->
+      <div class="u-menu">
+        <div class="u-top" onclick="toggleMenu('neu')">
+          <div class="u-icon">🎓</div>
+          <div class="u-name">ĐẠI HỌC KINH TẾ QUỐC DÂN</div>
+          <div class="u-arrow" id="arrow-neu">🔽</div>
+        </div>
+        <div class="u-dropdown" id="neu">
+          <div class="u-course">Luyện thi 2025 - NEU Triết học Mác - Lenin</div>
+          <div class="u-course">Kế toán tài chính 1</div>
+          <div class="u-course">Luyện thi 2025 - NEU Kinh tế vĩ mô</div>
+          <div class="u-course">Luyện thi 2025 - NEU Kinh tế vi mô</div>
+          
+        </div>
+      </div>
+
+      <!-- HCMUT -->
+      <div class="u-menu">
+        <div class="u-top" onclick="toggleMenu('hcmut')">
+          <div class="u-icon">🎓</div>
+          <div class="u-name">ĐẠI HỌC BÁCH KHOA TP.HCM</div>
+          <div class="u-arrow" id="arrow-hcmut">🔽</div> <!-- Mũi tên -->
+        </div>
+        <div class="u-dropdown" id="hcmut">
+          <div class="u-course">Kế toán tài chính 1</div>
+          <div class="u-course">Kế toán chi phí</div>
+        </div>
+      </div>
+
+      <!-- UEH -->
+      <div class="u-menu">
+        <div class="u-top" onclick="toggleMenu('ueh')">
+          <div class="u-icon">🎓</div>
+          <div class="u-name">ĐẠI HỌC KINH TẾ TP.HCM</div>
+          <div class="u-arrow" id="arrow-ueh">🔽</div> <!-- Mũi tên -->
+        </div>
+        <div class="u-dropdown" id="ueh">
+          <div class="u-course">Kinh tế vĩ mô</div>
+          <div class="u-course">Nguyên lý kế toán</div>
+        </div>
+      </div>
+
+      <!-- HUST -->
+      <div class="u-menu">
+        <div class="u-top" onclick="toggleMenu('hust')">
+          <div class="u-icon">🎓</div>
+          <div class="u-name">ĐH BÁCH KHOA HÀ NỘI</div>
+          <div class="u-arrow" id="arrow-hust">🔽</div> <!-- Mũi tên -->
+        </div>
+        <div class="u-dropdown" id="hust">
+          <div class="u-course">Luyện thi 2025 - NEU Lịch sử Đảng</div>
+        </div>
+      </div>
+
+      <!-- PTIT -->
+      <div class="u-menu">
+        <div class="u-top" onclick="toggleMenu('ptit')">
+          <div class="u-icon">🎓</div>
+          <div class="u-name">HỌC VIỆN CÔNG NGHỆ BƯU CHÍNH VIỄN THÔNG</div>
+          <div class="u-arrow" id="arrow-ptit">🔽</div> <!-- Mũi tên -->
+        </div>
+        <div class="u-dropdown" id="ptit">
+          <div class="u-course">Luyện thi 2025 - NEU Kinh tế vĩ mô</div>
+          <div class="u-course">Ngành nghiên cứu Marketing</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+// Toggle the visibility of courses when the school name is clicked
+function toggleMenu(school) {
+  var dropdown = document.getElementById(school);
+  var arrow = document.getElementById('arrow-' + school);
+
+  // Kiểm tra nếu phần tử tồn tại
+  if (dropdown && arrow) {
+    // Kiểm tra và thay đổi trạng thái hiển thị
+    if (dropdown.style.maxHeight === "0px" || dropdown.style.maxHeight === "") {
+      dropdown.style.maxHeight = dropdown.scrollHeight + "px";  // Dùng scrollHeight để tự động thay đổi chiều cao
+      arrow.innerHTML = "▲";  // Mũi tên xoay lên
+    } else {
+      dropdown.style.maxHeight = "0px";  // Ẩn nội dung
+      arrow.innerHTML = "🔽";  // Mũi tên xoay xuống
+    }
+  } else {
+    console.error("Không tìm thấy phần tử với ID:", school);
+  }
+}
+
+
+</script>
+{% endblock %}
