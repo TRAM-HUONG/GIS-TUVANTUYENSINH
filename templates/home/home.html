@@ -3,6 +3,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
 {% endblock %}
 
 {% block content %}
@@ -14,7 +16,7 @@
       <div class="additional-info">
         <h3>Cẩm nang cho học sinh sau THPT</h3>
         <ul>
-          <li><a href="https://www.tuyensinh247.com/huong-dan-chon-nganh-hoc.html">Hướng dẫn chọn ngành học</a></li>
+          <li><a href="https://tuoitre.vn/chon-nganh-chon-nghe-phai-co-chien-thuat-2023022623360238.htm">Hướng dẫn chọn ngành học</a></li>
           <li><a href="https://www.topica.edu.vn/tin-tuc/tu-van-nghe-nghiep-va-co-hoi-viec-lam">Tư vấn nghề nghiệp và cơ hội việc làm</a></li>
           <li><a href="https://www.vietnamworks.com/blog/ky-nang-can-thiet-cho-sinh-vien">Kỹ năng cần thiết cho sinh viên</a></li>
         </ul>
@@ -44,31 +46,30 @@
         </ul>
       </div>
 
-      <!-- ✅ Icon chat (gợi ý) -->
-      <div class="chat-icon">
-        <a href="https://www.example.com/chat" class="chat-link">
-          <img src="{% static 'img/chat-icon.png' %}" alt="Chat" />
-        </a>
-      </div>
     </aside>
 
     <!-- Cột phải (grid trường) -->
-    <main class="home-right">
-      <h2 class="home-section-title">🏫 Trường nổi bật</h2>
+   <main class="home-right">
+  <h2 class="home-section-title">🏫 Trường nổi bật🏫</h2>
 
-      <div class="home-grid">
-        {% for t in truong_noi_bat %}
-          <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
-            <div class="home-card-img">
-              <img src="{% static 'img/TDH/' %}{{ t.logo }}" alt="{{ t.tentruong }}">
-            </div>
-            <h3 class="home-card-title">{{ t.tentruong }}</h3>
-            <p class="home-card-sub">{{ t.loaitruong }}</p>
-          </a>
-        {% endfor %}
-      </div>
-    </main>
+  <div class="home-grid">
+    {% for t in truong_noi_bat %}
+      <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
+        <div class="home-card-img">
+          <img src="{% static 'img/TDH/' %}{{ t.logo }}" alt="{{ t.tentruong }}">
+        </div>
+        <h3 class="home-card-title">{{ t.tentruong }}</h3>
+        <p class="home-card-sub">{{ t.loaitruong }}</p>
+      </a>
+    {% endfor %}
   </div>
+
+  <!-- ✅ Quảng cáo -->
+  <div class="advertisement">
+    <img src="{% static 'img/quangcao.png' %}" alt="Quảng cáo tuyển dụng" />
+  </div>
+</main>
+
 
 </section>
 {% endblock %}
