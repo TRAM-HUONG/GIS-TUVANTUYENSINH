@@ -32,9 +32,8 @@ body{
     linear-gradient(135deg, var(--c1), var(--c6));
   min-height: 100vh;
 }
-
-.wrap{
-  width: min(1100px, 92vw);
+.wrap {
+  width: min(1800px, 92vw);
   margin: 0 auto;
 }
 
@@ -299,13 +298,14 @@ main{
   padding: 26px 0 44px;
 }
 
-.card{
-  background: var(--card);
+.card {
+  background: url("../img/banner/nenbody.png") no-repeat center center / cover;
   border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: var(--shadow);
   padding: 22px;
 }
+
 
 /* ===== FOOTER kiểu giống mẫu (tông hồng–tím–xanh của Út) ===== */
 .site-footer{
