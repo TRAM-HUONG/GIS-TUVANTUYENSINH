@@ -3,12 +3,12 @@
    ========================= */
 
 /* General Layout */
-.home-wrap{
+.home-wrap {
   padding: 18px 0 28px;
 }
 
 /* ✅ CHIA 2 CỘT: TRÁI + PHẢI */
-.home-layout{
+.home-layout {
   display: grid;
   grid-template-columns: 320px 1fr; /* Cột trái 320px, cột phải co giãn */
   gap: 18px;
@@ -16,133 +16,135 @@
 }
 
 /* Cột trái (sidebar) */
-.home-left{
+.home-left {
   position: sticky;
   top: 14px; /* Giữ sidebar khi kéo xuống */
 }
 
 /* Box sidebar */
-.additional-info{
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(0,0,0,.08);
+.additional-info {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   padding: 14px 14px 10px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
   margin-top: 20px;
 }
 
-.additional-info h3{
+.additional-info h3 {
   margin: 10px 0 8px;
   font-size: 16px;
   font-weight: 900;
 }
 
-.additional-info ul{
+.additional-info ul {
   margin: 0 0 10px 18px;
   padding: 0;
 }
 
-.additional-info li{
+.additional-info li {
   margin: 6px 0;
 }
 
-.additional-info a{
+.additional-info a {
   color: #0b4aa2;
   text-decoration: none;
   font-weight: 600;
 }
 
-.additional-info a:hover{
+.additional-info a:hover {
   text-decoration: underline;
 }
 
 /* Lịch hoạt động */
-.activity-schedule{
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(0,0,0,.08);
+.activity-schedule {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
   margin-top: 20px;
 }
 
-.activity-schedule h3{
+.activity-schedule h3 {
   margin-bottom: 12px;
   font-size: 18px;
   font-weight: 800;
 }
 
-.activity-schedule ul{
+.activity-schedule ul {
   padding-left: 20px;
 }
 
-.activity-schedule li{
+.activity-schedule li {
   margin: 8px 0;
   font-size: 14px;
   color: #333;
+  font-weight: 600;
 }
 
 /* Icon Chat */
-.chat-icon{
+.chat-icon {
   position: fixed;
   bottom: 20px;
   right: 20px;
 }
 
-.chat-link{
+.chat-link {
   display: inline-block;
   background-color: #00bfae;
   padding: 10px;
   border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-.chat-link img{
+.chat-link img {
   width: 30px;
   height: 30px;
 }
 
 /* Cột phải (grid trường) */
-.home-right{
+.home-right {
   padding-top: 20px;
 }
 
-.home-section-title{
+.home-section-title {
   margin: 8px 0 14px;
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: .2px;
+  letter-spacing: 0.2px;
+  color: #333;
 }
 
 /* Grid 3 cột */
-.home-grid{
+.home-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
 /* Card trường */
-.home-card{
-  background: rgba(255,255,255,.96);
-  border: 1px solid rgba(0,0,0,.08);
+.home-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 18px;
   padding: 14px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
 }
 
-.home-card:hover{
+.home-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 34px rgba(0,0,0,.10);
-  border-color: rgba(0,0,0,.14);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.10);
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 /* Hình ảnh trong card */
-.home-card-img{
-  height: 170px;
+.home-card-img {
+  height: auto; /* Remove the fixed height */
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(0, 88, 175, 0.08), rgba(0, 149, 255, 0.08));
   display: flex;
@@ -151,37 +153,46 @@
   overflow: hidden;
 }
 
-.home-card-img img{
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* logo -> contain */
+.home-card-img img {
+  width: 100%; /* Make sure it stretches across */
+  height: auto; /* Maintain the aspect ratio */
+  object-fit: cover; /* Ensure the image covers the container without distorting */
   display: block;
 }
 
+
 /* Text trong card */
-.home-card-title{
+.home-card-title {
   margin: 12px 0 6px;
   font-size: 16px;
   font-weight: 800;
   line-height: 1.25;
 }
 
-.home-card-sub{
+.home-card-sub {
   margin: 0;
   font-size: 13px;
-  color: rgba(0,0,0,.65);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 /* RESPONSIVE */
-@media (max-width: 1100px){
-  .home-layout{ grid-template-columns: 290px 1fr; }
-  .home-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 1100px) {
+  .home-layout {
+    grid-template-columns: 290px 1fr;
+  }
+  .home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-@media (max-width: 768px){
-  .home-layout{
+@media (max-width: 768px) {
+  .home-layout {
     grid-template-columns: 1fr; /* sidebar lên trên trên mobile */
   }
-  .home-left{ position: static; }
-  .home-grid{ grid-template-columns: 1fr; }
+  .home-left {
+    position: static;
+  }
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
 }
