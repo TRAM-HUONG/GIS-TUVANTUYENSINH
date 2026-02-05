@@ -17,7 +17,7 @@
 /* Các container chính */
 .td-wrap {
   padding: 18px;
-  max-width: 1100px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
@@ -26,7 +26,7 @@
   display: grid;
   grid-template-columns: 1.25fr .9fr;
   gap: 16px;
-  padding: 16px;
+  padding: 20px;
   border-radius: 18px;
   background: linear-gradient(135deg, var(--c1), var(--c6));
   box-shadow: var(--shadow);
