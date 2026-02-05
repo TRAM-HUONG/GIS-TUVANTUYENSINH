@@ -47,8 +47,8 @@
               <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
               <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
               <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-            </nav>
-            
+               <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+            </nav>           
            {% block search %}
     {% if "dang-nhap" not in request.path and "dang-ky" not in request.path %}
         <form class="search" action="{% url 'tracuu' %}" method="get">
@@ -86,7 +86,10 @@
 
     <!-- CỘT 1: Đăng ký nhận bản tin -->
     <div class="footer-col">
-<h3 class="footer-title">ĐĂNG KÝ NHẬN BẢN TIN TUYỂN SINH</h3>
+
+      <h3 class="footer-title">ĐĂNG KÝ NHẬN BẢN TIN TUYỂN SINH</h3>
+
+
       <form class="footer-newsletter" action="#" method="post">
         <input class="footer-input" type="email" name="email" placeholder="Email" required>
         <button class="footer-submit" type="submit">Đăng ký</button>
@@ -151,6 +154,7 @@
 
   <div class="wrap footer-bottom">
     <div>© {% now "Y" %} GIS Tư Vấn Tuyển Sinh • All rights reserved.</div>
+
 <div class="footer-badges">
       <span class="badge">WebGIS</span>
       <span class="badge">Leaflet</span>
@@ -182,3 +186,4 @@
   {% block extra_js %}{% endblock %}
 </body>
 </html>
+
