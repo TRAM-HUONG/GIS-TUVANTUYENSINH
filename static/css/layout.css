@@ -471,6 +471,48 @@ main{
   }
 }
 
+.falling-flowers {
+  position: absolute;
+  top: -50px;
+  z-index: -1;
+  animation: fall 10s infinite linear;
+  opacity: 0.9; /* Giữ opacity cao hơn */
+  pointer-events: none;
+  filter: brightness(1.2) saturate(1.5); /* Tăng độ sáng và độ bão hòa */
+}
+.left {
+  left: -150px;
+}
+
+.right {
+  right: -150px;
+}
+
+.falling-flowers img {
+  width: 50px;
+  height: auto;
+}
+
+/* Hiệu ứng rơi của cánh hoa */
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+/* Custom CSS for Mai branches */
+.mai-branch {
+    position: absolute;
+    top: 0;
+    width: 150px;
+    height: auto;
+    z-index: 5;
+    opacity: 0.8;
+}
+
+
 
 /* ===== Responsive ===== */
 @media (max-width: 820px){
