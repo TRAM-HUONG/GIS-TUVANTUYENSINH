@@ -16,7 +16,8 @@ def login_view(request):
 
 def register_view(request):
     return render(request, "auth/dang-ky.html")
-def register_view(request):
+
+def khoahoc_view(request):
     return render(request, "khoahoc/khoahoc.html")
 
 urlpatterns = [
@@ -27,5 +28,5 @@ urlpatterns = [
     path("khao-sat/", khaosat, name="khaosat"),
     path("dang-nhap/", login_view, name="login"),
     path("dang-ky/", register_view, name="register"),
-     path("khoahoc/", register_view, name="khoahoc"),
+    path("khoahoc/", khoahoc_view, name="khoahoc"),
 ]
