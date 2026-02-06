@@ -478,7 +478,6 @@ main{
   animation: fall 10s infinite linear;
   opacity: 0.9; /* Giữ opacity cao hơn */
   pointer-events: none;
-  filter: brightness(1.2) saturate(1.5); /* Tăng độ sáng và độ bão hòa */
 }
 .left {
   left: -150px;
