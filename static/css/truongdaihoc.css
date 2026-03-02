@@ -1,0 +1,224 @@
+/* =========================
+   Theme / Palette
+========================= */
+:root{
+  --c1:#FF99FF;
+  --c2:#CC99FF;
+  --c3:#9999FF;
+  --c4:#6699FF;
+  --c5:#3399FF;
+  --c6:#0099FF;
+
+  --ink:#0f172a;
+  --muted:#475569;
+  --card: rgba(255,255,255,.82);
+  --line: rgba(15,23,42,.10);
+  --shadow: 0 18px 50px rgba(2,8,23,.12);
+}
+
+/* =========================
+   Page wrapper
+========================= */
+.home-wrap{
+  padding: 18px 0 28px;
+}
+
+.home-layout{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
+  color: var(--ink);
+}
+
+/* =========================
+   Left column (Sidebar)
+========================= */
+.home-left{
+  position: sticky;
+  top: 14px;
+}
+
+.activity-schedule,
+.major-list{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 10px 26px rgba(2,8,23,.08);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+/* Fancy gradient top bar */
+.activity-schedule::before,
+.major-list::before{
+  content:"";
+  display:block;
+  height: 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6));
+}
+
+.activity-schedule h3,
+.major-list h3{
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+.activity-schedule ul{
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 13.5px;
+}
+
+.activity-schedule li{
+  margin: 6px 0;
+}
+
+/* Major list */
+.major-list ul{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.major-list li{
+  margin: 0;
+}
+
+.major-list a{
+  display: block;
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 13.5px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.08);
+  background: rgba(255,255,255,.70);
+  transition: .15s ease;
+}
+
+.major-list a:hover{
+  transform: translateY(-2px);
+  border-color: rgba(0,153,255,.25);
+  box-shadow: 0 12px 24px rgba(2,8,23,.10);
+}
+
+.major-list li:last-child{
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* =========================
+   Right column (Main)
+========================= */
+.home-right{
+  background: transparent;
+}
+
+/* Section title */
+.home-section-title{
+  margin: 0 0 12px;
+  padding: 14px 16px;
+
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, rgba(255,153,255,.16), rgba(0,153,255,.12));
+  box-shadow: var(--shadow);
+
+  font-size: 18px;
+  font-weight: 950;
+}
+
+/* =========================
+   Grid cards
+========================= */
+.home-grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-card{
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(2,8,23,.08);
+  transition: .15s ease;
+}
+
+.home-card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(2,8,23,.14);
+  border-color: rgba(0,153,255,.22);
+}
+
+.home-card-img{
+  height: 155px;
+  background: rgba(2,8,23,.03);
+  border-bottom: 1px solid var(--line);
+}
+
+.home-card-img img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-card-title{
+  margin: 10px 12px 4px;
+  font-size: 15px;
+  font-weight: 950;
+  line-height: 1.25;
+}
+
+.home-card-sub{
+  margin: 0 12px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 1050px){
+  .home-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 860px){
+  .home-layout{
+    grid-template-columns: 1fr;
+  }
+
+  .home-left{
+    position: static;
+  }
+
+  .home-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px){
+  .home-grid{ grid-template-columns: 1fr; }
+  .home-card-img{ height: 170px; }
+}
