@@ -54,7 +54,7 @@ def truong_detail(request, matruong):
 def truong_list(request):
     anh_sq = (
         HinhAnhTruong.objects
-        .filter(matruong_id=OuterRef("matruong"))   # ✅ sửa field ở đây
+        .filter(matruong_id=OuterRef("matruong"))
         .values("tenfile")[:1]
     )
 
@@ -62,7 +62,35 @@ def truong_list(request):
         TruongDaiHoc.objects
         .all()
         .order_by("matruong")
-        .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))  # ✅ fallback
+        .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))
     )
 
-    return render(request, "truongdaihoc/truongdaihoc.html", {"truong_list": truong_list})
+  
+    nganh_list = NganhHoc.objects.all().order_by("tennganh")
+
+    return render(
+        request,
+        "truongdaihoc/truongdaihoc.html",
+        {
+            "truong_list": truong_list,
+            "nganh_list": nganh_list,   # ✅ add
+        },
+    )
+def nganh_detail(request, manganh):
+    nganh = get_object_or_404(NganhHoc, pk=manganh)
+
+    # ảnh ngành (nếu có)
+    hinh_nganh = HinhAnhNganh.objects.filter(manganh_id=manganh)
+
+    # (tuỳ em) nếu muốn hiện các trường có ngành này:
+    ds_truong = (
+        ChiTietNganh.objects
+        .filter(manganh_id=manganh)
+        .select_related("matruong")
+    )
+
+    return render(
+        request,
+        "truongdaihoc/nganhhoc.html",
+        {"nganh": nganh, "hinh_nganh": hinh_nganh, "ds_truong": ds_truong},
+    )

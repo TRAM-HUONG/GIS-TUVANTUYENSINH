@@ -21,6 +21,8 @@ def khoahoc_view(request):
     return render(request, "khoahoc/khoahoc.html")
 def truong_view(request):
     return render(request, "truongdaihoc/truongdaihoc.html")
+def nganh_view(request):
+    return render(request, "truongdaihoc/nganhhoc.html")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("home.urls")),
@@ -31,4 +33,5 @@ urlpatterns = [
     path("dang-ky/", register_view, name="register"),
     path("khoahoc/", khoahoc_view, name="khoahoc"),
     path("truong/", truong_view, name="truong_list"),
+    path("nganh/", truong_view, name="nganh_list"),
 ]

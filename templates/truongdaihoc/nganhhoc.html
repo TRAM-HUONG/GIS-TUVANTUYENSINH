@@ -1,0 +1,115 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/nganhoc.css' %}">
+
+<section class="nganh-wrap">
+  <div class="nganh-layout">
+
+    <!-- HERO -->
+    <header class="nganh-hero">
+      <div class="hero-left">
+        <div class="hero-badge">🎓 Chi tiết ngành</div>
+        <h1 class="nganh-title">
+          {% if nganh.tennganh %}
+            {{ nganh.tennganh }}
+          {% else %}
+            <span class="muted">Chưa có tên ngành</span>
+          {% endif %}
+        </h1>
+
+        <p class="nganh-desc">
+          {% if nganh.linhvuc %}
+            Lĩnh vực: <strong>{{ nganh.linhvuc }}</strong>
+          {% else %}
+            <span class="muted">Chưa có lĩnh vực</span>
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Optional gallery -->
+      {% if hinh_nganh %}
+      <div class="hero-right">
+        <div class="nganh-gallery">
+          {% for img in hinh_nganh %}
+            <div class="nganh-img">
+              <img src="{% static 'img/NGANHHOC/' %}{{ img.tenfile }}" alt="{{ nganh.tennganh }}">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </header>
+
+    <!-- 3 THÔNG TIN -->
+    <section id="thongtin" class="card">
+      <div class="card-head">
+        <h2 class="box-title">Thông tin ngành</h2>
+        <div class="card-hint">Tóm tắt 3 phần chính</div>
+      </div>
+
+      <div class="info-grid">
+
+        <!-- TENNGANH -->
+        <div class="info-item">
+          <div class="info-label">Tên ngành</div>
+          <div class="info-value">
+            {% if nganh.tennganh %}
+              {{ nganh.tennganh }}
+            {% else %}
+              <span class="muted">Đang cập nhật</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- LINHVUC -->
+        <div class="info-item">
+          <div class="info-label">Lĩnh vực</div>
+          <div class="info-value">
+            {% if nganh.linhvuc %}
+              {{ nganh.linhvuc }}
+            {% else %}
+              <span class="muted">Đang cập nhật</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- MOTA -->
+        <div class="info-item info-item--full">
+          <div class="info-label">Mô tả</div>
+          <div class="info-value">
+            {% if nganh.mota %}
+              {{ nganh.mota }}
+            {% else %}
+              <span class="muted">Đang cập nhật</span>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- SCHOOLS -->
+      <section id="truong" class="card">
+        <div class="card-head">
+          <h2 class="box-title">Trường đại học đào tạo ngành </h2>
+        </div>
+
+        <div class="school-list">
+          {% for row in ds_truong %}
+            <a class="school-item" href="{% url 'truong_detail' row.matruong.matruong %}">
+              <div class="school-top">
+                <div class="school-name">{{ row.matruong.tentruong }}</div>
+              </div>
+            </a>
+          {% empty %}
+            <p class="empty">Chưa có trường nào gắn với ngành này.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+{% endblock %} 
+
