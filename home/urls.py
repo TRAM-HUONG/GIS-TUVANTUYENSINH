@@ -3,6 +3,6 @@ from . import views
 
 urlpatterns = [
     path("", views.home_page, name="home"),
-    path("truong/", views.truong_list, name="truong_list"),   # ✅ thêm dòng này
+    path("truong/", views.truong_list, name="truong_list"), 
     path("truong/<str:matruong>/", views.truong_detail, name="truong_detail"),
 ]
