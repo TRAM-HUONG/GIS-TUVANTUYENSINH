@@ -29,4 +29,6 @@ urlpatterns = [
     path("dang-nhap/", login_view, name="login"),
     path("dang-ky/", register_view, name="register"),
     path("khoahoc/", khoahoc_view, name="khoahoc"),
+    path("truong/", views.truong_list, name="truong_list"),
+    path("nganh/", views.nganh_list, name="nganh_list"),
 ]

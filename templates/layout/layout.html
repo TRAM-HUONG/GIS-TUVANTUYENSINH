@@ -36,13 +36,18 @@
           </div>
           <!-- HÀNG 2 -->
           <div class="row row-2">
-            <nav class="menu">
-              <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
-              <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
-              <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
-              <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-              <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
-            </nav>
+              <nav class="menu">
+                <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+                <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+
+                <!-- ✅ THÊM 2 NÚT MỚI -->
+                <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+                <a class="btn" href="{% url 'nganh_list' %}">🎓 Ngành</a>
+
+                <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+                <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+                <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+              </nav>
           </div>
         </div>
         <!-- Dots -->
