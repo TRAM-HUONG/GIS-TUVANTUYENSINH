@@ -8,7 +8,6 @@
 
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   {% block extra_css %}{% endblock %}
-
 </head>
 
 <body>
@@ -16,8 +15,6 @@
   <!-- ✅ HERO SLIDER FULL -->
   <header class="hero">
     <div class="hero-slider" id="heroSlider">
-      <!-- Cành mai trái -->
-
       <!-- 3 ảnh banner -->
       <div class="hero-slide active" style="background-image:url('{% static 'img/banner/Bk.jpg' %}')"></div>
       <div class="hero-slide" style="background-image:url('{% static 'img/banner/DTM.jpg' %}')"></div>
@@ -39,13 +36,18 @@
           </div>
           <!-- HÀNG 2 -->
           <div class="row row-2">
-            <nav class="menu">
-              <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
-              <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
-              <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
-              <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-              <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
-            </nav>
+              <nav class="menu">
+                <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+                <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+
+                <!-- ✅ THÊM 2 NÚT MỚI -->
+                <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+                <a class="btn" href="{% url 'nganh_list' %}">🎓 Ngành</a>
+
+                <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+                <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+                <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+              </nav>
           </div>
         </div>
         <!-- Dots -->
@@ -76,36 +78,63 @@
 
   <!-- JavaScript -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const flowerImages = [
-        '{% static "img/tet2.png" %}'
-      ];
+  document.addEventListener('DOMContentLoaded', function() {
+    const flowerImages = [
+      '{% static "img/tet2.png" %}'
+    ];
 
-      const createFallingFlower = () => {
-        const flower = document.createElement('img');
-        flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-        flower.style.position = 'absolute';
-        flower.style.top = '0';
+    let flowerCount = 0;  // Biến đếm số lượng hoa đã tạo
+    const maxFlowers = 30; // Số lượng hoa tối đa
+
+    const createFallingFlower = () => {
+      if (flowerCount >= maxFlowers) {
+        return;  // Dừng không tạo hoa nữa khi đã đạt số lượng tối đa
+      }
+
+      flowerCount++;  // Tăng số lượng hoa đã tạo lên 1
+
+      const flower = document.createElement('img');
+      flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
+      flower.style.position = 'absolute';
+      flower.style.top = '0';
+      flower.style.left = `${Math.random() * 100}%`;
+      flower.style.width = '50px';
+      flower.style.height = 'auto';
+      flower.style.opacity = Math.random() * 0.5 + 0.3;
+      document.body.appendChild(flower);
+
+      const animationDuration = Math.random() * 10 + 5; // Thời gian rơi hoa
+      flower.style.animation = `fall ${animationDuration}s linear`;
+
+      // Tạo keyframe cho animation
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @keyframes fall {
+          0% {
+            top: 0;
+          }
+          100% {
+            top: 100vh; /* Hoa rơi hết màn hình */
+            opacity: 0; /* Hoa biến mất khi rơi hết màn hình */
+          }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Xóa hoa sau khi animation kết thúc
+      setTimeout(() => {
+        flower.remove(); // Xóa hoa khi hoàn tất
+      }, animationDuration * 1000); // Dừng sau khi hoa rơi
+
+      flower.addEventListener('animationiteration', () => {
         flower.style.left = `${Math.random() * 100}%`;
-        flower.style.width = '50px';
-        flower.style.height = 'auto';
         flower.style.opacity = Math.random() * 0.5 + 0.3;
-        document.body.appendChild(flower);
+      });
+    };
 
-        const animationDuration = Math.random() * 10 + 5; // Giảm hoặc tăng thời gian rơi
-
-        flower.style.animation = `fall ${animationDuration}s linear infinite`;
-
-        flower.addEventListener('animationiteration', () => {
-          flower.style.left = `${Math.random() * 100}%`;
-          flower.style.opacity = Math.random() * 0.5 + 0.3;
-        });
-      };
-
-      setInterval(createFallingFlower, 300); // Tạo hoa mỗi 300ms
-    });
-  </script>
-
+    setInterval(createFallingFlower, 300); // Tạo hoa mỗi 300ms
+  });
+</script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
