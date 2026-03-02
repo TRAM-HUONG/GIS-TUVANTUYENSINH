@@ -1,4 +1,7 @@
 from django.shortcuts import render, get_object_or_404
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
+from django.db.models import Value
 
 from .models import (
     TruongDaiHoc,
@@ -48,20 +51,18 @@ def truong_detail(request, matruong):
             "ct_nganh": ct_nganh,
         },
     )
-
-
-def nganh_detail(request, mactn):
-    # Lấy chi tiết ngành theo MACTN
-    chi_tiet_nganh = get_object_or_404(ChiTietNganh, pk=mactn)
-
-    # Lấy ảnh ngành (bảng HINHANH_NGANH) theo MANGANH của CTN
-    hinh_nganh = HinhAnhNganh.objects.filter(manganh_id=chi_tiet_nganh.manganh_id).first()
-
-    return render(
-        request,
-        "home/nganh_detail.html",
-        {
-            "chi_tiet_nganh": chi_tiet_nganh,
-            "hinh_nganh": hinh_nganh,
-        },
+def truong_list(request):
+    anh_sq = (
+        HinhAnhTruong.objects
+        .filter(matruong_id=OuterRef("matruong"))   # ✅ sửa field ở đây
+        .values("tenfile")[:1]
     )
+
+    truong_list = (
+        TruongDaiHoc.objects
+        .all()
+        .order_by("matruong")
+        .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))  # ✅ fallback
+    )
+
+    return render(request, "truongdaihoc/truongdaihoc.html", {"truong_list": truong_list})
