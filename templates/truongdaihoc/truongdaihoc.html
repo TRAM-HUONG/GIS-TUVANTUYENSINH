@@ -1,0 +1,58 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/truongdaihoc.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="home-wrap">
+  <div class="home-layout">
+
+    <!-- Cột trái (sidebar) - chỉ giữ lịch hoạt động -->
+    <aside class="home-left">
+      <div class="activity-schedule">
+        <h3>Lịch hoạt động</h3>
+        <ul>
+          <li>Thứ 2, 3, 4, 5, 6: 14:00 - 21:00</li>
+          <li>Thứ 7: 9:00 - 12:00</li>
+          <li>Ngày nghỉ hàng tuần: Từ 12:00 trưa Thứ 7 & cả ngày Chủ nhật</li>
+        </ul>
+      </div>
+      <div class="major-list">
+        <h3>Ngành học</h3>
+        <ul>
+          {% for n in nganh_list %}
+            <li>
+              <a href="{% url 'nganh_detail' n.manganh %}">{{ n.tennganh }}</a>
+            </li>
+          {% empty %}
+            <li>Chưa có dữ liệu ngành học.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </aside>
+   
+    <!-- Cột phải (grid tất cả trường) -->
+    <main class="home-right">
+      <h2 class="home-section-title">Trường Đại học </h2>
+
+      <div class="home-grid">
+        {% for t in truong_list %}
+          <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
+            <div class="home-card-img">
+              <img src="{% static 'img/TDH/' %}{{ t.anh }}" alt="{{ t.tentruong }}">
+            </div>
+            <h3 class="home-card-title">{{ t.tentruong }}</h3>
+            <p class="home-card-sub">{{ t.loaitruong }}</p>
+          </a>
+        {% empty %}
+          <p style="padding:12px;">Chưa có dữ liệu trường đại học.</p>
+        {% endfor %}
+      </div>
+    </main>
+
+  </div>
+</section>
+{% endblock %}
