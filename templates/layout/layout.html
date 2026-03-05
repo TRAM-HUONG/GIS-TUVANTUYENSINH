@@ -59,9 +59,6 @@
       </div>
     </div>
   </header>
-  <div class="falling-flowers right">
-    <img src="{% static 'img/tet2.png' %}" alt="Flower" />
-  </div>
 
   <main>
     <div class="wrap">
@@ -147,66 +144,7 @@
 
   </div>
 </footer>
-
-  <!-- JavaScript -->
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const flowerImages = [
-      '{% static "img/tet2.png" %}'
-    ];
-
-    let flowerCount = 0;  // Biến đếm số lượng hoa đã tạo
-    const maxFlowers = 30; // Số lượng hoa tối đa
-
-    const createFallingFlower = () => {
-      if (flowerCount >= maxFlowers) {
-        return;  // Dừng không tạo hoa nữa khi đã đạt số lượng tối đa
-      }
-
-      flowerCount++;  // Tăng số lượng hoa đã tạo lên 1
-
-      const flower = document.createElement('img');
-      flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-      flower.style.position = 'absolute';
-      flower.style.top = '0';
-      flower.style.left = `${Math.random() * 100}%`;
-      flower.style.width = '50px';
-      flower.style.height = 'auto';
-      flower.style.opacity = Math.random() * 0.5 + 0.3;
-      document.body.appendChild(flower);
-
-      const animationDuration = Math.random() * 10 + 5; // Thời gian rơi hoa
-      flower.style.animation = `fall ${animationDuration}s linear`;
-
-      // Tạo keyframe cho animation
-      const style = document.createElement('style');
-      style.innerHTML = `
-        @keyframes fall {
-          0% {
-            top: 0;
-          }
-          100% {
-            top: 100vh; /* Hoa rơi hết màn hình */
-            opacity: 0; /* Hoa biến mất khi rơi hết màn hình */
-          }
-        }
-      `;
-      document.head.appendChild(style);
-
-      // Xóa hoa sau khi animation kết thúc
-      setTimeout(() => {
-        flower.remove(); // Xóa hoa khi hoàn tất
-      }, animationDuration * 1000); // Dừng sau khi hoa rơi
-
-      flower.addEventListener('animationiteration', () => {
-        flower.style.left = `${Math.random() * 100}%`;
-        flower.style.opacity = Math.random() * 0.5 + 0.3;
-      });
-    };
-
-    setInterval(createFallingFlower, 300); // Tạo hoa mỗi 300ms
-  });
-</script>
+  
   {% block extra_js %}{% endblock %}
 </body>
 </html>
