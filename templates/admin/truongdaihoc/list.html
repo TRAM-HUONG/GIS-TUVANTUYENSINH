@@ -1,0 +1,51 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Quản lý trường đại học</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="get" class="mb-3">
+        <input type="text" name="keyword" value="{{ keyword }}" placeholder="Nhập mã trường, tên trường..." class="form-control mb-2">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a href="{% url 'admin_truong_insert' %}" class="btn btn-success">Thêm trường</a>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Mã trường</th>
+                <th>Tên trường</th>
+                <th>Loại trường</th>
+                <th>Đơn vị hành chính</th>
+                <th>Điện thoại</th>
+                <th width="220">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for truong in truongs %}
+            <tr>
+                <td>{{ truong.matruong }}</td>
+                <td>{{ truong.tentruong }}</td>
+                <td>{{ truong.loaitruong }}</td>
+                <td>{{ truong.madvhc.tendvhc }}</td>
+                <td>{{ truong.dienthoai }}</td>
+                <td>
+                    <a href="{% url 'admin_truong_detail' truong.matruong %}" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a href="{% url 'admin_truong_edit' truong.matruong %}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a href="{% url 'admin_truong_delete' truong.matruong %}" class="btn btn-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Không có dữ liệu</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
