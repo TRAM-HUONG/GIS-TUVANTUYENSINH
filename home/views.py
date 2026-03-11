@@ -9,6 +9,7 @@ from .models import NguoiDung, VaiTro
 def home_page(request):
     return render(request, "home/home.html")
 
+
 def generate_mand():
     last_user = NguoiDung.objects.order_by('-mand').first()
     if not last_user:
@@ -29,6 +30,7 @@ def generate_username_from_email(email):
         counter += 1
 
     return username
+
 
 def register_view(request):
     if request.method == "POST":
@@ -59,6 +61,10 @@ def register_view(request):
             })
 
         role_user = VaiTro.objects.filter(tenvaitro='USER').first()
+        if not role_user:
+            return render(request, "auth/dang-ky.html", {
+                "error": "Hệ thống chưa có vai trò USER."
+            })
 
         username = generate_username_from_email(email)
 
@@ -77,6 +83,8 @@ def register_view(request):
         return redirect("login")
 
     return render(request, "auth/dang-ky.html")
+
+
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
@@ -89,7 +97,7 @@ def login_view(request):
 
         user = NguoiDung.objects.filter(
             Q(tendangnhap=username) | Q(email=username)
-        ).select_related('mavaitro').first()
+        ).select_related("mavaitro").first()
 
         if not user:
             return render(request, "auth/dang-nhap.html", {
@@ -117,3 +125,9 @@ def login_view(request):
         return redirect("home")
 
     return render(request, "auth/dang-nhap.html")
+
+
+def logout_view(request):
+    request.session.flush()
+    messages.success(request, "Đăng xuất thành công.")
+    return redirect("login")
