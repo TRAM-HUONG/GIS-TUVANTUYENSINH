@@ -112,3 +112,26 @@ from django.shortcuts import render
 
 def map_view(request):
     return render(request, "map/map.html")
+def home_page(request):
+    return render(request, "home/home.html")
+def gioithieu(request):
+    return render(request, "gioithieu/gioithieu.html")
+
+def tracuu(request):
+    return render(request, "map/map.html")
+
+def khaosat(request):
+    return render(request, "khaosat/khaosat.html")
+
+def login_view(request):
+    return render(request, "auth/dang-nhap.html")
+
+def register_view(request):
+    return render(request, "auth/dang-ky.html")
+
+def khoahoc_view(request):
+    return render(request, "khoahoc/khoahoc.html")
+def truong_view(request):
+    return render(request, "truongdaihoc/truongdaihoc.html")
+def nganh_view(request):
+    return render(request, "truongdaihoc/nganhhoc.html")
