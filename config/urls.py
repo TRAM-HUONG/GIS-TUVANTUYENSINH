@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
-
+from home.views import login_view, register_view
 def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
 

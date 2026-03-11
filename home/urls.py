@@ -7,3 +7,4 @@ urlpatterns = [
     path("truong/<str:matruong>/", views.truong_detail, name="truong_detail"),
     path("nganh/<str:manganh>/", views.nganh_detail, name="nganh_detail"),
 ]
+
