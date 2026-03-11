@@ -90,17 +90,18 @@
       </div>
 
       <!-- Column 2 -->
-      <div class="footer-col">
-        <h4 class="footer-h">Liên kết nhanh</h4>
-        <ul class="footer-links">
-          <li><a href="{% url 'home' %}">🏠 Trang Chủ</a></li>
-          <li><a href="{% url 'truong_list' %}">🏫 Trường</a></li>
-          <li><a href="{% url 'nganh_list' %}">🎓 Ngành</a></li>
-          <li><a href="{% url 'tracuu' %}">🗺️ Bản đồ</a></li>
-          <li><a href="{% url 'khaosat' %}">📝 Khảo sát</a></li>
-          <li><a href="{% url 'khoahoc' %}">📚 Khóa học</a></li>
-        </ul>
-      </div>
+     <nav class="menu">
+  <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+  <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+  <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+  <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+  <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+  <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+
+  {% if request.session.tenvaitro == 'ADMIN' %}
+    <a class="btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+  {% endif %}
+</nav>
 
       <!-- Column 3 -->
       <div class="footer-col">

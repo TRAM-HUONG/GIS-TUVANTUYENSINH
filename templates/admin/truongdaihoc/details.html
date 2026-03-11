@@ -1,0 +1,60 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Chi tiết trường đại học</h2>
+
+    <table class="table table-bordered">
+        <tr>
+            <th>Mã trường</th>
+            <td>{{ truong.matruong }}</td>
+        </tr>
+        <tr>
+            <th>Tên trường</th>
+            <td>{{ truong.tentruong }}</td>
+        </tr>
+        <tr>
+            <th>Loại trường</th>
+            <td>{{ truong.loaitruong }}</td>
+        </tr>
+        <tr>
+            <th>Đơn vị hành chính</th>
+            <td>{{ truong.madvhc.tendvhc }}</td>
+        </tr>
+        <tr>
+            <th>Địa chỉ</th>
+            <td>{{ truong.diachi }}</td>
+        </tr>
+        <tr>
+            <th>Website</th>
+            <td>{{ truong.website }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ truong.email }}</td>
+        </tr>
+        <tr>
+            <th>Điện thoại</th>
+            <td>{{ truong.dienthoai }}</td>
+        </tr>
+        <tr>
+            <th>LAT</th>
+            <td>{{ truong.lat }}</td>
+        </tr>
+        <tr>
+            <th>LNG</th>
+            <td>{{ truong.lng }}</td>
+        </tr>
+        <tr>
+            <th>Mô tả</th>
+            <td>{% if chitiet %}{{ chitiet.mota }}{% endif %}</td>
+        </tr>
+        <tr>
+            <th>Ghi chú</th>
+            <td>{% if chitiet %}{{ chitiet.ghichu }}{% endif %}</td>
+        </tr>
+    </table>
+
+    <a href="{% url 'admin_truong_list' %}" class="btn btn-secondary">Quay lại</a>
+    <a href="{% url 'admin_truong_edit' truong.matruong %}" class="btn btn-warning">Sửa</a>
+</div>
+{% endblock %}
