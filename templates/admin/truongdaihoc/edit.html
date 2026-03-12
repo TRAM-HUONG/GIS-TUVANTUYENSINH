@@ -1,0 +1,79 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Sửa trường đại học</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Mã trường</label>
+            <input type="text" class="form-control" value="{{ truong.matruong }}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label>Tên trường</label>
+            <input type="text" name="tentruong" class="form-control" value="{{ truong.tentruong }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Loại trường</label>
+            <input type="text" name="loaitruong" class="form-control" value="{{ truong.loaitruong }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Đơn vị hành chính</label>
+            <select name="madvhc" class="form-control" required>
+                {% for dv in dshc %}
+                    <option value="{{ dv.madvhc }}" {% if dv.madvhc == truong.madvhc.madvhc %}selected{% endif %}>
+                        {{ dv.tendvhc }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Địa chỉ</label>
+            <textarea name="diachi" class="form-control">{{ truong.diachi }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Website</label>
+            <input type="text" name="website" class="form-control" value="{{ truong.website }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" value="{{ truong.email }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Điện thoại</label>
+            <input type="text" name="dienthoai" class="form-control" value="{{ truong.dienthoai }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Vĩ độ (LAT)</label>
+            <input type="text" name="lat" class="form-control" value="{{ truong.lat }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Kinh độ (LNG)</label>
+            <input type="text" name="lng" class="form-control" value="{{ truong.lng }}">
+        </div>
+
+        <div class="mb-3">
+            <label>Mô tả chi tiết</label>
+            <textarea name="mota" class="form-control">{% if chitiet %}{{ chitiet.mota }}{% endif %}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Ghi chú</label>
+            <input type="text" name="ghichu" class="form-control" value="{% if chitiet %}{{ chitiet.ghichu }}{% endif %}">
+        </div>
+
+        <button type="submit" class="btn btn-warning">Cập nhật</button>
+        <a href="{% url 'admin_truong_list' %}" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>
+{% endblock %}

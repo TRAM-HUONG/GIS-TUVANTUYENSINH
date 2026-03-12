@@ -1,0 +1,73 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Thêm trường đại học</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Tên trường</label>
+            <input type="text" name="tentruong" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Loại trường</label>
+            <input type="text" name="loaitruong" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Đơn vị hành chính</label>
+            <select name="madvhc" class="form-control" required>
+                <option value="">-- Chọn đơn vị hành chính --</option>
+                {% for dv in dshc %}
+                    <option value="{{ dv.madvhc }}">{{ dv.tendvhc }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Địa chỉ</label>
+            <textarea name="diachi" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Website</label>
+            <input type="text" name="website" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Điện thoại</label>
+            <input type="text" name="dienthoai" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Vĩ độ (LAT)</label>
+            <input type="text" name="lat" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Kinh độ (LNG)</label>
+            <input type="text" name="lng" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Mô tả chi tiết</label>
+            <textarea name="mota" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Ghi chú</label>
+            <input type="text" name="ghichu" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-success">Lưu</button>
+        <a href="{% url 'admin_truong_list' %}" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>
+{% endblock %}

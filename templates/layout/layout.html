@@ -30,8 +30,13 @@
               <span class="brand-text">Tư Vấn Tuyển Sinh</span>
             </a>
             <div class="auth">
+              {% if request.session.hoten %}
+              <span class="user-name">👤 {{ request.session.hoten }}</span>
+              <a class="btn" href="{% url 'logout' %}">🚪 Đăng xuất</a>
+              {% else %}
               <a class="btn" href="{% url 'login' %}">🔐 Đăng nhập</a>
               <a class="btn" href="{% url 'register' %}">🧾 Đăng ký</a>
+              {% endif %}
             </div>
           </div>
           <!-- HÀNG 2 -->
@@ -45,7 +50,13 @@
 
                 <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
                 <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-                <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+                <a class="btn" href="{% url 'khoahoc' %}">📚 Khóa Học</a>
+                {% if request.session.tenvaitro == "ADMIN" %}
+                <span class="user-name">
+                  <span class="user-icon">👤</span>
+                  <span class="user-text">{{ request.session.hoten }}</span>
+                </span>
+                {% endif %} 
               </nav>
           </div>
         </div>
@@ -59,9 +70,6 @@
       </div>
     </div>
   </header>
-  <div class="falling-flowers right">
-    <img src="{% static 'img/tet2.png' %}" alt="Flower" />
-  </div>
 
   <main>
     <div class="wrap">
@@ -134,6 +142,80 @@
     setInterval(createFallingFlower, 300); // Tạo hoa mỗi 300ms
   });
 </script>
+
+ <footer class="site-footer">
+  <div class="wrap footer-wrap">
+
+    <div class="footer-grid">
+      <!-- Column 1 -->
+      <div class="footer-col">
+        <a class="footer-brand" href="{% url 'home' %}">
+          <span class="footer-logo" aria-hidden="true"></span>
+          <span class="footer-title">GIS Tư Vấn Tuyển Sinh</span>
+        </a>
+        <p class="footer-desc">
+          Nền tảng hỗ trợ tra cứu trường – ngành – điểm chuẩn và định hướng tuyển sinh trực quan trên bản đồ.
+        </p>
+
+        <div class="footer-social">
+          <a class="social-btn" href="#" aria-label="Facebook">fb</a>
+          <a class="social-btn" href="#" aria-label="Zalo">zalo</a>
+          <a class="social-btn" href="#" aria-label="YouTube">yt</a>
+        </div>
+      </div>
+<div class="row row-2">
+  <nav class="menu">
+    <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+    <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+    <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+    <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+    <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+    <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+    <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+  </nav>
+</div>
+      <!-- Column 3 -->
+      <div class="footer-col">
+        <h4 class="footer-h">Hỗ trợ</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'gioithieu' %}">📌 Giới thiệu</a></li>
+          <li><a href="{% url 'login' %}">🔐 Đăng nhập</a></li>
+          <li><a href="{% url 'register' %}">🧾 Đăng ký</a></li>
+          <li><a href="#">📄 Chính sách</a></li>
+          <li><a href="#">🛡️ Điều khoản</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4 -->
+      <div class="footer-col">
+        <h4 class="footer-h">Nhận thông báo</h4>
+        <p class="footer-desc small">
+          Đăng ký để nhận cập nhật điểm chuẩn, ngành hot, và tips chọn trường.
+        </p>
+
+        <form class="footer-form" action="#" method="post">
+          {% csrf_token %}
+          <input class="footer-input" type="email" name="email" placeholder="Nhập email của bạn..." required>
+          <button class="footer-btn" type="submit">Đăng ký</button>
+        </form>
+
+        <div class="footer-contact">
+          <div class="footer-line">📍 TP.HCM</div>
+          <div class="footer-line">📧 support@gis-tvts.local</div>
+          <div class="footer-line">☎️ 0888 040 735</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        © {% now "Y" %} GIS Tư Vấn Tuyển Sinh. All rights reserved.
+      </div>
+      <button class="to-top" id="toTopBtn" type="button" aria-label="Back to top">⬆</button>
+    </div>
+
+  </div>
+</footer>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

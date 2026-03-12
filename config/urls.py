@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
-
+from home.views import login_view, register_view
 def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
 
@@ -24,7 +24,6 @@ def truong_view(request):
 def nganh_view(request):
     return render(request, "truongdaihoc/nganhhoc.html")
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path("", include("home.urls")),
     path("gioi-thieu/", gioithieu, name="gioithieu"),
     path("tra-cuu/", tracuu, name="tracuu"),
