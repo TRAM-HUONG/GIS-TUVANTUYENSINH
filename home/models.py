@@ -40,7 +40,7 @@ class TruongDaiHoc(models.Model):
         db_column="LOAITRUONG", max_length=50, null=True, blank=True
     )
 
-    # ✅ ĐÃ BỎ CỘT HINHANH trong DB -> bỏ field này trong model
+
 
     madvhc = models.ForeignKey(
         DonViHanhChinh,
@@ -93,7 +93,7 @@ class NganhHoc(models.Model):
 
     mota = models.TextField(db_column="MOTA", null=True, blank=True)
 
-    # ✅ ĐÃ BỎ CỘT HINHANH trong DB -> bỏ field này trong model
+    
 
     class Meta:
         managed = False
