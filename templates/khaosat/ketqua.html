@@ -4,7 +4,7 @@
 {% block title %}Kết quả khảo sát{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/khaosat.css' %}">
+<link rel="stylesheet" href="{% static 'css/ketqua.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -23,14 +23,13 @@
     <div class="kq-divider"></div>
 
     <div class="kq-main">
-      <div class="kq-chip">✅ Nhóm trường gợi ý</div>
+      <div class="kq-chip">✅ Nhóm ngành gợi ý</div>
       <div class="kq-title">{{ level|default:"Chưa có kết quả" }}</div>
       <p class="kq-desc">{{ summary|default:"Vui lòng làm khảo sát để xem kết quả." }}</p>
     </div>
 
     <div class="kq-actions">
-      <a class="ks-btn" href="/tracuu/">🔎 Tra cứu trường phù hợp</a>
-      <a class="ks-btn ks-btn--ghost" href="/khao-sat/">↩️ Làm lại khảo sát</a>
+      <a class="ks-btn ks-btn--ghost" href="{% url 'khao_sat' %}">↩️ Làm lại khảo sát</a>
     </div>
   </div>
 </section>
