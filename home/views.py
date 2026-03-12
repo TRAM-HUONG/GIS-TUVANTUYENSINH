@@ -78,6 +78,9 @@ def is_admin(request):
 # AUTH
 # =========================================================
 
+def is_admin(request):
+    return request.session.get("tenvaitro") == "ADMIN"
+
 def register_view(request):
     if request.method == "POST":
         full_name = request.POST.get("full_name", "").strip()
@@ -105,11 +108,11 @@ def register_view(request):
             return render(request, "auth/dang-ky.html", {
                 "error": "Số điện thoại đã tồn tại."
             })
-
         role_user = VaiTro.objects.filter(tenvaitro="USER").first()
         if not role_user:
             return render(request, "auth/dang-ky.html", {
                 "error": "Chưa có vai trò USER trong cơ sở dữ liệu."
+
             })
 
         username = generate_username_from_email(email)
@@ -155,7 +158,7 @@ def login_view(request):
                 "error": "Tài khoản đã bị khóa."
             })
 
-        if password != user.matkhau:
+        if not check_password(password, user.matkhau):
             return render(request, "auth/dang-nhap.html", {
                 "error": "Mật khẩu không đúng."
             })
@@ -174,8 +177,9 @@ def login_view(request):
 
 
 def logout_view(request):
-    request.session.flush()
+
     return redirect("login")
+
 
 
 # =========================================================
@@ -198,7 +202,6 @@ def home_page(request):
     return render(request, "home/home.html", {
         "truong_noi_bat": truong_noi_bat
     })
-
 
 def map_view(request):
     return render(request, "map/map.html")
