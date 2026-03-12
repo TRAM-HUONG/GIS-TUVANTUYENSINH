@@ -24,7 +24,6 @@ def truong_view(request):
 def nganh_view(request):
     return render(request, "truongdaihoc/nganhhoc.html")
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path("", include("home.urls")),
     path("gioi-thieu/", gioithieu, name="gioithieu"),
     path("tra-cuu/", tracuu, name="tracuu"),

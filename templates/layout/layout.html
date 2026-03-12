@@ -30,8 +30,13 @@
               <span class="brand-text">Tư Vấn Tuyển Sinh</span>
             </a>
             <div class="auth">
+              {% if request.session.hoten %}
+              <span class="user-name">👤 {{ request.session.hoten }}</span>
+              <a class="btn" href="{% url 'logout' %}">🚪 Đăng xuất</a>
+              {% else %}
               <a class="btn" href="{% url 'login' %}">🔐 Đăng nhập</a>
               <a class="btn" href="{% url 'register' %}">🧾 Đăng ký</a>
+              {% endif %}
             </div>
           </div>
           <!-- HÀNG 2 -->
@@ -45,7 +50,13 @@
 
                 <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
                 <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-                <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+                <a class="btn" href="{% url 'khoahoc' %}">📚 Khóa Học</a>
+              {% if request.session.tenvaitro == "ADMIN" %}
+<span class="user-name">
+  <span class="user-icon">👤</span>
+  <span class="user-text">{{ request.session.hoten }}</span>
+</span>
+{% endif %}
               </nav>
           </div>
         </div>
@@ -88,20 +99,17 @@
           <a class="social-btn" href="#" aria-label="YouTube">yt</a>
         </div>
       </div>
-
-      <!-- Column 2 -->
-     <nav class="menu">
-  <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
-  <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
-  <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
-  <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
-  <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-  <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
-
-  {% if request.session.tenvaitro == 'ADMIN' %}
-    <a class="btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
-  {% endif %}
-</nav>
+<div class="row row-2">
+  <nav class="menu">
+    <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
+    <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
+    <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+    <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
+    <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
+    <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+    <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+  </nav>
+</div>
 
       <!-- Column 3 -->
       <div class="footer-col">

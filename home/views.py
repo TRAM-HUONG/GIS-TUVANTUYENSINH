@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q, OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
-from django.http import HttpResponseForbidden
 
 from .models import (
     NguoiDung,
@@ -146,7 +145,7 @@ def login_view(request):
                 "error": "Tài khoản đã bị khóa."
             })
 
-        if not check_password(password, user.matkhau):
+        if password != user.matkhau:
             return render(request, "auth/dang-nhap.html", {
                 "error": "Mật khẩu không đúng."
             })
@@ -201,7 +200,7 @@ def truong_list(request):
         .values("tenfile")[:1]
     )
 
-    truong_list = (
+    truong_list_data = (
         TruongDaiHoc.objects
         .select_related("madvhc")
         .all()
@@ -209,11 +208,11 @@ def truong_list(request):
         .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))
     )
 
-    nganh_list = NganhHoc.objects.all().order_by("tennganh")
+    nganh_list_data = NganhHoc.objects.all().order_by("tennganh")
 
     return render(request, "truongdaihoc/truongdaihoc.html", {
-        "truong_list": truong_list,
-        "nganh_list": nganh_list,
+        "truong_list": truong_list_data,
+        "nganh_list": nganh_list_data,
     })
 
 
@@ -256,10 +255,7 @@ def nganh_detail(request, manganh):
 # =========================================================
 
 def admin_dashboard(request):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập trang quản trị.")
-
-    return render(request, "admin/quantri.html")
+    return render(request, "admin/dashboard.html")
 
 
 # =========================================================
@@ -267,9 +263,6 @@ def admin_dashboard(request):
 # =========================================================
 
 def admin_truong_list(request):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
-
     truongs = TruongDaiHoc.objects.select_related("madvhc").all().order_by("matruong")
     return render(request, "admin/truongdaihoc/list.html", {
         "truongs": truongs
@@ -277,9 +270,6 @@ def admin_truong_list(request):
 
 
 def admin_truong_insert(request):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
-
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
 
     if request.method == "POST":
@@ -334,9 +324,6 @@ def admin_truong_insert(request):
 
 
 def admin_truong_detail(request, matruong):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
-
     truong = get_object_or_404(
         TruongDaiHoc.objects.select_related("madvhc"),
         pk=matruong
@@ -350,9 +337,6 @@ def admin_truong_detail(request, matruong):
 
 
 def admin_truong_edit(request, matruong):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
-
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
     chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
@@ -402,9 +386,6 @@ def admin_truong_edit(request, matruong):
 
 
 def admin_truong_delete(request, matruong):
-    if not is_admin(request):
-        return HttpResponseForbidden("Bạn không có quyền truy cập.")
-
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
 
     if request.method == "POST":
@@ -414,4 +395,42 @@ def admin_truong_delete(request, matruong):
 
     return render(request, "admin/truongdaihoc/delete.html", {
         "truong": truong
+    })
+
+
+# =========================================================
+# ADMIN - NGÀNH HỌC
+# =========================================================
+
+def admin_nganh_list(request):
+    nganhs = NganhHoc.objects.all().order_by("manganh")
+    return render(request, "admin/nganhhoc/list.html", {
+        "nganhs": nganhs
+    })
+
+
+# =========================================================
+# ADMIN - ĐIỂM CHUẨN
+# =========================================================
+
+def admin_diemchuan_list(request):
+    return render(request, "admin/diemchuan/list.html")
+
+
+# =========================================================
+# ADMIN - KHẢO SÁT
+# =========================================================
+
+def admin_khaosat_list(request):
+    return render(request, "admin/khaosat/list.html")
+
+
+# =========================================================
+# ADMIN - NGƯỜI DÙNG
+# =========================================================
+
+def admin_nguoidung_list(request):
+    nguoidungs = NguoiDung.objects.select_related("mavaitro").all().order_by("mand")
+    return render(request, "admin/nguoidung/list.html", {
+        "nguoidungs": nguoidungs
     })

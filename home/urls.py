@@ -20,4 +20,9 @@ urlpatterns = [
     path("admin/truong-dai-hoc/chi-tiet/<str:matruong>/", views.admin_truong_detail, name="admin_truong_detail"),
     path("admin/truong-dai-hoc/sua/<str:matruong>/", views.admin_truong_edit, name="admin_truong_edit"),
     path("admin/truong-dai-hoc/xoa/<str:matruong>/", views.admin_truong_delete, name="admin_truong_delete"),
+
+    path("admin/nganh-hoc/", views.admin_nganh_list, name="admin_nganh_list"),
+    path("admin/diem-chuan/", views.admin_diemchuan_list, name="admin_diemchuan_list"),
+    path("admin/khao-sat/", views.admin_khaosat_list, name="admin_khaosat_list"),
+    path("admin/nguoi-dung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
 ]
