@@ -1,14 +1,154 @@
 {% extends 'layout/layout.html' %}
+{% load static %}
 
 {% block title %}Trang quản trị{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2>⚙️ Trang quản trị hệ thống</h2>
-    <p>Chọn chức năng quản lý:</p>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
 
-    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:20px;">
-        <a href="{% url 'admin_truong_list' %}" class="btn btn-primary">🏫 Quản lý Trường đại học</a>
+{% block content %}
+<div class="admin-page">
+    <div class="admin-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <h3>GIS TVTS</h3>
+                    <p>Quản trị hệ thống</p>
+                </div>
+            </div>
+
+            <nav class="admin-menu">
+                <a href="#" class="active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Tổng quan</span>
+                </a>
+
+                <a href="{% url 'admin_truong_list' %}">
+                    <i class="fa-solid fa-school"></i>
+                    <span>Trường đại học</span>
+                </a>
+
+                <a href="{% url 'admin_chitiettruong_list' %}">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Chi tiết trường</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div>
+                    <h2>Trang quản trị hệ thống</h2>
+                    <p>Quản lý dữ liệu website tư vấn tuyển sinh GIS</p>
+                </div>
+
+                <div class="admin-user">
+                    <div class="admin-avatar">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <strong>Admin</strong>
+                        <p>System Manager</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards thống kê -->
+            <section class="stats-grid">
+                <div class="stat-card pink">
+                    <div class="stat-icon"><i class="fa-solid fa-school"></i></div>
+                    <div>
+                        <h3>12</h3>
+                        <p>Trường đại học</p>
+                    </div>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <div>
+                        <h3>36</h3>
+                        <p>Ngành học</p>
+                    </div>
+                </div>
+
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <h3>24</h3>
+                        <p>Bản ghi điểm chuẩn</p>
+                    </div>
+                </div>
+
+                <div class="stat-card orange">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <h3>08</h3>
+                        <p>Người dùng</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Khối chính -->
+            <section class="dashboard-grid">
+                <div class="dashboard-panel panel-large">
+                    <div class="panel-header">
+                        <h3>Danh mục quản trị</h3>
+                        <span>Hệ thống GIS tuyển sinh</span>
+                    </div>
+
+                    <div class="action-grid">
+                        <a href="{% url 'admin_truong_list' %}" class="action-card">
+                            <div class="action-icon school">
+                                <i class="fa-solid fa-school"></i>
+                            </div>
+                            <h4>Quản lý Trường đại học</h4>
+                            <p>Thêm, sửa, xóa và tra cứu thông tin trường.</p>
+                        </a>
+
+                        <a href="{% url 'admin_chitiettruong_list' %}" class="action-card">
+                            <div class="action-icon detail">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <h4>Quản lý Chi tiết trường</h4>
+                            <p>Quản lý mô tả, website, địa chỉ, tọa độ, nội dung chi tiết.</p>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-panel panel-side">
+                    <div class="panel-header">
+                        <h3>Thông tin nhanh</h3>
+                    </div>
+
+                    <ul class="quick-info">
+                        <li>
+                            <span class="label">Tên hệ thống</span>
+                            <strong>GIS Tư Vấn Tuyển Sinh</strong>
+                        </li>
+                        <li>
+                            <span class="label">Nền tảng</span>
+                            <strong>Django + PostgreSQL</strong>
+                        </li>
+                        <li>
+                            <span class="label">Mục tiêu</span>
+                            <strong>Tra cứu trường, ngành, điểm chuẩn</strong>
+                        </li>
+                        <li>
+                            <span class="label">Vai trò</span>
+                            <strong>Quản trị viên</strong>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
     </div>
 </div>
 {% endblock %}

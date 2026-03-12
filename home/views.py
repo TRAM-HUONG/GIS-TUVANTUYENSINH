@@ -257,6 +257,93 @@ def nganh_detail(request, manganh):
 def admin_dashboard(request):
     return render(request, "admin/dashboard.html")
 
+# =========================================================
+# ADMIN - CHI TIẾT TRƯỜNG
+# =========================================================
+
+def admin_chitiettruong_list(request):
+    chitiets = ChiTietTruong.objects.select_related("matruong").all().order_by("mactt")
+    return render(request, "admin/chitiettruong/list.html", {
+        "chitiets": chitiets
+    })
+
+
+def admin_chitiettruong_insert(request):
+    truongs = TruongDaiHoc.objects.all().order_by("tentruong")
+
+    if request.method == "POST":
+        matruong = request.POST.get("matruong", "").strip()
+        mota = request.POST.get("mota", "").strip()
+        ghichu = request.POST.get("ghichu", "").strip()
+
+        if not matruong:
+            messages.error(request, "Vui lòng chọn trường.")
+            return render(request, "admin/chitiettruong/insert.html", {
+                "truongs": truongs
+            })
+
+        truong = get_object_or_404(TruongDaiHoc, pk=matruong)
+
+        if ChiTietTruong.objects.filter(matruong=truong).exists():
+            messages.error(request, "Trường này đã có chi tiết.")
+            return render(request, "admin/chitiettruong/insert.html", {
+                "truongs": truongs
+            })
+
+        ChiTietTruong.objects.create(
+            mactt=generate_mactt(),
+            matruong=truong,
+            mota=mota or None,
+            ghichu=ghichu or None
+        )
+
+        messages.success(request, "Thêm chi tiết trường thành công.")
+        return redirect("admin_chitiettruong_list")
+
+    return render(request, "admin/chitiettruong/insert.html", {
+        "truongs": truongs
+    })
+
+
+def admin_chitiettruong_detail(request, mactt):
+    chitiet = get_object_or_404(ChiTietTruong.objects.select_related("matruong"), pk=mactt)
+    return render(request, "admin/chitiettruong/detail.html", {
+        "chitiet": chitiet
+    })
+
+
+def admin_chitiettruong_edit(request, mactt):
+    chitiet = get_object_or_404(ChiTietTruong, pk=mactt)
+    truongs = TruongDaiHoc.objects.all().order_by("tentruong")
+
+    if request.method == "POST":
+        matruong = request.POST.get("matruong", "").strip()
+        chitiet.matruong = get_object_or_404(TruongDaiHoc, pk=matruong)
+        chitiet.mota = request.POST.get("mota", "").strip() or None
+        chitiet.ghichu = request.POST.get("ghichu", "").strip() or None
+        chitiet.save()
+
+        messages.success(request, "Cập nhật chi tiết trường thành công.")
+        return redirect("admin_chitiettruong_list")
+
+    return render(request, "admin/chitiettruong/edit.html", {
+        "chitiet": chitiet,
+        "truongs": truongs
+    })
+
+
+def admin_chitiettruong_delete(request, mactt):
+    chitiet = get_object_or_404(ChiTietTruong, pk=mactt)
+
+    if request.method == "POST":
+        chitiet.delete()
+        messages.success(request, "Xóa chi tiết trường thành công.")
+        return redirect("admin_chitiettruong_list")
+
+    return render(request, "admin/chitiettruong/delete.html", {
+        "chitiet": chitiet
+    })
+
 
 # =========================================================
 # ADMIN - TRƯỜNG ĐẠI HỌC
@@ -353,10 +440,11 @@ def admin_truong_edit(request, matruong):
         truong.email = request.POST.get("email", "").strip() or None
         truong.dienthoai = request.POST.get("dienthoai", "").strip() or None
 
-        lat = request.POST.get("lat", "").strip()
-        lng = request.POST.get("lng", "").strip()
-        truong.lat = float(lat) if lat else None
-        truong.lng = float(lng) if lng else None
+        lat = request.POST.get("lat")
+        lng = request.POST.get("lng")
+
+        truong.lat = float(lat) if lat not in [None, "", "None"] else None
+        truong.lng = float(lng) if lng not in [None, "", "None"] else None
 
         truong.save()
 

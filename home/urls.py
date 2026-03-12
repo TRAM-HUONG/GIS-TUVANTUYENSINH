@@ -21,8 +21,9 @@ urlpatterns = [
     path("admin/truong-dai-hoc/sua/<str:matruong>/", views.admin_truong_edit, name="admin_truong_edit"),
     path("admin/truong-dai-hoc/xoa/<str:matruong>/", views.admin_truong_delete, name="admin_truong_delete"),
 
-    path("admin/nganh-hoc/", views.admin_nganh_list, name="admin_nganh_list"),
-    path("admin/diem-chuan/", views.admin_diemchuan_list, name="admin_diemchuan_list"),
-    path("admin/khao-sat/", views.admin_khaosat_list, name="admin_khaosat_list"),
-    path("admin/nguoi-dung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
-]
+    path("admin/chi-tiet-truong/", views.admin_chitiettruong_list, name="admin_chitiettruong_list"),
+    path("admin/chi-tiet-truong/them/", views.admin_chitiettruong_insert, name="admin_chitiettruong_insert"),
+    path("admin/chi-tiet-truong/chi-tiet/<str:mactt>/", views.admin_chitiettruong_detail, name="admin_chitiettruong_detail"),
+    path("admin/chi-tiet-truong/sua/<str:mactt>/", views.admin_chitiettruong_edit, name="admin_chitiettruong_edit"),
+    path("admin/chi-tiet-truong/xoa/<str:mactt>/", views.admin_chitiettruong_delete, name="admin_chitiettruong_delete"),
+    ]
