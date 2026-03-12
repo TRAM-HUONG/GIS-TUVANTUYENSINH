@@ -1,6 +1,6 @@
 {% extends 'layout/layout.html' %}
 
-{% load static %}  
+{% load static %}
 
 {% block title %}Đăng ký - Tư Vấn Tuyển Sinh{% endblock %}
 
@@ -13,7 +13,7 @@
     <h2>Đăng ký tài khoản</h2>
     <form method="POST">
       {% csrf_token %}
-      
+
       <!-- Tên người dùng -->
       <label for="full_name">Họ và tên <span class="required">*</span></label>
       <input type="text" name="full_name" id="full_name" placeholder="Nhập họ và tên" required>
@@ -37,7 +37,15 @@
       <button type="submit" class="btn-primary">Đăng ký</button>
     </form>
 
-    <!-- Thêm liên kết cho người dùng đã có tài khoản -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <p class="message">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Liên kết cho người dùng đã có tài khoản -->
     <p class="redirect-login">
       Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập tại đây</a>
     </p>

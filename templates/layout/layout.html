@@ -51,12 +51,15 @@
                 <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
                 <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
                 <a class="btn" href="{% url 'khoahoc' %}">📚 Khóa Học</a>
-                {% if request.session.tenvaitro == "ADMIN" %}
-                <span class="user-name">
-                  <span class="user-icon">👤</span>
-                  <span class="user-text">{{ request.session.hoten }}</span>
-                </span>
-                {% endif %} 
+                   <!-- Kiểm tra xem người dùng có vai trò ADMIN không -->
+            {% if request.session.tenvaitro == "ADMIN" %}
+              <span class="user-name">
+                <span class="user-icon">👤</span>
+                <span class="user-text">{{ request.session.hoten }}</span>
+              </span>
+              <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+            {% endif %}  
+              
               </nav>
           </div>
         </div>
@@ -171,7 +174,7 @@
     <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
     <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
     <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
-    <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+   
   </nav>
 </div>
       <!-- Column 3 -->

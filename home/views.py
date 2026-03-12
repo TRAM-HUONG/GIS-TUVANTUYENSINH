@@ -5,6 +5,14 @@ from django.db.models import OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
+from django.db.models import Q  # Add this line
+
+from .models import NguoiDung, VaiTro
+import re 
+# Your existing code...
 
 from .models import (
     TruongDaiHoc,
@@ -89,43 +97,50 @@ def register_view(request):
         password = request.POST.get("password", "").strip()
         password_confirmation = request.POST.get("password_confirmation", "").strip()
 
+        # Kiểm tra rỗng
         if not full_name or not email or not phone_number or not password or not password_confirmation:
-            return render(request, "auth/dang-ky.html", {
-                "error": "Vui lòng nhập đầy đủ thông tin."
-            })
+            messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
+            return render(request, "auth/dang-ky.html")
 
+        # Kiểm tra mật khẩu xác nhận
         if password != password_confirmation:
-            return render(request, "auth/dang-ky.html", {
-                "error": "Mật khẩu xác nhận không khớp."
-            })
+            messages.error(request, "Mật khẩu xác nhận không khớp.")
+            return render(request, "auth/dang-ky.html")
 
+        # Kiểm tra email đã tồn tại
         if NguoiDung.objects.filter(email=email).exists():
-            return render(request, "auth/dang-ky.html", {
-                "error": "Email đã tồn tại."
-            })
+            messages.error(request, "Email đã tồn tại.")
+            return render(request, "auth/dang-ky.html")
 
+        # Kiểm tra số điện thoại đã tồn tại
         if NguoiDung.objects.filter(sodienthoai=phone_number).exists():
-            return render(request, "auth/dang-ky.html", {
-                "error": "Số điện thoại đã tồn tại."
-            })
+            messages.error(request, "Số điện thoại đã tồn tại.")
+            return render(request, "auth/dang-ky.html")
+
+        # Kiểm tra mật khẩu có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', password):
+            messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự, bao gồm cả chữ và số.")
+            return render(request, "auth/dang-ky.html")
+
+        # Kiểm tra vai trò USER
         role_user = VaiTro.objects.filter(tenvaitro="USER").first()
         if not role_user:
-            return render(request, "auth/dang-ky.html", {
-                "error": "Chưa có vai trò USER trong cơ sở dữ liệu."
+            VaiTro.objects.create(mavaitro='USER', tenvaitro='USER', mota='Người dùng')
+            role_user = VaiTro.objects.get(tenvaitro='USER')
 
-            })
-
+        # Tạo username từ email
         username = generate_username_from_email(email)
 
+        # Lưu người dùng mới vào database
         NguoiDung.objects.create(
             mand=generate_mand(),
             hoten=full_name,
             email=email,
             sodienthoai=phone_number,
             tendangnhap=username,
-            matkhau=make_password(password),
+            matkhau=password,  # Lưu mật khẩu đã được mã hóa
             mavaitro=role_user,
-            trangthai="HOATDONG",
+            trangthai="HOATDONG"
         )
 
         messages.success(request, "Đăng ký thành công. Vui lòng đăng nhập.")
@@ -133,35 +148,21 @@ def register_view(request):
 
     return render(request, "auth/dang-ky.html")
 
-
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
 
         if not username or not password:
-            return render(request, "auth/dang-nhap.html", {
-                "error": "Vui lòng nhập đầy đủ thông tin đăng nhập."
-            })
+            return render(request, "auth/dang-nhap.html", {"error": "Vui lòng nhập đầy đủ thông tin đăng nhập."})
 
-        user = NguoiDung.objects.filter(
-            Q(tendangnhap=username) | Q(email=username)
-        ).select_related("mavaitro").first()
+        user = NguoiDung.objects.filter(Q(tendangnhap=username) | Q(email=username)).first()
 
         if not user:
-            return render(request, "auth/dang-nhap.html", {
-                "error": "Tài khoản không tồn tại."
-            })
+            return render(request, "auth/dang-nhap.html", {"error": "Tài khoản không tồn tại."})
 
-        if user.trangthai != "HOATDONG":
-            return render(request, "auth/dang-nhap.html", {
-                "error": "Tài khoản đã bị khóa."
-            })
-
-        if not check_password(password, user.matkhau):
-            return render(request, "auth/dang-nhap.html", {
-                "error": "Mật khẩu không đúng."
-            })
+        if password != user.matkhau:
+            return render(request, "auth/dang-nhap.html", {"error": "Mật khẩu không đúng."})
 
         request.session["mand"] = user.mand
         request.session["hoten"] = user.hoten
@@ -175,9 +176,9 @@ def login_view(request):
 
     return render(request, "auth/dang-nhap.html")
 
-
 def logout_view(request):
-
+    request.session.flush()
+    messages.success(request, "Đăng xuất thành công.")
     return redirect("login")
 
 
@@ -345,22 +346,6 @@ def ketqua_khao_sat_view(request):
             "summary": summary,
         },
     )
-
-
-def login_view(request):
-    return render(request, "auth/dangnhap.html")
-
-
-def register_view(request):
-    return render(request, "auth/dangky.html")
-
-    return render(request, "truongdaihoc/nganhhoc.html", {
-        "nganh": nganh,
-        "hinh_nganh": hinh_nganh,
-        "ds_truong": ds_truong,
-    })
-
-
 # =========================================================
 # ADMIN DASHBOARD
 # =========================================================
