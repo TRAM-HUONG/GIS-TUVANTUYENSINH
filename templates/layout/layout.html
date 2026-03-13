@@ -53,10 +53,7 @@
                 <a class="btn" href="{% url 'khoahoc' %}">📚 Khóa Học</a>
                    <!-- Kiểm tra xem người dùng có vai trò ADMIN không -->
             {% if request.session.tenvaitro == "ADMIN" %}
-              <span class="user-name">
-                <span class="user-icon">👤</span>
-                <span class="user-text">{{ request.session.hoten }}</span>
-              </span>
+            
               <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
             {% endif %}  
               

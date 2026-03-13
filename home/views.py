@@ -272,7 +272,7 @@ def gioithieu(request):
 
 
 def tracuu(request):
-    return render(request, "tracuu/tracuu.html")
+    return render(request, "map/map.html")
 
 
 def khao_sat_view(request):
