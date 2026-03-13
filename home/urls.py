@@ -26,4 +26,10 @@ urlpatterns = [
     path("admin/chi-tiet-truong/chi-tiet/<str:mactt>/", views.admin_chitiettruong_detail, name="admin_chitiettruong_detail"),
     path("admin/chi-tiet-truong/sua/<str:mactt>/", views.admin_chitiettruong_edit, name="admin_chitiettruong_edit"),
     path("admin/chi-tiet-truong/xoa/<str:mactt>/", views.admin_chitiettruong_delete, name="admin_chitiettruong_delete"),
+    
+    path('admin/nganh/', views.admin_nganh_list, name='admin_nganh_list'),
+    path('admin/nganh/them/', views.admin_nganh_insert, name='admin_nganh_insert'),
+    path('admin/nganh/sua/<str:manganh>/', views.admin_nganh_edit, name='admin_nganh_edit'),
+    path('admin/nganh/xoa/<str:manganh>/', views.admin_nganh_delete, name='admin_nganh_delete'),
+    path('admin/nganh/chi-tiet/<str:manganh>/', views.admin_nganh_detail, name='admin_nganh_detail'),
     ]

@@ -1,0 +1,91 @@
+:root{
+  /* palette theo ảnh */
+  --c1:#FF99FF;
+  --c2:#CC99FF;
+  --c3:#9999FF;
+  --c4:#6699FF;
+  --c5:#3399FF;
+  --c6:#0099FF;
+
+  --p1:#FF99CC;
+  --p2:#CC99CC;
+  --p3:#9999CC;
+  --p4:#6699CC;
+  --p5:#3399CC;
+  --p6:#0099CC;
+
+  --ink:#0b1b33;
+  --muted:rgba(11,27,51,.65);
+
+  --card:rgba(255,255,255,.88);
+  --glass:rgba(255,255,255,.30);
+  --border:rgba(11,27,51,.10);
+
+  --shadow: 0 18px 50px rgba(0,0,0,.12);
+  --shadowStrong: 0 24px 60px rgba(0,0,0,.18);
+
+  --r14:14px;
+  --r18:18px;
+  --r20:20px;
+
+  --wrap: 1800px;
+}
+body {
+    background-color: var(--bg1);
+    color: var(--text);
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--accent);
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--text);
+}
+
+form {
+    display: inline-block;
+    width: 100%;
+    max-width: 600px; /* Limit form width */
+    padding: 20px;
+    background-color: var(--card);
+    border-radius: var(--r16);
+    box-shadow: var(--shadow);
+}
+
+form button {
+    padding: 12px 24px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--r16);
+    cursor: pointer;
+    box-shadow: var(--shadow2);
+    margin-top: 10px;
+    width: 100%;
+}
+
+form button:hover {
+    background-color: var(--accent2);
+}
+
+form a {
+    padding: 12px 24px;
+    background-color: var(--muted);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--r16);
+    box-shadow: var(--shadow2);
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+form a:hover {
+    background-color: var(--accent2);
+}

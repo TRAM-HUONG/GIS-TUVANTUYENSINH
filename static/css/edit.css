@@ -1,0 +1,116 @@
+:root{
+  /* palette theo ảnh */
+  --c1:#FF99FF;
+  --c2:#CC99FF;
+  --c3:#9999FF;
+  --c4:#6699FF;
+  --c5:#3399FF;
+  --c6:#0099FF;
+
+  --p1:#FF99CC;
+  --p2:#CC99CC;
+  --p3:#9999CC;
+  --p4:#6699CC;
+  --p5:#3399CC;
+  --p6:#0099CC;
+
+  --ink:#0b1b33;
+  --muted:rgba(11,27,51,.65);
+
+  --card:rgba(255,255,255,.88);
+  --glass:rgba(255,255,255,.30);
+  --border:rgba(11,27,51,.10);
+
+  --shadow: 0 18px 50px rgba(0,0,0,.12);
+  --shadowStrong: 0 24px 60px rgba(0,0,0,.18);
+
+  --r14:14px;
+  --r18:18px;
+  --r20:20px;
+
+  --wrap: 1800px;
+}
+body {
+    background-color: var(--bg1);
+    color: var(--text);
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+form {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--card2);
+    border-radius: var(--r16);
+    box-shadow: var(--shadow);
+}
+
+form .mb-3 {
+    margin-bottom: 20px;
+}
+
+form label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text);
+}
+
+form input,
+form textarea,
+form select {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    margin-top: 8px;
+    border-radius: var(--r16);
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: var(--shadow2);
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+form button {
+    padding: 12px 24px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--r16);
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    box-shadow: var(--shadow2);
+}
+
+form button:hover {
+    background-color: var(--accent2);
+}
+
+form a {
+    padding: 12px 24px;
+    background-color: var(--muted);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--r16);
+    box-shadow: var(--shadow2);
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+form a:hover {
+    background-color: var(--accent2);
+}

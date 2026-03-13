@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q, OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 
 from .models import (
     NguoiDung,
@@ -262,9 +263,24 @@ def admin_dashboard(request):
 # =========================================================
 
 def admin_chitiettruong_list(request):
-    chitiets = ChiTietTruong.objects.select_related("matruong").all().order_by("mactt")
+    keyword = request.GET.get('keyword', '')  # Get search keyword from GET request
+
+    # Filter ChiTietTruong by the search keyword (matruong or description)
+    if keyword:
+        chitiets = ChiTietTruong.objects.filter(
+            Q(matruong__matruong__icontains=keyword) | Q(mota__icontains=keyword)
+        ).order_by('mactt')
+    else:
+        chitiets = ChiTietTruong.objects.all().order_by('mactt')
+
+    # Pagination
+    paginator = Paginator(chitiets, 10)  # Show 10 records per page
+    page_number = request.GET.get('page')
+    chitiets = paginator.get_page(page_number)
+
     return render(request, "admin/chitiettruong/list.html", {
-        "chitiets": chitiets
+        "chitiets": chitiets,
+        "keyword": keyword,  # Pass the search keyword to keep it in the search input field
     })
 
 
@@ -348,13 +364,26 @@ def admin_chitiettruong_delete(request, mactt):
 # =========================================================
 # ADMIN - TRƯỜNG ĐẠI HỌC
 # =========================================================
-
 def admin_truong_list(request):
-    truongs = TruongDaiHoc.objects.select_related("madvhc").all().order_by("matruong")
-    return render(request, "admin/truongdaihoc/list.html", {
-        "truongs": truongs
-    })
+    keyword = request.GET.get('keyword', '')  # Lấy từ khóa tìm kiếm từ GET
 
+    # Lọc danh sách trường theo từ khóa tìm kiếm
+    if keyword:
+        truongs = TruongDaiHoc.objects.filter(
+            Q(matruong__icontains=keyword) | Q(tentruong__icontains=keyword)
+        )
+    else:
+        truongs = TruongDaiHoc.objects.all()
+
+    # Phân trang
+    paginator = Paginator(truongs, 10)  # Hiển thị 10 trường mỗi trang
+    page_number = request.GET.get('page')
+    truongs = paginator.get_page(page_number)
+
+    return render(request, "admin/truongdaihoc/list.html", {
+        'truongs': truongs,
+        'keyword': keyword,  # Truyền từ khóa tìm kiếm để hiển thị trong ô tìm kiếm
+    })
 
 def admin_truong_insert(request):
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
@@ -489,11 +518,74 @@ def admin_truong_delete(request, matruong):
 # =========================================================
 # ADMIN - NGÀNH HỌC
 # =========================================================
-
 def admin_nganh_list(request):
     nganhs = NganhHoc.objects.all().order_by("manganh")
+    keyword = request.GET.get('keyword', '')  # For searching
+    if keyword:
+        nganhs = nganhs.filter(manganh__icontains=keyword) | nganhs.filter(tennganh__icontains=keyword)
     return render(request, "admin/nganhhoc/list.html", {
-        "nganhs": nganhs
+        "nganhs": nganhs,
+        "keyword": keyword,
+    })
+
+# View to add a new major
+def admin_nganh_insert(request):
+    if request.method == "POST":
+        tennganh = request.POST.get("tennganh", "").strip()
+        linhvuc = request.POST.get("linhvuc", "").strip()
+        mota = request.POST.get("mota", "").strip()
+
+        if not tennganh or not linhvuc:
+            messages.error(request, "Tên ngành và lĩnh vực không được để trống.")
+            return render(request, "admin/nganhhoc/insert.html")
+
+        NganhHoc.objects.create(
+            manganh=generate_manganh(),  # Assuming you have a similar function for generating Mã ngành
+            tennganh=tennganh,
+            linhvuc=linhvuc,
+            mota=mota or None,
+        )
+
+        messages.success(request, "Thêm ngành học thành công.")
+        return redirect("admin_nganh_list")
+
+    return render(request, "admin/nganhhoc/insert.html")
+
+# View to edit a major
+def admin_nganh_edit(request, manganh):
+    nganh = get_object_or_404(NganhHoc, pk=manganh)
+
+    if request.method == "POST":
+        nganh.tennganh = request.POST.get("tennganh", "").strip()
+        nganh.linhvuc = request.POST.get("linhvuc", "").strip()
+        nganh.mota = request.POST.get("mota", "").strip() or None
+        nganh.save()
+
+        messages.success(request, "Cập nhật ngành học thành công.")
+        return redirect("admin_nganh_list")
+
+    return render(request, "admin/nganhhoc/edit.html", {
+        "nganh": nganh
+    })
+
+# View to delete a major
+def admin_nganh_delete(request, manganh):
+    nganh = get_object_or_404(NganhHoc, pk=manganh)
+
+    if request.method == "POST":
+        nganh.delete()
+        messages.success(request, "Xóa ngành học thành công.")
+        return redirect("admin_nganh_list")
+
+    return render(request, "admin/nganhhoc/delete.html", {
+        "nganh": nganh
+    })
+
+# View to display details of a major
+def admin_nganh_detail(request, manganh):
+    nganh = get_object_or_404(NganhHoc, pk=manganh)
+    return render(request, "admin/nganhhoc/detail.html", {
+        "nganh": nganh
     })
 
 

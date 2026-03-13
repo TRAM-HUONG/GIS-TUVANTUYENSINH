@@ -1,0 +1,45 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Sửa chi tiết trường đại học</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Mã chi tiết</label>
+            <input type="text" class="form-control" value="{{ chitiet.mactt }}" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label>Mã trường</label>
+            <select name="matruong" class="form-control" required>
+                {% for truong in truongs %}
+                    <option value="{{ truong.matruong }}" {% if truong.matruong == chitiet.matruong.matruong %}selected{% endif %}>
+                        {{ truong.tentruong }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Mô tả</label>
+            <textarea name="mota" class="form-control">{{ chitiet.mota }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Ghi chú</label>
+            <input type="text" name="ghichu" class="form-control" value="{{ chitiet.ghichu }}">
+        </div>
+
+        <button type="submit" class="btn btn-warning">Cập nhật</button>
+        <a href="{% url 'admin_chitiettruong_list' %}" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>
+{% endblock %}

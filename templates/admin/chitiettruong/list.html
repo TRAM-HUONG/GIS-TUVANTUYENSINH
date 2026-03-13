@@ -1,0 +1,68 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Quản lý chi tiết trường đại học</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Form tìm kiếm và Thêm chi tiết -->
+    <form method="get" class="mb-3">
+        <input type="text" name="keyword" value="{{ keyword }}" placeholder="Nhập mã chi tiết, mô tả..." class="form-control mb-2">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a href="{% url 'admin_chitiettruong_insert' %}" class="btn btn-success">Thêm chi tiết</a>
+    </form>
+
+    <!-- Bảng danh sách chi tiết -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Mã chi tiết</th>
+                <th>Mã trường</th>
+                <th>Mô tả</th>
+                <th>Ghi chú</th>
+                <th width="220">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for chitiet in chitiets %}
+            <tr>
+                <td>{{ chitiet.mactt }}</td>
+                <td>{{ chitiet.matruong.matruong }}</td>
+                <td>{{ chitiet.mota }}</td>
+                <td>{{ chitiet.ghichu }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'admin_chitiettruong_detail' chitiet.mactt %}" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a href="{% url 'admin_chitiettruong_edit' chitiet.mactt %}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a href="{% url 'admin_chitiettruong_delete' chitiet.mactt %}" class="btn btn-danger btn-sm">Xóa</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">Không có dữ liệu</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <div class="pagination">
+        <span class="pagination-text">Trang {{ chitiets.paginator.num_pages }} của {{ chitiets.paginator.page_range|length }}</span>
+        {% if chitiets.has_previous %}
+            <a href="?page={{ chitiets.previous_page_number }}&keyword={{ keyword }}" class="btn btn-secondary">Trang trước</a>
+        {% endif %}
+        {% if chitiets.has_next %}
+            <a href="?page={{ chitiets.next_page_number }}&keyword={{ keyword }}" class="btn btn-secondary">Trang sau</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
