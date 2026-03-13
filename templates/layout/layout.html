@@ -51,12 +51,9 @@
                 <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
                 <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
                 <a class="btn" href="{% url 'khoahoc' %}">📚 Khóa Học</a>
-                   <!-- Kiểm tra xem người dùng có vai trò ADMIN không -->
-            {% if request.session.tenvaitro == "ADMIN" %}
-            
-              <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
-            {% endif %}  
-              
+                {% if request.session.tenvaitro == "ADMIN" %}
+                 <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+                {% endif %} 
               </nav>
           </div>
         </div>

@@ -1,4 +1,10 @@
 {% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h2>Quản lý trường đại học</h2>
@@ -9,12 +15,14 @@
         {% endfor %}
     {% endif %}
 
+    <!-- Form tìm kiếm và Thêm trường -->
     <form method="get" class="mb-3">
         <input type="text" name="keyword" value="{{ keyword }}" placeholder="Nhập mã trường, tên trường..." class="form-control mb-2">
         <button type="submit" class="btn btn-primary">Tìm kiếm</button>
         <a href="{% url 'admin_truong_insert' %}" class="btn btn-success">Thêm trường</a>
     </form>
 
+    <!-- Bảng danh sách trường -->
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
@@ -34,7 +42,7 @@
                 <td>{{ truong.loaitruong }}</td>
                 <td>{{ truong.madvhc.tendvhc }}</td>
                 <td>{{ truong.dienthoai }}</td>
-                <td>
+                <td class="action-buttons">
                     <a href="{% url 'admin_truong_detail' truong.matruong %}" class="btn btn-info btn-sm">Chi tiết</a>
                     <a href="{% url 'admin_truong_edit' truong.matruong %}" class="btn btn-warning btn-sm">Sửa</a>
                     <a href="{% url 'admin_truong_delete' truong.matruong %}" class="btn btn-danger btn-sm">Xóa</a>
@@ -47,5 +55,16 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Phân trang -->
+    <div class="pagination">
+        <span class="pagination-text">Trang {{ truongs.paginator.num_pages }} của {{ truongs.paginator.page_range|length }}</span>
+        {% if truongs.has_previous %}
+            <a href="?page={{ truongs.previous_page_number }}&keyword={{ keyword }}" class="btn btn-secondary">Trang trước</a>
+        {% endif %}
+        {% if truongs.has_next %}
+            <a href="?page={{ truongs.next_page_number }}&keyword={{ keyword }}" class="btn btn-secondary">Trang sau</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
