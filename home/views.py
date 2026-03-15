@@ -1,15 +1,15 @@
 
 
 from django.shortcuts import render, get_object_or_404,redirect
-from django.db.models import OuterRef, Subquery
-from django.db.models.functions import Coalesce
+
 from django.db.models import Value
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
-<<<<<<< HEAD
-from django.db.models import Q  # Add this line
+from django.db.models import Q, OuterRef, Subquery, Value
+from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 
 from .models import NguoiDung, VaiTro
 import re 
@@ -22,11 +22,8 @@ from .models import (
     KetQuaKhaoSat,
 )
 
-=======
-from django.db.models import Q, OuterRef, Subquery, Value
-from django.db.models.functions import Coalesce
-from django.core.paginator import Paginator
->>>>>>> feature/admin
+
+
 
 from .models import (
     NguoiDung,
