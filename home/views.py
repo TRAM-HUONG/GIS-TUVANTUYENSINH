@@ -232,24 +232,26 @@ def truong_list(request):
         "truong_list": truong_list_data,
         "nganh_list": nganh_list_data,
     })
-
+from django.shortcuts import render, get_object_or_404
+from .models import TruongDaiHoc, ChiTietTruong, ChiTietNganh, HinhAnhTruong
 
 def truong_detail(request, matruong):
-    truong = get_object_or_404(
-        TruongDaiHoc.objects.select_related("madvhc"),
-        pk=matruong
-    )
-    hinh_truong = HinhAnhTruong.objects.filter(matruong_id=matruong).first()
-    ctt = ChiTietTruong.objects.filter(matruong_id=matruong).first()
-    ct_nganh = ChiTietNganh.objects.filter(matruong_id=matruong).select_related("manganh")
+    truong = get_object_or_404(TruongDaiHoc, matruong=matruong)
 
-    return render(request, "home/truong_detail.html", {
+    ctt = ChiTietTruong.objects.filter(matruong=truong).first()
+    ct_nganh = ChiTietNganh.objects.filter(matruong=truong)
+    hinh_truong = HinhAnhTruong.objects.filter(matruong=truong).first()
+
+    context = {
         "truong": truong,
-        "hinh_truong": hinh_truong,
         "ctt": ctt,
         "ct_nganh": ct_nganh,
-    })
+        "hinh_truong": hinh_truong,
+        "lat": truong.lat,
+        "lng": truong.lng,
+    }
 
+    return render(request, "home/truong_detail.html", context)
 
 def nganh_detail(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)

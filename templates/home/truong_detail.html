@@ -1,14 +1,17 @@
 {% extends "layout/layout.html" %}
 {% load static %}
+{% load l10n %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/truong_detail.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+
 {% endblock %}
 
 {% block content %}
 <section class="td-wrap">
 
-  <!-- HERO -->
   <div class="td-hero">
     <div class="td-hero-left">
       <div class="td-brand">
@@ -35,6 +38,7 @@
             </a>
           </div>
         </div>
+
         {% if ctt %}
         <div class="meta-item">
           <div class="meta-label">📝 Ghi chú</div>
@@ -44,7 +48,6 @@
       </div>
     </div>
 
-    <!-- ẢNH TRƯỜNG -->
     <div class="td-hero-right">
       {% if hinh_truong %}
         <img class="td-cover" src="{% static 'img/TDH/' %}{{ hinh_truong.tenfile }}" alt="Ảnh {{ truong.tentruong }}">
@@ -56,28 +59,91 @@
     </div>
   </div>
 
-  <!-- Khung bản đồ -->
   <div class="card">
     <div class="card-head">
-      <h2 class="card-title">🗺️ Bản đồ trường</h2>
+      <h2 class="card-title">🗺️ Vị trí trường học</h2>
+      <div class="card-sub">Nhập vị trí hiện tại hoặc dùng GPS để tính đường đi đến trường</div>
     </div>
+
     <div class="card-body">
-      <!-- Nhúng bản đồ OpenStreetMap -->
-      <iframe
-        width="100%"
-        height="400"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=106.55%2C10.70%2C106.80%2C10.90&layer=mapnik"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="OpenStreetMap"
-      ></iframe>
+      {% if lat and lng %}
+        <div id="school-map"></div>
+
+        <div class="map-note">
+          <div><b>Tọa độ trường từ database:</b> {{ lat|unlocalize }}, {{ lng|unlocalize }}</div>
+          <div><b>Mã trường:</b> {{ truong.matruong }}</div>
+        </div>
+
+        <div class="tool-panel">
+          <div class="tool-box tool-box-wide">
+            <label for="manualAddress">📍 Nhập vị trí hiện tại của bạn</label>
+            <input
+              type="text"
+              id="manualAddress"
+              placeholder="Ví dụ: 236 Lê Văn Sỹ, Tân Bình, TP.HCM"
+            >
+            <div class="muted" style="margin-top:8px; font-size:13px;">
+              Nhập càng rõ càng dễ ra đúng vị trí.
+            </div>
+          </div>
+
+          <div class="tool-box">
+            <label>&nbsp;</label>
+            <button type="button" id="btnSearchAddress">🔎 Tìm vị trí đã nhập</button>
+          </div>
+
+          <div class="tool-box">
+            <label for="vehicleSelect">🚗 Chọn phương tiện</label>
+            <select id="vehicleSelect">
+              <option value="driving" selected>Ô tô / Xe máy</option>
+              <option value="cycling">Xe đạp</option>
+              <option value="walking">Đi bộ</option>
+            </select>
+          </div>
+
+          <div class="tool-box">
+            <label>&nbsp;</label>
+            <button type="button" id="btnGetLocation">📡 Dùng GPS hiện tại</button>
+          </div>
+
+          <div class="tool-box">
+            <label>&nbsp;</label>
+            <button type="button" id="btnRecalc" class="secondary">🔁 Tính lại tuyến đường</button>
+          </div>
+        </div>
+
+        <div class="route-panel">
+          <div class="route-box">
+            <div class="route-label">📌 Vị trí xuất phát</div>
+            <div class="route-value" id="userLocationText">Chưa có vị trí</div>
+          </div>
+
+          <div class="route-box">
+            <div class="route-label">🏫 Điểm đến</div>
+            <div class="route-value">{{ truong.tentruong }}</div>
+          </div>
+
+          <div class="route-box">
+            <div class="route-label">🛣️ Quãng đường thực tế</div>
+            <div class="route-value" id="routeDistanceText">-- km</div>
+          </div>
+
+          <div class="route-box">
+            <div class="route-label">⏱️ Thời gian di chuyển</div>
+            <div class="route-value" id="durationText">-- phút</div>
+          </div>
+        </div>
+
+        <div class="status-box" id="statusBox">
+          Hãy nhập vị trí hiện tại hoặc dùng GPS để bắt đầu tính đường đi.
+        </div>
+      {% else %}
+        <div class="desc muted">Chưa có tọa độ LAT/LNG cho trường này trong database.</div>
+      {% endif %}
     </div>
   </div>
 
-  <!-- CONTENT GRID -->
   <div class="td-grid">
-
-    <!-- MÔ TẢ TRƯỜNG -->
     <div class="card">
       <div class="card-head">
         <h2 class="card-title">✨ Mô tả trường</h2>
@@ -91,7 +157,6 @@
       </div>
     </div>
 
-    <!-- NGÀNH LIÊN QUAN -->
     <div class="card">
       <div class="card-head">
         <h2 class="card-title">🎓 Ngành đào tạo liên quan</h2>
@@ -103,20 +168,20 @@
         <div class="major-list">
           {% for x in ct_nganh %}
             <div class="major-item">
-               <div class="major-top">
-                  <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.id }}')" class="major-name">{{ x.manganh.tennganh }}</a>
-                </div>
-                <div id="details-{{ x.manganh.id }}" class="major-details" style="display: none;">
-                  <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
-                  <p><b>Mô tả:</b> {{ x.manganh.mota }}</p>
-                  <p><b>Học phí:</b> {{ x.hocphi }}</p>
-                  <p><b>Thời gian học:</b> {{ x.thoigianhoc }}</p>
-                </div>
-           </div>
+              <div class="major-top">
+                <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.manganh }}')" class="major-name">
+                  {{ x.manganh.tennganh }}
+                </a>
+              </div>
+              <div id="details-{{ x.manganh.manganh }}" class="major-details" style="display: none;">
+                <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
+                <p><b>Mô tả:</b> {{ x.manganh.mota }}</p>
+                <p><b>Học phí:</b> {{ x.hocphi }}</p>
+                <p><b>Thời gian học:</b> {{ x.thoigianhoc }}</p>
+              </div>
+            </div>
           {% endfor %}
         </div>
-
-          </div>
         {% else %}
           <div class="desc muted">Chưa có ngành liên quan. (Thêm vào bảng CHITIETNGANH)</div>
         {% endif %}
@@ -128,7 +193,6 @@
 </section>
 
 <script>
-  // Hàm để hiển thị hoặc ẩn chi tiết ngành
   function showDetails(majorId) {
     var detailsDiv = document.getElementById("details-" + majorId);
     if (detailsDiv.style.display === "none") {
@@ -139,5 +203,275 @@
   }
 </script>
 
-{% endblock %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+{% if lat and lng %}
+<script>
+  const schoolLat = parseFloat("{{ lat|unlocalize|default:'0' }}");
+  const schoolLng = parseFloat("{{ lng|unlocalize|default:'0' }}");
+  const schoolName = "{{ truong.tentruong|escapejs }}";
+  const schoolAddress = "{{ truong.diachi|default:'Chưa có địa chỉ'|escapejs }}";
+
+  let userLat = null;
+  let userLng = null;
+  let userMarker = null;
+  let routeLine = null;
+
+  const userLocationText = document.getElementById("userLocationText");
+  const routeDistanceText = document.getElementById("routeDistanceText");
+  const durationText = document.getElementById("durationText");
+  const statusBox = document.getElementById("statusBox");
+  const vehicleSelect = document.getElementById("vehicleSelect");
+  const manualAddressInput = document.getElementById("manualAddress");
+
+  const map = L.map("school-map").setView([schoolLat, schoolLng], 16);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  const schoolIcon = L.divIcon({
+    html: `
+      <div style="
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px rgba(37,99,235,.25);
+      "></div>
+    `,
+    className: "",
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+
+  const personIcon = L.divIcon({
+    html: `
+      <div style="
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #dc2626;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px rgba(220,38,38,.25);
+      "></div>
+    `,
+    className: "",
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+
+  L.marker([schoolLat, schoolLng], { icon: schoolIcon })
+    .addTo(map)
+    .bindPopup(`
+      <b>🏫 ${schoolName}</b><br>
+      ${schoolAddress}<br>
+      <b>Tọa độ:</b> ${schoolLat}, ${schoolLng}
+    `)
+    .openPopup();
+
+  function setStatus(message) {
+    statusBox.innerText = message;
+  }
+
+  function formatDuration(seconds) {
+    if (!seconds || isNaN(seconds)) return "-- phút";
+
+    const totalMinutes = Math.round(seconds / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+
+    if (hours > 0) {
+      return `${hours} giờ ${mins} phút`;
+    }
+    return `${mins} phút`;
+  }
+
+  function clearRoute() {
+    if (routeLine) {
+      map.removeLayer(routeLine);
+      routeLine = null;
+    }
+  }
+
+  function updateUserMarker(lat, lng, labelText = "Vị trí của bạn") {
+    if (userMarker) {
+      userMarker.setLatLng([lat, lng]);
+    } else {
+      userMarker = L.marker([lat, lng], { icon: personIcon }).addTo(map);
+    }
+
+    userMarker.bindPopup(`
+      <b>📍 ${labelText}</b><br>
+      ${lat.toFixed(6)}, ${lng.toFixed(6)}
+    `);
+  }
+
+  async function drawRealRoute() {
+    if (userLat === null || userLng === null) {
+      alert("Bạn chưa có vị trí xuất phát.");
+      return;
+    }
+
+    const profile = vehicleSelect.value;
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${userLng},${userLat};${schoolLng},${schoolLat}?overview=full&geometries=geojson&steps=true`;
+
+    setStatus("Đang tính tuyến đường thực tế...");
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.routes || data.routes.length === 0) {
+        clearRoute();
+        routeDistanceText.innerText = "-- km";
+        durationText.innerText = "-- phút";
+        setStatus("Không tìm thấy tuyến đường phù hợp.");
+        return;
+      }
+
+      const route = data.routes[0];
+      const coords = route.geometry.coordinates.map(item => [item[1], item[0]]);
+
+      clearRoute();
+
+      routeLine = L.polyline(coords, {
+        color: "#ef4444",
+        weight: 5,
+        opacity: 0.9
+      }).addTo(map);
+
+      const routeDistanceKm = route.distance / 1000;
+      const routeDurationSec = route.duration;
+
+      routeDistanceText.innerText = routeDistanceKm.toFixed(2) + " km";
+      durationText.innerText = formatDuration(routeDurationSec);
+
+      map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+
+      setStatus("Đã vẽ tuyến đường đi thực tế đến trường.");
+    } catch (error) {
+      console.error("Lỗi route:", error);
+      clearRoute();
+      routeDistanceText.innerText = "-- km";
+      durationText.innerText = "-- phút";
+      setStatus("Không gọi được dịch vụ chỉ đường. Hãy kiểm tra Internet và thử lại.");
+    }
+  }
+
+  async function setUserLocation(lat, lng, displayText = null) {
+    userLat = lat;
+    userLng = lng;
+
+    userLocationText.innerText = displayText || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+    updateUserMarker(lat, lng, "Điểm xuất phát");
+    await drawRealRoute();
+  }
+
+  async function searchManualAddress() {
+    const keyword = manualAddressInput.value.trim();
+
+    if (!keyword) {
+      alert("Bạn chưa nhập vị trí hiện tại.");
+      manualAddressInput.focus();
+      return;
+    }
+
+    setStatus("Đang tìm tọa độ từ địa chỉ đã nhập...");
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(keyword)}`;
+      const response = await fetch(url, {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        setStatus("Không tìm thấy địa chỉ đã nhập. Hãy nhập chi tiết hơn.");
+        return;
+      }
+
+      const item = data[0];
+      const lat = parseFloat(item.lat);
+      const lng = parseFloat(item.lon);
+      const displayName = item.display_name || keyword;
+
+      setStatus("Đã đổi địa chỉ thành tọa độ thành công.");
+
+      await setUserLocation(lat, lng, displayName);
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      setStatus("Không tìm được vị trí từ địa chỉ nhập vào. Vui lòng thử lại.");
+    }
+  }
+
+  function getCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert("Trình duyệt không hỗ trợ định vị.");
+      return;
+    }
+
+    setStatus("Đang lấy vị trí GPS hiện tại...");
+
+    navigator.geolocation.getCurrentPosition(
+      async function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setStatus("Đã lấy vị trí GPS hiện tại thành công.");
+
+        await setUserLocation(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      },
+      function(error) {
+        console.error("Geolocation error:", error);
+
+        let msg = "Không lấy được vị trí GPS.";
+        if (error.code === 1) msg = "Bạn đã từ chối quyền vị trí.";
+        if (error.code === 2) msg = "Không xác định được vị trí hiện tại.";
+        if (error.code === 3) msg = "Hết thời gian chờ lấy vị trí.";
+
+        setStatus(msg);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
+    );
+  }
+
+  async function recalcRoute() {
+    if (userLat === null || userLng === null) {
+      alert("Bạn chưa có vị trí xuất phát. Hãy nhập địa chỉ hoặc dùng GPS.");
+      return;
+    }
+
+    await drawRealRoute();
+  }
+
+  document.getElementById("btnSearchAddress").addEventListener("click", searchManualAddress);
+  document.getElementById("btnGetLocation").addEventListener("click", getCurrentLocation);
+  document.getElementById("btnRecalc").addEventListener("click", recalcRoute);
+
+  vehicleSelect.addEventListener("change", function() {
+    if (userLat !== null && userLng !== null) {
+      recalcRoute();
+    }
+  });
+
+  manualAddressInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchManualAddress();
+    }
+  });
+</script>
+{% endif %}
+
+{% endblock %}
