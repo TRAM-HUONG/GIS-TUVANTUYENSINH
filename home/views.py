@@ -1,29 +1,11 @@
-
-
-from django.shortcuts import render, get_object_or_404,redirect
-
-from django.db.models import Value
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth.hashers import make_password, check_password
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, OuterRef, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password, check_password
 from django.core.paginator import Paginator
-
-from .models import NguoiDung, VaiTro
-import re 
-# Your existing code...
-
-from .models import (
-    TruongDaiHoc,
-    KhaoSat,
-    LuaChonKhaoSat,
-    KetQuaKhaoSat,
-)
-
-
-
+from functools import wraps
+import re
 
 from .models import (
     NguoiDung,
@@ -36,7 +18,38 @@ from .models import (
     HinhAnhTruong,
     HinhAnhNganh,
     DiemChuan,
+    KhaoSat,
+    LuaChonKhaoSat,
+    KetQuaKhaoSat,
 )
+
+# =========================================================
+# DECORATORS / PHÂN QUYỀN
+# =========================================================
+
+def login_required_custom(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get("mand"):
+            messages.error(request, "Bạn cần đăng nhập trước.")
+            return redirect("login")
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.session.get("mand"):
+            messages.error(request, "Bạn cần đăng nhập trước.")
+            return redirect("login")
+
+        if request.session.get("tenvaitro") != "ADMIN":
+            messages.error(request, "Bạn không có quyền truy cập trang quản trị.")
+            return redirect("home")
+
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 # =========================================================
@@ -47,7 +60,6 @@ def generate_mand():
     last_user = NguoiDung.objects.order_by("-mand").first()
     if not last_user:
         return "ND001"
-
     last_number = int(last_user.mand[2:])
     return f"ND{last_number + 1:03d}"
 
@@ -56,11 +68,9 @@ def generate_username_from_email(email):
     base_username = email.split("@")[0].strip().lower()
     username = base_username
     counter = 1
-
     while NguoiDung.objects.filter(tendangnhap=username).exists():
         username = f"{base_username}{counter}"
         counter += 1
-
     return username
 
 
@@ -68,7 +78,6 @@ def generate_matruong():
     last = TruongDaiHoc.objects.order_by("-matruong").first()
     if not last:
         return "MAT01"
-
     number = int(last.matruong[3:])
     return f"MAT{number + 1:02d}"
 
@@ -77,21 +86,27 @@ def generate_mactt():
     last = ChiTietTruong.objects.order_by("-mactt").first()
     if not last:
         return "CTT01"
-
     number = int(last.mactt[3:])
     return f"CTT{number + 1:02d}"
 
+def generate_manganh():
+    last = NganhHoc.objects.order_by("-manganh").first()
+    if not last:
+        return "NGH01"
+    # Logic giả định mã ngành có dạng NGHxx, bạn có thể chỉnh lại cho đúng model
+    try:
+        number = int(re.search(r'\d+', last.manganh).group())
+        return f"NGH{number + 1:02d}"
+    except:
+        return "NGH01_NEW"
 
-def is_admin(request):
-    return request.session.get("tenvaitro") == "ADMIN"
+def get_role_user():
+    return VaiTro.objects.filter(tenvaitro__iexact="USER").first()
 
 
 # =========================================================
 # AUTH
 # =========================================================
-
-def is_admin(request):
-    return request.session.get("tenvaitro") == "ADMIN"
 
 def register_view(request):
     if request.method == "POST":
@@ -101,73 +116,65 @@ def register_view(request):
         password = request.POST.get("password", "").strip()
         password_confirmation = request.POST.get("password_confirmation", "").strip()
 
-        # Kiểm tra rỗng
-        if not full_name or not email or not phone_number or not password or not password_confirmation:
+        if not all([full_name, email, phone_number, password, password_confirmation]):
             messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
             return render(request, "auth/dang-ky.html")
 
-        # Kiểm tra mật khẩu xác nhận
         if password != password_confirmation:
             messages.error(request, "Mật khẩu xác nhận không khớp.")
             return render(request, "auth/dang-ky.html")
 
-        # Kiểm tra email đã tồn tại
         if NguoiDung.objects.filter(email=email).exists():
             messages.error(request, "Email đã tồn tại.")
             return render(request, "auth/dang-ky.html")
 
-        # Kiểm tra số điện thoại đã tồn tại
         if NguoiDung.objects.filter(sodienthoai=phone_number).exists():
             messages.error(request, "Số điện thoại đã tồn tại.")
             return render(request, "auth/dang-ky.html")
 
-        # Kiểm tra mật khẩu có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số
-        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', password):
-            messages.error(request, "Mật khẩu phải có ít nhất 8 ký tự, bao gồm cả chữ và số.")
+        if len(password) < 8 or not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
+            messages.error(request, "Mật khẩu phải ít nhất 8 ký tự, bao gồm cả chữ và số.")
             return render(request, "auth/dang-ky.html")
 
-        # Kiểm tra vai trò USER
-        role_user = VaiTro.objects.filter(tenvaitro="USER").first()
+        role_user = get_role_user()
         if not role_user:
-            VaiTro.objects.create(mavaitro='USER', tenvaitro='USER', mota='Người dùng')
-            role_user = VaiTro.objects.get(tenvaitro='USER')
+            messages.error(request, "Hệ thống chưa có vai trò USER.")
+            return render(request, "auth/dang-ky.html")
 
-        # Tạo username từ email
         username = generate_username_from_email(email)
-
-        # Lưu người dùng mới vào database
         NguoiDung.objects.create(
             mand=generate_mand(),
             hoten=full_name,
             email=email,
             sodienthoai=phone_number,
             tendangnhap=username,
-            matkhau=password,  # Lưu mật khẩu đã được mã hóa
+            matkhau=password,
             mavaitro=role_user,
-            trangthai="HOATDONG"
+            trangthai="HOATDONG",
         )
-
         messages.success(request, "Đăng ký thành công. Vui lòng đăng nhập.")
         return redirect("login")
-
     return render(request, "auth/dang-ky.html")
+
 
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
 
-        if not username or not password:
-            return render(request, "auth/dang-nhap.html", {"error": "Vui lòng nhập đầy đủ thông tin đăng nhập."})
+        user = NguoiDung.objects.select_related("mavaitro").filter(
+            Q(tendangnhap=username) | Q(email=username)
+        ).first()
 
-        user = NguoiDung.objects.filter(Q(tendangnhap=username) | Q(email=username)).first()
+        if not user or user.matkhau != password:
+            messages.error(request, "Tài khoản hoặc mật khẩu không chính xác.")
+            return render(request, "auth/dang-nhap.html")
 
-        if not user:
-            return render(request, "auth/dang-nhap.html", {"error": "Tài khoản không tồn tại."})
+        if user.trangthai != "HOATDONG":
+            messages.error(request, "Tài khoản đã bị khóa.")
+            return render(request, "auth/dang-nhap.html")
 
-        if password != user.matkhau:
-            return render(request, "auth/dang-nhap.html", {"error": "Mật khẩu không đúng."})
-
+        request.session.flush()
         request.session["mand"] = user.mand
         request.session["hoten"] = user.hoten
         request.session["email"] = user.email
@@ -175,10 +182,14 @@ def login_view(request):
         request.session["mavaitro"] = user.mavaitro.mavaitro
         request.session["tenvaitro"] = user.mavaitro.tenvaitro
 
-        messages.success(request, f"Đăng nhập thành công. Xin chào {user.hoten}!")
-        return redirect("home")
+        if user.mavaitro.tenvaitro.upper() == "ADMIN":
+            messages.success(request, f"Xin chào quản trị viên {user.hoten}!")
+            return redirect("admin_dashboard")
 
+        messages.success(request, f"Xin chào {user.hoten}!")
+        return redirect("home")
     return render(request, "auth/dang-nhap.html")
+
 
 def logout_view(request):
     request.session.flush()
@@ -186,526 +197,289 @@ def logout_view(request):
     return redirect("login")
 
 
-
 # =========================================================
 # USER PAGE
 # =========================================================
 
 def home_page(request):
-
     truong_noi_bat = list(TruongDaiHoc.objects.all().order_by("matruong")[:3])
-
     img_map = dict(
         HinhAnhTruong.objects.filter(
             matruong_id__in=[t.matruong for t in truong_noi_bat]
         ).values_list("matruong_id", "tenfile")
     )
-
     for t in truong_noi_bat:
         t.anh = img_map.get(t.matruong, "default.png")
+    return render(request, "home/home.html", {"truong_noi_bat": truong_noi_bat})
 
-    return render(request, "home/home.html", {
-        "truong_noi_bat": truong_noi_bat
-    })
+
 def truong_list(request):
-    anh_sq = (
-        HinhAnhTruong.objects
-        .filter(matruong_id=OuterRef("matruong"))
-        .values("tenfile")[:1]
+    anh_sq = HinhAnhTruong.objects.filter(matruong_id=OuterRef("matruong")).values("tenfile")[:1]
+    truong_list_data = TruongDaiHoc.objects.select_related("madvhc").all().order_by("matruong").annotate(
+        anh=Coalesce(Subquery(anh_sq), Value("default.png"))
     )
-
-    truong_list_data = (
-        TruongDaiHoc.objects
-        .select_related("madvhc")
-        .all()
-        .order_by("matruong")
-        .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))
-    )
-
     nganh_list_data = NganhHoc.objects.all().order_by("tennganh")
-
     return render(request, "truongdaihoc/truongdaihoc.html", {
         "truong_list": truong_list_data,
         "nganh_list": nganh_list_data,
     })
-from django.shortcuts import render, get_object_or_404
-from .models import TruongDaiHoc, ChiTietTruong, ChiTietNganh, HinhAnhTruong
+
 
 def truong_detail(request, matruong):
     truong = get_object_or_404(TruongDaiHoc, matruong=matruong)
-
     ctt = ChiTietTruong.objects.filter(matruong=truong).first()
     ct_nganh = ChiTietNganh.objects.filter(matruong=truong)
     hinh_truong = HinhAnhTruong.objects.filter(matruong=truong).first()
-
     context = {
-        "truong": truong,
-        "ctt": ctt,
-        "ct_nganh": ct_nganh,
-        "hinh_truong": hinh_truong,
-        "lat": truong.lat,
-        "lng": truong.lng,
+        "truong": truong, "ctt": ctt, "ct_nganh": ct_nganh,
+        "hinh_truong": hinh_truong, "lat": truong.lat, "lng": truong.lng,
     }
-
     return render(request, "home/truong_detail.html", context)
+
 
 def nganh_detail(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)
     hinh_nganh = HinhAnhNganh.objects.filter(manganh_id=manganh)
-
-    ds_truong = (
-        ChiTietNganh.objects
-        .filter(manganh_id=manganh)
-        .select_related("matruong")
-    )
-
-
-    return render(
-        request,
-        "truongdaihoc/nganhhoc.html",
-        {"nganh": nganh, "hinh_nganh": hinh_nganh, "ds_truong": ds_truong},
-    )
-
+    ds_truong = ChiTietNganh.objects.filter(manganh_id=manganh).select_related("matruong")
+    return render(request, "truongdaihoc/nganhhoc.html", {
+        "nganh": nganh, "hinh_nganh": hinh_nganh, "ds_truong": ds_truong
+    })
 
 
 def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
+
+def map_view(request):
+    return render(request, "map/map.html")
+
 def tracuu(request):
     return render(request, "map/map.html")
-def map_view(request):
-    return render(request, "map.html")
+
+
+# =========================================================
+# KHẢO SÁT
+# =========================================================
 
 def khao_sat_view(request):
     questions = KhaoSat.objects.prefetch_related("luachons").order_by("maks")
-
     if request.method == "POST":
         total = 0
-
         for question in questions:
             selected_malc = request.POST.get(question.maks)
-
             if not selected_malc:
                 messages.error(request, "Vui lòng trả lời đầy đủ tất cả câu hỏi.")
-                return render(
-                    request,
-                    "khaosat/khaosat.html",
-                    {"questions": questions},
-                )
-
+                return render(request, "khaosat/khaosat.html", {"questions": questions})
             try:
-                luachon = LuaChonKhaoSat.objects.get(
-                    malc=selected_malc,
-                    maks=question
-                )
+                luachon = LuaChonKhaoSat.objects.get(malc=selected_malc, maks=question)
                 total += luachon.diem
             except LuaChonKhaoSat.DoesNotExist:
-                messages.error(request, "Có dữ liệu lựa chọn không hợp lệ.")
-                return render(
-                    request,
-                    "khaosat/khaosat.html",
-                    {"questions": questions},
-                )
+                messages.error(request, "Có dữ liệu không hợp lệ.")
+                return render(request, "khaosat/khaosat.html", {"questions": questions})
 
-        ketqua = (
-            KetQuaKhaoSat.objects.select_related("manganh")
-            .filter(diemtu__lte=total, diemden__gte=total)
-            .first()
-        )
-
-        if ketqua:
-            level = ketqua.manganh.tennganh
-            summary = ketqua.mota or ketqua.manganh.mota or ""
-        else:
-            level = "Chưa có kết quả"
-            summary = "Chưa tìm thấy nhóm ngành phù hợp."
+        ketqua = KetQuaKhaoSat.objects.select_related("manganh").filter(
+            diemtu__lte=total, diemden__gte=total
+        ).first()
 
         request.session["khao_sat_total"] = total
-        request.session["khao_sat_level"] = level
-        request.session["khao_sat_summary"] = summary
-
+        request.session["khao_sat_level"] = ketqua.manganh.tennganh if ketqua else "Chưa có kết quả"
+        request.session["khao_sat_summary"] = (ketqua.mota or ketqua.manganh.mota) if ketqua else "Không tìm thấy nhóm phù hợp."
         return redirect("ketqua_khaosat")
 
-    return render(
-        request,
-        "khaosat/khaosat.html",
-        {"questions": questions},
-    )
+    return render(request, "khaosat/khaosat.html", {"questions": questions})
 
 
 def ketqua_khao_sat_view(request):
-    total = request.session.get("khao_sat_total")
-    level = request.session.get("khao_sat_level")
-    summary = request.session.get("khao_sat_summary")
+    return render(request, "khaosat/ketqua.html", {
+        "total": request.session.get("khao_sat_total"),
+        "level": request.session.get("khao_sat_level"),
+        "summary": request.session.get("khao_sat_summary"),
+    })
 
-    return render(
-        request,
-        "khaosat/ketqua.html",
-        {
-            "total": total,
-            "level": level,
-            "summary": summary,
-        },
-    )
+
 # =========================================================
-# ADMIN DASHBOARD
+# ADMIN - DASHBOARD & MANAGEMENT
 # =========================================================
 
+@admin_required
 def admin_dashboard(request):
     return render(request, "admin/dashboard.html")
 
-# =========================================================
-# ADMIN - CHI TIẾT TRƯỜNG
-# =========================================================
+@admin_required
+def admin_nguoidung_list(request):
+    nguoidungs = NguoiDung.objects.select_related("mavaitro").all().order_by("mand")
+    return render(request, "admin/nguoidung/list.html", {"nguoidungs": nguoidungs})
 
+# --- ADMIN - CHI TIẾT TRƯỜNG ---
+@admin_required
 def admin_chitiettruong_list(request):
-    keyword = request.GET.get('keyword', '')  # Get search keyword from GET request
-
-    # Filter ChiTietTruong by the search keyword (matruong or description)
+    keyword = request.GET.get('keyword', '')
+    chitiets = ChiTietTruong.objects.all().order_by('mactt')
     if keyword:
-        chitiets = ChiTietTruong.objects.filter(
-            Q(matruong__matruong__icontains=keyword) | Q(mota__icontains=keyword)
-        ).order_by('mactt')
-    else:
-        chitiets = ChiTietTruong.objects.all().order_by('mactt')
-
-    # Pagination
-    paginator = Paginator(chitiets, 10)  # Show 10 records per page
+        chitiets = chitiets.filter(Q(matruong__matruong__icontains=keyword) | Q(mota__icontains=keyword))
+    
+    paginator = Paginator(chitiets, 10)
     page_number = request.GET.get('page')
     chitiets = paginator.get_page(page_number)
+    return render(request, "admin/chitiettruong/list.html", {"chitiets": chitiets, "keyword": keyword})
 
-    return render(request, "admin/chitiettruong/list.html", {
-        "chitiets": chitiets,
-        "keyword": keyword,  # Pass the search keyword to keep it in the search input field
-    })
-
-
+@admin_required
 def admin_chitiettruong_insert(request):
     truongs = TruongDaiHoc.objects.all().order_by("tentruong")
-
     if request.method == "POST":
         matruong = request.POST.get("matruong", "").strip()
-        mota = request.POST.get("mota", "").strip()
-        ghichu = request.POST.get("ghichu", "").strip()
+        if not matruong or ChiTietTruong.objects.filter(matruong_id=matruong).exists():
+            messages.error(request, "Trường chưa chọn hoặc đã có chi tiết.")
+        else:
+            ChiTietTruong.objects.create(
+                mactt=generate_mactt(), matruong_id=matruong,
+                mota=request.POST.get("mota"), ghichu=request.POST.get("ghichu")
+            )
+            messages.success(request, "Thêm thành công.")
+            return redirect("admin_chitiettruong_list")
+    return render(request, "admin/chitiettruong/insert.html", {"truongs": truongs})
 
-        if not matruong:
-            messages.error(request, "Vui lòng chọn trường.")
-            return render(request, "admin/chitiettruong/insert.html", {
-                "truongs": truongs
-            })
-
-        truong = get_object_or_404(TruongDaiHoc, pk=matruong)
-
-        if ChiTietTruong.objects.filter(matruong=truong).exists():
-            messages.error(request, "Trường này đã có chi tiết.")
-            return render(request, "admin/chitiettruong/insert.html", {
-                "truongs": truongs
-            })
-
-        ChiTietTruong.objects.create(
-            mactt=generate_mactt(),
-            matruong=truong,
-            mota=mota or None,
-            ghichu=ghichu or None
-        )
-
-        messages.success(request, "Thêm chi tiết trường thành công.")
-        return redirect("admin_chitiettruong_list")
-
-    return render(request, "admin/chitiettruong/insert.html", {
-        "truongs": truongs
-    })
-
-
-def admin_chitiettruong_detail(request, mactt):
-    chitiet = get_object_or_404(ChiTietTruong.objects.select_related("matruong"), pk=mactt)
-    return render(request, "admin/chitiettruong/detail.html", {
-        "chitiet": chitiet
-    })
-
-
+@admin_required
 def admin_chitiettruong_edit(request, mactt):
     chitiet = get_object_or_404(ChiTietTruong, pk=mactt)
     truongs = TruongDaiHoc.objects.all().order_by("tentruong")
-
     if request.method == "POST":
-        matruong = request.POST.get("matruong", "").strip()
-        chitiet.matruong = get_object_or_404(TruongDaiHoc, pk=matruong)
-        chitiet.mota = request.POST.get("mota", "").strip() or None
-        chitiet.ghichu = request.POST.get("ghichu", "").strip() or None
+        chitiet.matruong_id = request.POST.get("matruong")
+        chitiet.mota = request.POST.get("mota")
+        chitiet.ghichu = request.POST.get("ghichu")
         chitiet.save()
-
-        messages.success(request, "Cập nhật chi tiết trường thành công.")
+        messages.success(request, "Cập nhật thành công.")
         return redirect("admin_chitiettruong_list")
+    return render(request, "admin/chitiettruong/edit.html", {"chitiet": chitiet, "truongs": truongs})
 
-    return render(request, "admin/chitiettruong/edit.html", {
-        "chitiet": chitiet,
-        "truongs": truongs
-    })
-
-
+@admin_required
 def admin_chitiettruong_delete(request, mactt):
     chitiet = get_object_or_404(ChiTietTruong, pk=mactt)
-
     if request.method == "POST":
         chitiet.delete()
-        messages.success(request, "Xóa chi tiết trường thành công.")
+        messages.success(request, "Xóa thành công.")
         return redirect("admin_chitiettruong_list")
+    return render(request, "admin/chitiettruong/delete.html", {"chitiet": chitiet})
 
-    return render(request, "admin/chitiettruong/delete.html", {
-        "chitiet": chitiet
-    })
+@admin_required
+def admin_chitiettruong_detail(request, mactt):
+    chitiet = get_object_or_404(ChiTietTruong.objects.select_related("matruong"), pk=mactt)
+    return render(request, "admin/chitiettruong/detail.html", {"chitiet": chitiet})
 
-
-# =========================================================
-# ADMIN - TRƯỜNG ĐẠI HỌC
-# =========================================================
+# --- ADMIN - TRƯỜNG ĐẠI HỌC ---
+@admin_required
 def admin_truong_list(request):
-    keyword = request.GET.get('keyword', '')  # Lấy từ khóa tìm kiếm từ GET
-
-    # Lọc danh sách trường theo từ khóa tìm kiếm
+    keyword = request.GET.get('keyword', '')
+    truongs = TruongDaiHoc.objects.all().order_by('matruong')
     if keyword:
-        truongs = TruongDaiHoc.objects.filter(
-            Q(matruong__icontains=keyword) | Q(tentruong__icontains=keyword)
-        )
-    else:
-        truongs = TruongDaiHoc.objects.all()
-
-    # Phân trang
-    paginator = Paginator(truongs, 10)  # Hiển thị 10 trường mỗi trang
+        truongs = truongs.filter(Q(matruong__icontains=keyword) | Q(tentruong__icontains=keyword))
+    
+    paginator = Paginator(truongs, 10)
     page_number = request.GET.get('page')
     truongs = paginator.get_page(page_number)
+    return render(request, "admin/truongdaihoc/list.html", {'truongs': truongs, 'keyword': keyword})
 
-    return render(request, "admin/truongdaihoc/list.html", {
-        'truongs': truongs,
-        'keyword': keyword,  # Truyền từ khóa tìm kiếm để hiển thị trong ô tìm kiếm
-    })
-
+@admin_required
 def admin_truong_insert(request):
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
-
     if request.method == "POST":
         tentruong = request.POST.get("tentruong", "").strip()
-        loaitruong = request.POST.get("loaitruong", "").strip()
         madvhc = request.POST.get("madvhc", "").strip()
-        diachi = request.POST.get("diachi", "").strip()
-        website = request.POST.get("website", "").strip()
-        email = request.POST.get("email", "").strip()
-        dienthoai = request.POST.get("dienthoai", "").strip()
-        lat = request.POST.get("lat", "").strip()
-        lng = request.POST.get("lng", "").strip()
-        mota = request.POST.get("mota", "").strip()
-        ghichu = request.POST.get("ghichu", "").strip()
-
         if not tentruong or not madvhc:
-            messages.error(request, "Tên trường và đơn vị hành chính không được để trống.")
-            return render(request, "admin/truongdaihoc/insert.html", {
-                "dshc": dshc
-            })
-
-        dvhc = get_object_or_404(DonViHanhChinh, pk=madvhc)
-
-        truong = TruongDaiHoc(
-            matruong=generate_matruong(),
-            tentruong=tentruong,
-            loaitruong=loaitruong or None,
-            madvhc=dvhc,
-            diachi=diachi or None,
-            website=website or None,
-            email=email or None,
-            dienthoai=dienthoai or None,
-            lat=float(lat) if lat else None,
-            lng=float(lng) if lng else None,
-        )
-        truong.save()
-
-        if mota or ghichu:
-            ChiTietTruong.objects.create(
-                mactt=generate_mactt(),
-                matruong=truong,
-                mota=mota or None,
-                ghichu=ghichu or None,
+            messages.error(request, "Vui lòng nhập đủ thông tin bắt buộc.")
+        else:
+            truong = TruongDaiHoc.objects.create(
+                matruong=generate_matruong(), tentruong=tentruong,
+                loaitruong=request.POST.get("loaitruong"), madvhc_id=madvhc,
+                diachi=request.POST.get("diachi"), website=request.POST.get("website"),
+                email=request.POST.get("email"), dienthoai=request.POST.get("dienthoai"),
+                lat=request.POST.get("lat") or None, lng=request.POST.get("lng") or None
             )
+            if request.POST.get("mota"):
+                ChiTietTruong.objects.create(mactt=generate_mactt(), matruong=truong, mota=request.POST.get("mota"))
+            messages.success(request, "Thêm trường thành công.")
+            return redirect("admin_truong_list")
+    return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
 
-        messages.success(request, "Thêm trường đại học thành công.")
-        return redirect("admin_truong_list")
-
-    return render(request, "admin/truongdaihoc/insert.html", {
-        "dshc": dshc
-    })
-
-
-def admin_truong_detail(request, matruong):
-    truong = get_object_or_404(
-        TruongDaiHoc.objects.select_related("madvhc"),
-        pk=matruong
-    )
-    chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
-
-    return render(request, "admin/truongdaihoc/detail.html", {
-        "truong": truong,
-        "chitiet": chitiet
-    })
-
-
+@admin_required
 def admin_truong_edit(request, matruong):
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
     chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
-
     if request.method == "POST":
-        truong.tentruong = request.POST.get("tentruong", "").strip()
-        truong.loaitruong = request.POST.get("loaitruong", "").strip() or None
-
-        madvhc = request.POST.get("madvhc", "").strip()
-        truong.madvhc = get_object_or_404(DonViHanhChinh, pk=madvhc)
-
-        truong.diachi = request.POST.get("diachi", "").strip() or None
-        truong.website = request.POST.get("website", "").strip() or None
-        truong.email = request.POST.get("email", "").strip() or None
-        truong.dienthoai = request.POST.get("dienthoai", "").strip() or None
-
-        lat = request.POST.get("lat")
-        lng = request.POST.get("lng")
-
-        truong.lat = float(lat) if lat not in [None, "", "None"] else None
-        truong.lng = float(lng) if lng not in [None, "", "None"] else None
-
+        truong.tentruong = request.POST.get("tentruong")
+        truong.madvhc_id = request.POST.get("madvhc")
+        truong.diachi = request.POST.get("diachi")
         truong.save()
-
-        mota = request.POST.get("mota", "").strip()
-        ghichu = request.POST.get("ghichu", "").strip()
-
-        if chitiet:
-            chitiet.mota = mota or None
-            chitiet.ghichu = ghichu or None
-            chitiet.save()
-        elif mota or ghichu:
-            ChiTietTruong.objects.create(
-                mactt=generate_mactt(),
-                matruong=truong,
-                mota=mota or None,
-                ghichu=ghichu or None,
-            )
-
-        messages.success(request, "Cập nhật trường đại học thành công.")
+        messages.success(request, "Cập nhật thành công.")
         return redirect("admin_truong_list")
+    return render(request, "admin/truongdaihoc/edit.html", {"truong": truong, "chitiet": chitiet, "dshc": dshc})
 
-    return render(request, "admin/truongdaihoc/edit.html", {
-        "truong": truong,
-        "chitiet": chitiet,
-        "dshc": dshc,
-    })
-
-
+@admin_required
 def admin_truong_delete(request, matruong):
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
-
     if request.method == "POST":
         truong.delete()
-        messages.success(request, "Xóa trường đại học thành công.")
+        messages.success(request, "Xóa trường thành công.")
         return redirect("admin_truong_list")
+    return render(request, "admin/truongdaihoc/delete.html", {"truong": truong})
 
-    return render(request, "admin/truongdaihoc/delete.html", {
-        "truong": truong
-    })
+@admin_required
+def admin_truong_detail(request, matruong):
+    truong = get_object_or_404(TruongDaiHoc.objects.select_related("madvhc"), pk=matruong)
+    chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
+    return render(request, "admin/truongdaihoc/detail.html", {"truong": truong, "chitiet": chitiet})
 
-
-# =========================================================
-# ADMIN - NGÀNH HỌC
-# =========================================================
+# --- ADMIN - NGÀNH HỌC ---
+@admin_required
 def admin_nganh_list(request):
     nganhs = NganhHoc.objects.all().order_by("manganh")
-    keyword = request.GET.get('keyword', '')  # For searching
+    keyword = request.GET.get('keyword', '')
     if keyword:
-        nganhs = nganhs.filter(manganh__icontains=keyword) | nganhs.filter(tennganh__icontains=keyword)
-    return render(request, "admin/nganhhoc/list.html", {
-        "nganhs": nganhs,
-        "keyword": keyword,
-    })
+        nganhs = nganhs.filter(Q(manganh__icontains=keyword) | Q(tennganh__icontains=keyword))
+    return render(request, "admin/nganhhoc/list.html", {"nganhs": nganhs, "keyword": keyword})
 
-# View to add a new major
+@admin_required
 def admin_nganh_insert(request):
     if request.method == "POST":
         tennganh = request.POST.get("tennganh", "").strip()
-        linhvuc = request.POST.get("linhvuc", "").strip()
-        mota = request.POST.get("mota", "").strip()
-
-        if not tennganh or not linhvuc:
-            messages.error(request, "Tên ngành và lĩnh vực không được để trống.")
-            return render(request, "admin/nganhhoc/insert.html")
-
-        NganhHoc.objects.create(
-            manganh=generate_manganh(),  # Assuming you have a similar function for generating Mã ngành
-            tennganh=tennganh,
-            linhvuc=linhvuc,
-            mota=mota or None,
-        )
-
-        messages.success(request, "Thêm ngành học thành công.")
-        return redirect("admin_nganh_list")
-
+        if tennganh:
+            NganhHoc.objects.create(
+                manganh=generate_manganh(), tennganh=tennganh,
+                linhvuc=request.POST.get("linhvuc"), mota=request.POST.get("mota")
+            )
+            messages.success(request, "Thêm ngành thành công.")
+            return redirect("admin_nganh_list")
     return render(request, "admin/nganhhoc/insert.html")
 
-# View to edit a major
+@admin_required
 def admin_nganh_edit(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)
-
     if request.method == "POST":
-        nganh.tennganh = request.POST.get("tennganh", "").strip()
-        nganh.linhvuc = request.POST.get("linhvuc", "").strip()
-        nganh.mota = request.POST.get("mota", "").strip() or None
+        nganh.tennganh = request.POST.get("tennganh")
+        nganh.linhvuc = request.POST.get("linhvuc")
+        nganh.mota = request.POST.get("mota")
         nganh.save()
-
-        messages.success(request, "Cập nhật ngành học thành công.")
         return redirect("admin_nganh_list")
+    return render(request, "admin/nganhhoc/edit.html", {"nganh": nganh})
 
-    return render(request, "admin/nganhhoc/edit.html", {
-        "nganh": nganh
-    })
-
-# View to delete a major
+@admin_required
 def admin_nganh_delete(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)
-
     if request.method == "POST":
         nganh.delete()
-        messages.success(request, "Xóa ngành học thành công.")
         return redirect("admin_nganh_list")
+    return render(request, "admin/nganhhoc/delete.html", {"nganh": nganh})
 
-    return render(request, "admin/nganhhoc/delete.html", {
-        "nganh": nganh
-    })
-
-# View to display details of a major
+@admin_required
 def admin_nganh_detail(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)
-    return render(request, "admin/nganhhoc/detail.html", {
-        "nganh": nganh
-    })
+    return render(request, "admin/nganhhoc/detail.html", {"nganh": nganh})
 
-
-# =========================================================
-# ADMIN - ĐIỂM CHUẨN
-# =========================================================
-
+# --- ADMIN - KHÁC ---
+@admin_required
 def admin_diemchuan_list(request):
     return render(request, "admin/diemchuan/list.html")
 
-
-# =========================================================
-# ADMIN - KHẢO SÁT
-# =========================================================
-
+@admin_required
 def admin_khaosat_list(request):
     return render(request, "admin/khaosat/list.html")
-
-
-# =========================================================
-# ADMIN - NGƯỜI DÙNG
-# =========================================================
-
-def admin_nguoidung_list(request):
-    nguoidungs = NguoiDung.objects.select_related("mavaitro").all().order_by("mand")
-    return render(request, "admin/nguoidung/list.html", {
-        "nguoidungs": nguoidungs
-    })
