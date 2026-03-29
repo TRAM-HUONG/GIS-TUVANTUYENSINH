@@ -35,6 +35,7 @@ from .models import (
     NganhHoc,
     HinhAnhTruong,
     HinhAnhNganh,
+    DiemChuan,
 )
 
 
@@ -206,11 +207,6 @@ def home_page(request):
     return render(request, "home/home.html", {
         "truong_noi_bat": truong_noi_bat
     })
-
-def map_view(request):
-    return render(request, "map/map.html")
-
-
 def truong_list(request):
     anh_sq = (
         HinhAnhTruong.objects
@@ -274,11 +270,10 @@ def nganh_detail(request, manganh):
 
 def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
-
-
 def tracuu(request):
     return render(request, "map/map.html")
-
+def map_view(request):
+    return render(request, "map.html")
 
 def khao_sat_view(request):
     questions = KhaoSat.objects.prefetch_related("luachons").order_by("maks")
