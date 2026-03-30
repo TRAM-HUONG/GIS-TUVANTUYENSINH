@@ -1,14 +1,20 @@
 {% extends "layout/layout.html" %}
 {% load static %}
+{% load l10n %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/truong_detail.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<style>
+    /* Đảm bảo map có chiều cao hiển thị */
+    #school-map { width: 100%; height: 450px; border-radius: 12px; z-index: 1; }
+    .major-details { background: #f9f9f9; padding: 10px; border-left: 3px solid #2563eb; margin-top: 5px; border-radius: 4px; }
+    .status-box { padding: 10px; margin-top: 10px; background: #eef2ff; border-radius: 8px; font-size: 14px; color: #3730a3; }
+</style>
 {% endblock %}
 
 {% block content %}
 <section class="td-wrap">
-
-  <!-- HERO -->
   <div class="td-hero">
     <div class="td-hero-left">
       <div class="td-brand">
@@ -26,16 +32,12 @@
           <div class="meta-label">📍 Địa chỉ</div>
           <div class="meta-value">{{ truong.diachi }}</div>
         </div>
-
         <div class="meta-item">
           <div class="meta-label">🌐 Website</div>
           <div class="meta-value">
-            <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">
-              {{ truong.website }}
-            </a>
+            <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">{{ truong.website }}</a>
           </div>
         </div>
-
         {% if ctt %}
         <div class="meta-item">
           <div class="meta-label">📝 Ghi chú</div>
@@ -45,99 +47,210 @@
       </div>
     </div>
 
-    <!-- ẢNH TRƯỜNG -->
     <div class="td-hero-right">
       {% if hinh_truong %}
         <img class="td-cover" src="{% static 'img/TDH/' %}{{ hinh_truong.tenfile }}" alt="Ảnh {{ truong.tentruong }}">
       {% else %}
-        <div class="td-cover-empty">
-          📷 Chưa có ảnh trường trong HINHANH
-        </div>
+        <div class="td-cover-empty">📷 Chưa có ảnh trường</div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Khung bản đồ -->
   <div class="card">
     <div class="card-head">
-      <h2 class="card-title">🗺️ Bản đồ trường</h2>
+      <h2 class="card-title">🗺️ Vị trí & Chỉ đường</h2>
+      <div class="card-sub">Chọn loại bản đồ (Vệ tinh/Giao thông) ở góc phải bản đồ</div>
     </div>
+
     <div class="card-body">
-      <!-- Nhúng bản đồ OpenStreetMap -->
-      <iframe
-        width="100%"
-        height="400"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=106.55%2C10.70%2C106.80%2C10.90&layer=mapnik"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="OpenStreetMap"
-      ></iframe>
+      {% if lat and lng %}
+        <div id="school-map"></div>
+
+        <div class="tool-panel">
+          <div class="tool-box tool-box-wide">
+            <label for="manualAddress">📍 Nhập vị trí hiện tại của bạn</label>
+            <input type="text" id="manualAddress" placeholder="Ví dụ: 236 Lê Văn Sỹ, Tân Bình, TP.HCM">
+          </div>
+
+          <div class="tool-box">
+            <label>&nbsp;</label>
+            <button type="button" id="btnSearchAddress">🔎 Tìm vị trí</button>
+          </div>
+
+          <div class="tool-box">
+            <label for="vehicleSelect">🚗 Phương tiện</label>
+            <select id="vehicleSelect">
+              <option value="driving" selected>Ô tô / Xe máy</option>
+              <option value="cycling">Xe đạp</option>
+              <option value="walking">Đi bộ</option>
+            </select>
+          </div>
+
+          <div class="tool-box">
+            <label>&nbsp;</label>
+            <button type="button" id="btnGetLocation">📡 Dùng GPS</button>
+          </div>
+        </div>
+
+        <div class="route-panel">
+          <div class="route-box">
+            <div class="route-label">📌 Xuất phát</div>
+            <div class="route-value" id="userLocationText">Chưa xác định</div>
+          </div>
+          <div class="route-box">
+            <div class="route-label">🛣️ Quãng đường</div>
+            <div class="route-value" id="routeDistanceText">-- km</div>
+          </div>
+          <div class="route-box">
+            <div class="route-label">⏱️ Thời gian (ETA)</div>
+            <div class="route-value" id="durationText">-- phút</div>
+          </div>
+        </div>
+
+        <div class="status-box" id="statusBox">Sẵn sàng tính toán lộ trình.</div>
+      {% else %}
+        <div class="desc muted">Trường này chưa có tọa độ trên bản đồ.</div>
+      {% endif %}
     </div>
   </div>
 
-  <!-- CONTENT GRID -->
   <div class="td-grid">
-
-    <!-- MÔ TẢ TRƯỜNG -->
     <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">✨ Mô tả trường</h2>
-      </div>
+      <div class="card-head"><h2 class="card-title">✨ Mô tả trường</h2></div>
       <div class="card-body">
-        {% if ctt %}
-          <p class="desc">{{ ctt.mota }}</p>
-        {% else %}
-          <p class="desc muted">Chưa có mô tả. (Thêm vào bảng CHITIETTRUONG)</p>
-        {% endif %}
+        <p class="desc">{{ ctt.mota|default:"Chưa có mô tả chi tiết cho trường này." }}</p>
       </div>
     </div>
 
-    <!-- NGÀNH LIÊN QUAN -->
     <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">🎓 Ngành đào tạo liên quan</h2>
-        <div class="card-sub">Danh sách ngành theo trường</div>
-      </div>
-
+      <div class="card-head"><h2 class="card-title">🎓 Ngành đào tạo</h2></div>
       <div class="card-body">
         {% if ct_nganh %}
         <div class="major-list">
           {% for x in ct_nganh %}
             <div class="major-item">
-               <div class="major-top">
-                  <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.id }}')" class="major-name">{{ x.manganh.tennganh }}</a>
-                </div>
-                <div id="details-{{ x.manganh.id }}" class="major-details" style="display: none;">
-                  <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
-                  <p><b>Mô tả:</b> {{ x.manganh.mota }}</p>
-                  <p><b>Học phí:</b> {{ x.hocphi }}</p>
-                  <p><b>Thời gian học:</b> {{ x.thoigianhoc }}</p>
-                </div>
-           </div>
+              <div class="major-top">
+                <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.manganh }}')" class="major-name">
+                  🔥 {{ x.manganh.tennganh }}
+                </a>
+              </div>
+              <div id="details-{{ x.manganh.manganh }}" class="major-details" style="display: none;">
+                <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
+                <p><b>Học phí:</b> {{ x.hocphi|default:"Liên hệ" }}</p>
+                <p><b>Thời gian:</b> {{ x.thoigianhoc|default:"4 năm" }}</p>
+              </div>
+            </div>
           {% endfor %}
         </div>
-          </div>
         {% else %}
-          <div class="desc muted">Chưa có ngành liên quan. (Thêm vào bảng CHITIETNGANH)</div>
+          <p class="desc muted">Thông tin ngành học đang được cập nhật.</p>
         {% endif %}
       </div>
     </div>
-
+  </div>
+  
+  <div style="margin-top: 20px;">
     <a class="back-btn" href="{% url 'home' %}">⬅ Quay lại Trang Chủ</a>
   </div>
-
 </section>
 
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+{% if lat and lng %}
 <script>
-  // Hàm để hiển thị hoặc ẩn chi tiết ngành
-  function showDetails(majorId) {
-    var detailsDiv = document.getElementById("details-" + majorId);
-    if (detailsDiv.style.display === "none") {
-      detailsDiv.style.display = "block";
-    } else {
-      detailsDiv.style.display = "none";
-    }
+  // Dữ liệu từ Django
+  const schoolLat = parseFloat("{{ lat|unlocalize }}");
+  const schoolLng = parseFloat("{{ lng|unlocalize }}");
+  const schoolName = "{{ truong.tentruong|escapejs }}";
+
+  let userLat = null, userLng = null, userMarker = null, routeLine = null;
+
+  // 1. CẤU HÌNH CÁC LỚP BẢN ĐỒ (Sửa lỗi 403)
+  const mapLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB'
+  });
+  const mapDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB'
+  });
+  const mapSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri'
+  });
+
+  const map = L.map('school-map', {
+    center: [schoolLat, schoolLng],
+    zoom: 15,
+    layers: [mapLight] // Lớp mặc định
+  });
+
+  // Thêm bộ chọn lớp ở góc phải
+  const baseLayers = {
+    "Giao thông (Sáng)": mapLight,
+    "Giao thông (Tối)": mapDark,
+    "Vệ tinh thực tế": mapSatelite
+  };
+  L.control.layers(baseLayers).addTo(map);
+
+  // Marker Trường học
+  const schoolIcon = L.divIcon({
+    html: `<div style="width:20px;height:20px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 5px rgba(0,0,0,0.3);"></div>`,
+    className: "", iconSize: [20, 20], iconAnchor: [10, 10]
+  });
+  L.marker([schoolLat, schoolLng], { icon: schoolIcon }).addTo(map).bindPopup(`<b>${schoolName}</b>`).openPopup();
+
+  // 2. LOGIC TÍNH ĐƯỜNG ĐI (Giữ nguyên)
+  async function drawRoute() {
+    if (!userLat || !userLng) return;
+    const mode = document.getElementById("vehicleSelect").value;
+    const url = `https://router.project-osrm.org/route/v1/${mode}/${userLng},${userLat};${schoolLng},schoolLat}?overview=full&geometries=geojson`;
+    
+    document.getElementById("statusBox").innerText = "Đang tìm đường...";
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        if (routeLine) map.removeLayer(routeLine);
+        
+        routeLine = L.polyline(route.geometry.coordinates.map(c => [c[1], c[0]]), {
+          color: '#ef4444', weight: 6, opacity: 0.8
+        }).addTo(map);
+
+        document.getElementById("routeDistanceText").innerText = (route.distance / 1000).toFixed(2) + " km";
+        document.getElementById("durationText").innerText = Math.round(route.duration / 60) + " phút";
+        document.getElementById("statusBox").innerText = "Đã tìm thấy lộ trình tốt nhất.";
+        map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
+      }
+    } catch (e) { document.getElementById("statusBox").innerText = "Lỗi kết nối dịch vụ bản đồ."; }
+  }
+
+  // 3. XỬ LÝ VỊ TRÍ
+  function updatePosition(lat, lng, text) {
+    userLat = lat; userLng = lng;
+    document.getElementById("userLocationText").innerText = text || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    if (userMarker) userMarker.setLatLng([lat, lng]);
+    else userMarker = L.marker([lat, lng]).addTo(map);
+    drawRoute();
+  }
+
+  document.getElementById("btnGetLocation").onclick = () => {
+    navigator.geolocation.getCurrentPosition(p => {
+      updatePosition(p.coords.latitude, p.coords.longitude, "Vị trí GPS của bạn");
+    });
+  };
+
+  document.getElementById("btnSearchAddress").onclick = async () => {
+    const addr = document.getElementById("manualAddress").value;
+    if (!addr) return alert("Vui lòng nhập địa chỉ");
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+    const data = await res.json();
+    if (data.length > 0) updatePosition(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name);
+    else alert("Không tìm thấy địa chỉ này");
+  };
+
+  function showDetails(id) {
+    const el = document.getElementById("details-" + id);
+    el.style.display = el.style.display === "none" ? "block" : "none";
   }
 </script>
-
+{% endif %}
 {% endblock %}
