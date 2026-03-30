@@ -214,14 +214,31 @@ def home_page(request):
 
 
 def truong_list(request):
+    keyword = request.GET.get('keyword', '').strip()
+    
+    # Lấy ảnh đầu tiên của mỗi trường làm subquery
     anh_sq = HinhAnhTruong.objects.filter(matruong_id=OuterRef("matruong")).values("tenfile")[:1]
-    truong_list_data = TruongDaiHoc.objects.select_related("madvhc").all().order_by("matruong").annotate(
+    
+    # Query cơ bản
+    truong_qs = TruongDaiHoc.objects.select_related("madvhc").all()
+
+    # Nếu có từ khóa, lọc theo Tên trường HOẶC Tên ngành liên quan
+    if keyword:
+        truong_qs = truong_qs.filter(
+            Q(tentruong__icontains=keyword) | 
+            Q(ctn_nganhs__manganh__tennganh__icontains=keyword)
+        ).distinct()
+
+    truong_list_data = truong_qs.order_by("matruong").annotate(
         anh=Coalesce(Subquery(anh_sq), Value("default.png"))
     )
+    
     nganh_list_data = NganhHoc.objects.all().order_by("tennganh")
+    
     return render(request, "truongdaihoc/truongdaihoc.html", {
         "truong_list": truong_list_data,
         "nganh_list": nganh_list_data,
+        "keyword": keyword # Gửi lại keyword để hiển thị trên ô nhập liệu
     })
 
 
@@ -381,7 +398,7 @@ def khao_sat_view(request):
         request.session["khao_sat_summary"] = (ketqua.mota or ketqua.manganh.mota) if ketqua else "Không tìm thấy nhóm phù hợp."
         return redirect("ketqua_khaosat")
 
-    return render(request, "khaosat/khaosat.html", {"questions": questions})
+    return render(request, "khaosat/ketqua.html", {"questions": questions})
 
 
 def ketqua_khao_sat_view(request):

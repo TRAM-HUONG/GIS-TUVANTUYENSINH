@@ -555,3 +555,90 @@ main{ padding: 26px 0 44px; }
   text-overflow: ellipsis;
   max-width: 160px;
 }
+.header-search {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 5px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+}
+
+.search-form input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    padding: 5px;
+    width: 200px;
+}
+
+ /* Chỉnh sửa Menu để đẩy Search sang phải */
+    .menu {
+      display: flex;
+      align-items: center;
+      width: 100%; /* Trải dài hết hàng */
+    }
+
+    /* Các nút điều hướng bên trái */
+    .nav-links {
+      display: flex;
+      gap: 5px;
+      flex-grow: 1; /* Chiếm khoảng trống để đẩy search sang phải */
+    }
+
+    /* Khung tìm kiếm bên góc phải */
+    .header-search {
+      display: flex;
+      align-items: center;
+      background: #ffffff; /* Nền trắng đặc cho đậm đà */
+      border: 2px solid #0056b3; /* Viền xanh đậm nổi bật */
+      border-radius: 8px;
+      padding: 5px 12px;
+      margin-left: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Tạo độ nổi */
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-form input {
+      background: transparent;
+      border: none;
+      color: #333; /* Chữ màu đậm dễ đọc */
+      outline: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      width: 220px; 
+      padding: 5px;
+    }
+
+    .search-form input::placeholder {
+      color: #666;
+      font-weight: 400;
+    }
+
+    .search-form button {
+      background: transparent;
+      border: none;
+      color: #0056b3;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0 0 0 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Hiệu ứng khi click vào ô tìm kiếm */
+    .header-search:focus-within {
+      border-color: #ffc107; /* Đổi màu viền sang vàng khi gõ */
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+    }
