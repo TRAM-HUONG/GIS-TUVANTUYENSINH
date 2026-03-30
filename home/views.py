@@ -255,6 +255,47 @@ def map_view(request):
 def tracuu(request):
     return render(request, "map/map.html")
 
+from django.http import JsonResponse
+import math
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
+def map_data_api(request):
+    from .models import TruongDaiHoc
+
+    schools = []
+
+    truongs = TruongDaiHoc.objects.all()
+
+    for t in truongs:
+        if t.lat is None or t.lng is None:
+            continue
+
+        schools.append({
+            "matruong": t.matruong,
+            "tentruong": t.tentruong,
+            "lat": t.lat,
+            "lng": t.lng,
+            "tinh_thanh": t.madvhc.matinh.tentinh if t.madvhc and t.madvhc.matinh else "",
+            "nganh_hoc": [],
+            "khoi_xet_tuyen": [],
+            "diem_chuan": {}
+        })
+
+    return JsonResponse({
+        "schools": schools,
+        "cities": [],
+        "majors": [],
+        "blocks": []
+    })
 
 # =========================================================
 # KHẢO SÁT
@@ -294,8 +335,6 @@ def ketqua_khao_sat_view(request):
         "level": request.session.get("khao_sat_level"),
         "summary": request.session.get("khao_sat_summary"),
     })
-
-
 # =========================================================
 # ADMIN - DASHBOARD & MANAGEMENT
 # =========================================================

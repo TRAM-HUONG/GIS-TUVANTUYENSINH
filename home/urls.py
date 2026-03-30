@@ -62,4 +62,6 @@ urlpatterns = [
     path("admin/diemchuan/", views.admin_diemchuan_list, name="admin_diemchuan_list"),
     path("admin/khaosat/", views.admin_khaosat_list, name="admin_khaosat_list"),
     path("admin/nguoidung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
+    path("api/map-data/", views.map_data_api, name="map_data_api"),
 ]
+# Thêm vào urlpatterns trong urls.py
