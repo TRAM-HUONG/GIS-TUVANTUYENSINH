@@ -1,130 +1,111 @@
-/* ====== Map UI (tĩnh) ====== */
 :root{
   --bg: #0b1220;
-  --panel: rgba(255,255,255,.08);
+  --panel: rgba(255,255,255,.10);
   --panel2: rgba(255,255,255,.06);
-  --line: rgba(255,255,255,.12);
-  --text: rgba(255,255,255,.92);
-  --muted: rgba(255,255,255,.70);
-  --muted2: rgba(255,255,255,.55);
+  --line: rgba(255,255,255,.14);
+  --line-soft: rgba(255,255,255,.08);
+  --text: rgba(255,255,255,.95);
+  --muted: rgba(255,255,255,.72);
+  --muted2: rgba(255,255,255,.56);
   --brand1: rgba(0, 88, 175, 0.95);
   --brand2: rgba(0, 149, 255, 0.695);
+  --shadow: 0 18px 40px rgba(0,0,0,.18);
+  --shadow-soft: 0 10px 24px rgba(0,0,0,.12);
 }
-
-  .map__frame {
-    position: relative;
-    min-height: 620px;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #f8fafc;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-  }
-
-  #real-map {
-    width: 100%;
-    height: 620px;
-  }
-
-  .chip.active {
-    background: #2563eb;
-    color: #fff;
-    border-color: #2563eb;
-  }
-
-  .map__note {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    z-index: 500;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-size: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-  }
-
-  .result__list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 430px;
-    overflow: auto;
-  }
-
-  .card {
-    display: block;
-    text-decoration: none;
-    padding: 12px;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    transition: .2s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,.06);
-  }
-
-  .card__title {
-    font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 4px;
-  }
-
-  .card__meta {
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .leaflet-popup-content {
-    min-width: 240px;
-  }
-
-  .popup-school-title {
-    font-size: 15px;
-    font-weight: 800;
-    margin-bottom: 8px;
-  }
-
-  .popup-school-meta {
-    font-size: 13px;
-    color: #334155;
-    line-height: 1.5;
-  }
 
 .map-ui{
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  padding: 18px;
+  align-items: stretch;
 }
 
-@media (max-width: 1024px){
-  .map-ui{ grid-template-columns: 1fr; }
+@media (max-width: 1100px){
+  .map-ui{
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ===== Sidebar ===== */
 .filter{
   background: linear-gradient(180deg, var(--panel), var(--panel2));
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 18px;
+  padding: 16px;
   color: var(--text);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.filter__head{
+  margin-bottom: 12px;
 }
 
 .filter__head h2{
   margin: 0 0 4px;
   font-size: 18px;
+  font-weight: 800;
   letter-spacing: .2px;
 }
+
 .filter__head p{
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
+/* ===== Tabs ===== */
+.filter__tabs{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0 14px;
+}
+
+.filter__tabs .tab{
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  color: rgba(255,255,255,.92);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: .18s ease;
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.filter__tabs .tab:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.14);
+  border-color: rgba(255,255,255,.26);
+}
+
+.filter__tabs .tab--active{
+  border-color: rgba(255,255,255,.34);
+  background: linear-gradient(135deg, var(--brand1), var(--brand2));
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(0,0,0,.18);
+}
+
+.filter__tabs .tab:focus{
+  outline: none;
+}
+
+.tab__panel{
+  margin-top: 8px;
+}
+
+/* ===== Fields ===== */
 .field{
   display: grid;
   gap: 6px;
@@ -132,20 +113,29 @@
 }
 
 .field label{
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--muted);
 }
 
 .field input,
 .field select{
   width: 100%;
-  height: 40px;
+  height: 42px;
   border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(0,0,0,.18);
+  border: 1px solid var(--line-soft);
+  background: rgba(0,0,0,.14);
   color: var(--text);
   padding: 0 12px;
   outline: none;
+  transition: .18s ease;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color: rgba(255,255,255,.26);
+  background: rgba(0,0,0,.18);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.05);
 }
 
 .field input::placeholder{
@@ -159,51 +149,77 @@
 }
 
 .chip{
-  border: 1px solid var(--line);
-  background: rgba(0,0,0,.18);
+  border: 1px solid var(--line-soft);
+  background: rgba(0,0,0,.14);
   color: var(--text);
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
+  transition: .18s ease;
 }
 
+.chip:hover{
+  background: rgba(255,255,255,.10);
+  transform: translateY(-1px);
+}
+
+.chip.active{
+  background: linear-gradient(135deg, var(--brand1), var(--brand2));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 18px rgba(0,0,0,.16);
+}
+
+/* ===== Buttons ===== */
 .filter__actions{
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin: 14px 0;
+  margin: 16px 0 10px;
 }
 
 .btn{
   height: 42px;
   border-radius: 12px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-soft);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  transition: .18s ease;
+}
+
+.btn:hover{
+  transform: translateY(-1px);
 }
 
 .btn--primary{
   background: linear-gradient(90deg, var(--brand1), var(--brand2));
   color: white;
   border: none;
+  box-shadow: var(--shadow-soft);
 }
 
 .btn--ghost{
-  background: rgba(0,0,0,.18);
+  background: rgba(255,255,255,.08);
   color: var(--text);
 }
 
-/* ===== Result list ===== */
+/* ===== Result ===== */
 .result{
-  margin-top: 10px;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+  display: none;
+}
+
+.result.show{
+  display: block;
 }
 
 .result__head{
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
 }
@@ -211,12 +227,13 @@
 .result__head h3{
   margin: 0;
   font-size: 14px;
+  font-weight: 800;
   color: var(--text);
 }
 
 .badge{
-  min-width: 26px;
-  height: 22px;
+  min-width: 28px;
+  height: 24px;
   padding: 0 8px;
   border-radius: 999px;
   display: inline-flex;
@@ -224,43 +241,68 @@
   justify-content: center;
   font-size: 12px;
   color: white;
-  background: rgba(0, 149, 255, .45);
+  background: rgba(0, 149, 255, .38);
   border: 1px solid rgba(0, 149, 255, .55);
 }
 
 .result__list{
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.result__list::-webkit-scrollbar{
+  width: 8px;
+}
+.result__list::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.18);
+  border-radius: 999px;
 }
 
 .card{
   display: block;
   text-decoration: none;
   color: var(--text);
-  background: rgba(0,0,0,.18);
-  border: 1px solid var(--line);
+  background: rgba(0,0,0,.16);
+  border: 1px solid var(--line-soft);
   border-radius: 14px;
   padding: 12px;
+  transition: .18s ease;
+}
+
+.card:hover{
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.10);
+  box-shadow: 0 12px 24px rgba(0,0,0,.14);
 }
 
 .card__title{
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 4px;
+  font-size: 14px;
 }
 
 .card__meta{
   font-size: 12px;
   color: var(--muted);
+  line-height: 1.5;
 }
 
 /* ===== Map ===== */
 .map{
   background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.04));
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 14px;
   color: var(--text);
-  min-height: 560px;
+  min-height: 720px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
 }
 
 .map__top{
@@ -273,13 +315,15 @@
 
 .map__title h1{
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 800;
 }
 
 .map__title p{
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
+  line-height: 1.5;
 }
 
 .map__tools{
@@ -291,203 +335,82 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(0,0,0,.18);
+  border: 1px solid var(--line-soft);
+  background: rgba(0,0,0,.16);
   color: var(--text);
   cursor: pointer;
   font-size: 16px;
+  transition: .18s ease;
 }
 
+.tool:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.10);
+}
+
+/* ===== Map frame ===== */
 .map__frame{
-  height: calc(100% - 60px);
-  min-height: 480px;
-  border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,.22);
+  position: relative;
+  flex: 1;
+  min-height: 620px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  overflow: hidden;
   background:
-    radial-gradient(circle at 30% 30%, rgba(0,149,255,.14), transparent 50%),
-    radial-gradient(circle at 70% 60%, rgba(0,88,175,.16), transparent 50%),
-    rgba(0,0,0,.15);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 18px;
+    radial-gradient(circle at 30% 30%, rgba(0,149,255,.10), transparent 48%),
+    radial-gradient(circle at 70% 60%, rgba(0,88,175,.12), transparent 50%),
+    rgba(0,0,0,.16);
 }
 
-.placeholder{
-  display:flex;
-  align-items:center;
-  gap: 12px;
-  background: rgba(0,0,0,.18);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px 16px;
-}
-
-.placeholder__icon{
-  font-size: 22px;
-}
-
-.placeholder__title{
-  font-weight: 800;
-  margin-bottom: 2px;
-}
-
-.placeholder__sub{
-  font-size: 12px;
-  color: var(--muted);
-}
-.map__iframe{
+#real-map{
   width: 100%;
   height: 100%;
-  border: 0;
-  display: block;
+  min-height: 620px;
 }
 
 .map__note{
   position: absolute;
   left: 12px;
   bottom: 12px;
-  font-size: 12px;
-  padding: 6px 10px;
+  z-index: 500;
+  font-size: 11px;
+  padding: 7px 11px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.25);
-  color: rgba(255,255,255,.80);
+  background: rgba(0,0,0,.30);
+  color: rgba(255,255,255,.84);
+  backdrop-filter: blur(4px);
 }
 
-.map__frame{
-  position: relative; /* ✅ để note nằm đè lên iframe */
-  overflow: hidden;
-}
-/* =========================
-   TABS: Lọc theo nhu cầu / Lọc theo không gian
-   ========================= */
-
-.filter__tabs{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 12px 0 12px;
+/* ===== Popup ===== */
+.leaflet-popup-content-wrapper{
+  border-radius: 14px;
 }
 
-.filter__tabs .tab{
-  appearance: none;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.12);
-  color: rgba(255,255,255,.92);
-  border-radius: 999px;
-  padding: 10px 12px;
-  font-weight: 700;
+.leaflet-popup-content{
+  min-width: 240px;
+}
+
+.popup-school-title{
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
+.popup-school-meta{
   font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
-  box-shadow: 0 8px 18px rgba(0,0,0,.12);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  color: #334155;
+  line-height: 1.55;
 }
 
-.filter__tabs .tab:hover{
-  transform: translateY(-1px);
-  background: rgba(255,255,255,.16);
-  border-color: rgba(255,255,255,.28);
-  box-shadow: 0 10px 22px rgba(0,0,0,.16);
-}
-
-.filter__tabs .tab:active{
-  transform: translateY(0);
-}
-
-/* ✅ Active tab */
-.filter__tabs .tab--active{
-  border-color: rgba(255,255,255,.35);
-  background: linear-gradient(135deg,
-    rgba(0, 88, 175, 0.95),
-    rgba(0, 149, 255, 0.695)
-  );
-  color: #fff;
-  box-shadow: 0 14px 28px rgba(0,0,0,.20);
-}
-
-/* ✅ Focus ring (accessibility) */
-.filter__tabs .tab:focus{
-  outline: none;
-}
-.filter__tabs .tab:focus-visible{
-  outline: 3px solid rgba(255,255,255,.45);
-  outline-offset: 2px;
-}
-
-/* Optional: panel spacing (nhìn gọn hơn) */
-.tab__panel{
-  margin-top: 10px;
-}
-/* =========================
-   TABS: Lọc theo nhu cầu / Lọc theo không gian
-   ========================= */
-
-.filter__tabs{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 12px 0 12px;
-}
-
-.filter__tabs .tab{
-  appearance: none;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.12);
-  color: rgba(255,255,255,.92);
-  border-radius: 999px;
-  padding: 10px 12px;
-  font-weight: 700;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
-  box-shadow: 0 8px 18px rgba(0,0,0,.12);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.filter__tabs .tab:hover{
-  transform: translateY(-1px);
-  background: rgba(255,255,255,.16);
-  border-color: rgba(255,255,255,.28);
-  box-shadow: 0 10px 22px rgba(0,0,0,.16);
-}
-
-.filter__tabs .tab:active{
-  transform: translateY(0);
-}
-
-/* ✅ Active tab */
-.filter__tabs .tab--active{
-  border-color: rgba(255,255,255,.35);
-  background: linear-gradient(135deg,
-    rgba(0, 88, 175, 0.95),
-    rgba(0, 149, 255, 0.695)
-  );
-  color: #fff;
-  box-shadow: 0 14px 28px rgba(0,0,0,.20);
-}
-
-/* ✅ Focus ring (accessibility) */
-.filter__tabs .tab:focus{
-  outline: none;
-}
-.filter__tabs .tab:focus-visible{
-  outline: 3px solid rgba(255,255,255,.45);
-  outline-offset: 2px;
-}
-
-/* Optional: panel spacing (nhìn gọn hơn) */
-.tab__panel{
-  margin-top: 10px;
+/* ===== Empty result state ===== */
+.result-empty{
+  border: 1px dashed rgba(255,255,255,.18);
+  border-radius: 14px;
+  padding: 16px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  background: rgba(0,0,0,.10);
 }

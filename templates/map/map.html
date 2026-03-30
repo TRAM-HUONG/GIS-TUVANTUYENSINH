@@ -5,539 +5,223 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<style>
+    /* Style cho Popup chi tiết */
+    .popup-content { min-width: 250px; font-family: sans-serif; }
+    .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+    .popup-title { font-weight: bold; color: #0056b3; font-size: 15px; margin-bottom: 5px; display: block; text-decoration: none; }
+    .popup-info { font-size: 13px; line-height: 1.5; color: #333; }
+    .popup-info b { color: #555; }
+    .popup-link { color: #d93025; font-weight: bold; text-decoration: none; display: block; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
+    
+    /* Chips ngành học */
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .chip { padding: 5px 12px; border-radius: 15px; background: #e8f0fe; border: 1px solid #ccc; font-size: 12px; cursor: pointer; }
+    .chip.active { background: #1a73e8; color: white; border-color: #1a73e8; }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="map-ui">
+    <aside class="filter">
+        <div class="filter__head">
+            <h2>🧭 Bộ lọc thông minh</h2>
+            <p>Tìm vị trí, chọn ngành và xem điểm chuẩn trực tiếp.</p>
+        </div>
 
-  <aside class="filter">
-    <div class="filter__head">
-      <h2>🧭 Bộ lọc</h2>
-      <p>Lọc theo nhu cầu / không gian.</p>
-    </div>
+        <div class="field">
+            <label>🏠 Vị trí của bạn</label>
+            <div id="geocoder-input"></div>
+        </div>
 
-    <div class="filter__tabs" role="tablist" aria-label="Bộ lọc tabs">
-      <button type="button"
-              class="tab tab--active"
-              role="tab"
-              aria-selected="true"
-              aria-controls="tab-need"
-              id="tab-need-btn">
-        🎯 Lọc theo nhu cầu
-      </button>
+        <div class="filter__tabs">
+            <button type="button" class="tab tab--active" id="tab-need-btn">🎯 Thông tin</button>
+            <button type="button" class="tab" id="tab-space-btn">🌍 Khoảng cách</button>
+        </div>
 
-      <button type="button"
-              class="tab"
-              role="tab"
-              aria-selected="false"
-              aria-controls="tab-space"
-              id="tab-space-btn">
-        🌍 Lọc theo không gian
-      </button>
-    </div>
+        <div class="tab__panel tab__panel--active" id="tab-need">
+            <div class="field"><label>🔎 Tên trường</label><input id="kw" type="text" placeholder="Tìm tên trường..." /></div>
+            <div class="field"><label>📍 Tỉnh/Thành</label><select id="city"><option value="">-- Tất cả --</option></select></div>
+            <div class="field"><label>🧮 Khối xét tuyển</label><select id="khoi"><option value="">-- Tất cả --</option></select></div>
+            <div class="field"><label>📊 Điểm tối thiểu</label><input id="score" type="number" step="0.1" placeholder="VD: 20.5" /></div>
+            <div class="field"><label>🧩 Ngành quan tâm</label><div class="chips" id="major-chips"></div></div>
+        </div>
 
-    <div class="tab__panel tab__panel--active"
-         id="tab-need"
-         role="tabpanel"
-         aria-labelledby="tab-need-btn">
+        <div class="tab__panel" id="tab-space" hidden>
+            <div class="field"><label>📌 Bán kính (km)</label><input id="near" type="number" /></div>
+            <div class="field"><label>📏 Sắp xếp</label><select id="sortdist"><option value="nearest">Gần nhất trước</option></select></div>
+        </div>
 
-      <div class="field">
-        <label for="kw">🔎 Từ khóa</label>
-        <input id="kw" type="text" placeholder="Tên trường / ngành..." />
-      </div>
+        <div class="filter__actions">
+            <button type="button" class="btn btn--primary" id="btn-apply">Áp dụng</button>
+            <button type="button" class="btn btn--ghost" id="btn-reset">Làm mới</button>
+        </div>
 
-      <div class="field">
-        <label for="city">📍 Tỉnh/Thành</label>
-        <select id="city">
-          <option value="">-- Chọn --</option>
-        </select>
-      </div>
+        <div class="result" id="result-box">
+            <div class="result__head"><h3>📌 Kết quả</h3> <span class="badge" id="result-count">0</span></div>
+            <div class="result__list" id="result-list"></div>
+        </div>
+    </aside>
 
-      <div class="field">
-        <label for="khoi">🧮 Khối xét tuyển</label>
-        <select id="khoi">
-          <option value="">-- Tất cả --</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="score">📊 Điểm tối thiểu</label>
-        <input id="score" type="number" min="0" max="30" step="0.25" placeholder="VD: 22.5" />
-      </div>
-
-      <div class="field">
-        <label>🧩 Ngành quan tâm</label>
-        <div class="chips" id="major-chips"></div>
-      </div>
-    </div>
-
-    <div class="tab__panel"
-         id="tab-space"
-         role="tabpanel"
-         aria-labelledby="tab-space-btn"
-         hidden>
-
-      <div class="field">
-        <label for="near">📌 Gần trong bán kính (km)</label>
-        <input id="near" type="number" min="1" max="500" step="1" placeholder="VD: 10" />
-      </div>
-
-      <div class="field">
-        <label for="sortdist">📏 Sắp xếp</label>
-        <select id="sortdist">
-          <option value="">-- Chọn --</option>
-          <option value="nearest">Gần nhất trước</option>
-          <option value="farthest">Xa nhất trước</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="filter__actions">
-      <button type="button" class="btn btn--primary" id="btn-apply">Áp dụng</button>
-      <button type="button" class="btn btn--ghost" id="btn-reset">Reset</button>
-    </div>
-
-    <div class="result">
-      <div class="result__head">
-        <h3>📌 Kết quả</h3>
-        <span class="badge" id="result-count">0</span>
-      </div>
-
-      <div class="result__list" id="result-list"></div>
-    </div>
-  </aside>
-
-  <main class="map">
-    <div class="map__top">
-      <div class="map__title">
-        <h1>🗺️ Bản đồ tuyển sinh</h1>
-        <p>Lọc thật từ database và hiển thị vị trí trường trên bản đồ.</p>
-      </div>
-
-      <div class="map__tools">
-        <button type="button" class="tool tool--link" id="btn-my-location" title="Lấy vị trí của tôi">📍</button>
-      </div>
-    </div>
-
-    <section class="map__frame" aria-label="map">
-      <div id="real-map"></div>
-      <div class="map__note">
-        Dữ liệu bản đồ © OpenStreetMap contributors
-      </div>
-    </section>
-  </main>
-
+    <main class="map">
+        <div class="map__top">
+            <div class="map__title"><h1>🗺️ Bản đồ Tuyển sinh</h1></div>
+            <div class="map__tools"><button type="button" class="tool" id="btn-my-location">📍 GPS</button></div>
+        </div>
+        <section class="map__frame"><div id="real-map"></div></section>
+    </main>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
 (function () {
-  const tabs = document.querySelectorAll('.filter__tabs [role="tab"]');
-  const panels = document.querySelectorAll('.tab__panel[role="tabpanel"]');
+    const API_URL = "{% url 'map_data_api' %}";
+    let allSchools = [], selectedMajor = "", userLocation = { lat: 10.7769, lng: 106.7009 };
+    let map, markerLayer, userMarker = null;
 
-  function activateTab(tab) {
-    const targetId = tab.getAttribute('aria-controls');
-
-    tabs.forEach(t => {
-      t.classList.remove('tab--active');
-      t.setAttribute('aria-selected', 'false');
-    });
-
-    panels.forEach(p => {
-      p.classList.remove('tab__panel--active');
-      p.setAttribute('hidden', 'hidden');
-    });
-
-    tab.classList.add('tab--active');
-    tab.setAttribute('aria-selected', 'true');
-
-    const panel = document.getElementById(targetId);
-    if (panel) {
-      panel.classList.add('tab__panel--active');
-      panel.removeAttribute('hidden');
+    // Hàm tính thời gian di chuyển ước tính (giả định tốc độ 35km/h)
+    function getETA(km) {
+        const mins = (km / 35) * 60;
+        return mins < 60 ? Math.round(mins) + " phút" : Math.floor(mins/60) + "h " + Math.round(mins%60) + "p";
     }
-  }
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => activateTab(tab));
-  });
-})();
-</script>
+    function initMap() {
+        map = L.map('real-map').setView([userLocation.lat, userLocation.lng], 12);
+        
+        // SỬA LỖI 403: Dùng CartoDB Voyager thay cho OSM mặc định
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© CartoDB'
+        }).addTo(map);
 
-<script>
-(function () {
-  const API_URL = "{% url 'map_data_api' %}";
-  const DEFAULT_USER_LOCATION = { lat: 10.7769, lng: 106.7009 }; // TP.HCM mặc định
-  const OSRM_BASE = "https://router.project-osrm.org";
-  const VEHICLE_SPEED = {
-    car: 30,
-    motorbike: 35,
-    bike: 15,
-    walk: 5
-  };
+        markerLayer = L.layerGroup().addTo(map);
 
-  let allSchools = [];
-  let filteredSchools = [];
-  let selectedMajor = "";
-  let userLocation = { ...DEFAULT_USER_LOCATION };
+        // Geocoder tìm địa chỉ
+        const control = L.Control.geocoder({ defaultMarkGeocode: false, placeholder: "Nhập địa chỉ của bạn..." })
+            .on('markgeocode', function(e) {
+                userLocation = e.geocode.center;
+                drawUserMarker();
+                map.setView(userLocation, 14);
+            }).addTo(map);
+        document.getElementById('geocoder-input').appendChild(control.onAdd(map));
 
-  let map;
-  let markerLayer;
-  let userMarker = null;
-  let routeLine = null;
+        drawUserMarker();
+    }
 
-  function haversineKm(lat1, lon1, lat2, lon2) {
-    const R = 6371.0;
-    const toRad = deg => deg * Math.PI / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
+    function drawUserMarker() {
+        if (userMarker) map.removeLayer(userMarker);
+        const redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
+        userMarker = L.marker([userLocation.lat, userLocation.lng], {icon: redIcon}).addTo(map).bindPopup("Vị trí của bạn");
+    }
 
-  function estimateDurationMin(distanceKm, speedKmh = 30) {
-    speedKmh = speedKmh > 0 ? speedKmh : 30;
-    return (distanceKm / speedKmh) * 60;
-  }
+    function buildPopup(s, dist) {
+        // SỬA LỖI 404: Đường dẫn chuẩn theo image_6a797e.png
+        const detailUrl = `/truong/${s.matruong}/`; 
+        const eta = getETA(dist);
+        const nganhHoc = s.nganh_hoc ? s.nganh_hoc.slice(0, 3).join(", ") + "..." : "Đang cập nhật";
+        const khoi = s.khoi_xet_tuyen ? s.khoi_xet_tuyen.join(", ") : "Đang cập nhật";
+        const diem = (s.diem_chuan && s.diem_chuan.length > 0) ? Math.max(...s.diem_chuan.map(d => d.diem)) : "---";
 
-  function formatDuration(min) {
-    if (min < 60) return `${Math.round(min)} phút`;
-    const h = Math.floor(min / 60);
-    const m = Math.round(min % 60);
-    return `${h} giờ ${m} phút`;
-  }
+        return `
+            <div class="popup-content">
+                <a href="${detailUrl}"><img src="${s.image_url || ''}" class="popup-img"></a>
+                <a href="${detailUrl}" class="popup-title">🏫 ${s.tentruong}</a>
+                <div class="popup-info">
+                    <b>📏 Khoảng cách:</b> ${dist.toFixed(2)} km<br>
+                    <b>⏱️ Thời gian đi:</b> ~${eta}<br>
+                    <b>📊 Điểm cao nhất:</b> <span style="color:red; font-weight:bold">${diem}</span><br>
+                    <b>🧮 Khối:</b> ${khoi}<br>
+                    <b>🧩 Ngành tiêu biểu:</b> ${nganhHoc}
+                </div>
+                <a href="${detailUrl}" class="popup-link">Chuyển đến trang trường →</a>
+            </div>`;
+    }
 
-  function latestScoreValue(diemChuanObj) {
-    if (!diemChuanObj) return null;
-    const values = Object.values(diemChuanObj)
-      .map(x => x?.score)
-      .filter(x => x !== null && x !== undefined);
-    if (!values.length) return null;
-    return Math.max(...values);
-  }
+    function renderMarkers(data) {
+        markerLayer.clearLayers();
+        data.forEach(s => {
+            const dist = L.latLng(userLocation).distanceTo([s.lat, s.lng]) / 1000;
+            const m = L.marker([s.lat, s.lng]).addTo(markerLayer);
+            m.bindPopup(buildPopup(s, dist));
+            s._dist = dist;
+        });
+    }
 
-  function initMap() {
-    map = L.map('real-map').setView([userLocation.lat, userLocation.lng], 11);
+    function applyFilters() {
+        const kw = document.getElementById("kw").value.toLowerCase();
+        const city = document.getElementById("city").value;
+        const minScore = parseFloat(document.getElementById("score").value || 0);
+        const selKhoi = document.getElementById("khoi").value;
 
-    const osm = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-      }
-    );
+        let filtered = allSchools.filter(s => {
+            const matchKw = !kw || s.tentruong.toLowerCase().includes(kw);
+            const matchCity = !city || s.tinh_thanh === city;
+            const matchMajor = !selectedMajor || (s.nganh_hoc && s.nganh_hoc.includes(selectedMajor));
+            const matchScore = !minScore || (s.diem_chuan && s.diem_chuan.some(d => d.diem >= minScore));
+            const matchKhoi = !selKhoi || (s.khoi_xet_tuyen && s.khoi_xet_tuyen.includes(selKhoi));
+            return matchKw && matchCity && matchMajor && matchScore && matchKhoi;
+        });
 
-    const topo = L.tileLayer(
-      'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      {
-        maxZoom: 17,
-        attribution: '&copy; OpenTopoMap'
-      }
-    );
+        renderMarkers(filtered);
+        
+        // Cập nhật danh sách kết quả bên trái
+        const list = document.getElementById("result-list");
+        list.innerHTML = "";
+        document.getElementById("result-count").textContent = filtered.length;
+        document.getElementById("result-box").classList.add("show");
 
-    const esri = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        maxZoom: 19,
-        attribution: 'Tiles &copy; Esri'
-      }
-    );
+        filtered.forEach(s => {
+            const item = document.createElement("div");
+            item.className = "card";
+            item.innerHTML = `<div class="card__title">${s.tentruong}</div><div class="card__meta">${s._dist.toFixed(2)} km - ~${getETA(s._dist)}</div>`;
+            item.onclick = () => map.setView([s.lat, s.lng], 15);
+            list.appendChild(item);
+        });
+    }
 
-    osm.addTo(map);
+    initMap();
 
-    const baseMaps = {
-      "OSM": osm,
-      "OpenTopoMap": topo,
-      "Esri Satellite": esri
+    fetch(API_URL).then(r => r.json()).then(data => {
+        allSchools = data.schools || [];
+        
+        // Đổ dữ liệu vào các select
+        const citySel = document.getElementById("city");
+        data.cities?.forEach(c => citySel.add(new Option(c, c)));
+        
+        const khoiSel = document.getElementById("khoi");
+        data.blocks?.forEach(b => khoiSel.add(new Option(b, b)));
+
+        const majorWrap = document.getElementById("major-chips");
+        data.majors?.slice(0, 10).forEach(m => {
+            const btn = document.createElement("button");
+            btn.className = "chip"; btn.textContent = m;
+            btn.onclick = () => {
+                document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+                if (selectedMajor === m) selectedMajor = "";
+                else { selectedMajor = m; btn.classList.add("active"); }
+            };
+            majorWrap.appendChild(btn);
+        });
+
+        renderMarkers(allSchools);
+    });
+
+    document.getElementById("btn-apply").onclick = applyFilters;
+    document.getElementById("btn-reset").onclick = () => location.reload();
+    document.getElementById("btn-my-location").onclick = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(p => {
+                userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+                drawUserMarker(); map.setView(userLocation, 13);
+            });
+        }
     };
-
-    L.control.layers(baseMaps).addTo(map);
-
-    markerLayer = L.layerGroup().addTo(map);
-    drawUserMarker();
-  }
-
-  function drawUserMarker() {
-    if (userMarker) {
-      map.removeLayer(userMarker);
-    }
-
-    userMarker = L.marker([userLocation.lat, userLocation.lng])
-      .addTo(map)
-      .bindPopup("📍 Vị trí của bạn");
-  }
-
-  function clearRoute() {
-    if (routeLine) {
-      map.removeLayer(routeLine);
-      routeLine = null;
-    }
-  }
-
-  async function drawRouteToSchool(school) {
-    clearRoute();
-
-    const url = `${OSRM_BASE}/route/v1/driving/${userLocation.lng},${userLocation.lat};${school.lng},${school.lat}?overview=full&geometries=geojson`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (!data.routes || !data.routes.length) return;
-
-      const coords = data.routes[0].geometry.coordinates.map(item => [item[1], item[0]]);
-      routeLine = L.polyline(coords, { weight: 5 }).addTo(map);
-      map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
-    } catch (err) {
-      console.error("Lỗi route:", err);
-    }
-  }
-
-  function buildPopupHtml(school, distanceKm) {
-    const majors = (school.nganh_hoc || []).slice(0, 4).join(", ") || "Chưa cập nhật";
-    const blocks = (school.khoi_xet_tuyen || []).join(", ") || "Chưa cập nhật";
-    const score = latestScoreValue(school.diem_chuan);
-    const eta = estimateDurationMin(distanceKm, VEHICLE_SPEED.motorbike);
-
-    return `
-      <div>
-        <div class="popup-school-title">🏫 ${school.tentruong}</div>
-        <div class="popup-school-meta">
-          <div><b>Mã trường:</b> ${school.matruong}</div>
-          <div><b>Tỉnh/Thành:</b> ${school.tinh_thanh || "Chưa rõ"}</div>
-          <div><b>Địa chỉ:</b> ${school.diachi || "Chưa cập nhật"}</div>
-          <div><b>Ngành:</b> ${majors}</div>
-          <div><b>Khối:</b> ${blocks}</div>
-          <div><b>Điểm tham khảo:</b> ${score ?? "Chưa cập nhật"}</div>
-          <div><b>Khoảng cách:</b> ${distanceKm.toFixed(2)} km</div>
-          <div><b>Ước tính:</b> ${formatDuration(eta)}</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderMarkers(data) {
-    markerLayer.clearLayers();
-
-    data.forEach(school => {
-      const distanceKm = haversineKm(
-        userLocation.lat,
-        userLocation.lng,
-        school.lat,
-        school.lng
-      );
-
-      const marker = L.marker([school.lat, school.lng]).addTo(markerLayer);
-      marker.bindPopup(buildPopupHtml(school, distanceKm));
-
-      marker.on("click", () => {
-        drawRouteToSchool(school);
-      });
-
-      school._marker = marker;
-      school._distance = distanceKm;
-    });
-  }
-
-  function renderResults(data) {
-    const resultList = document.getElementById("result-list");
-    const resultCount = document.getElementById("result-count");
-
-    resultList.innerHTML = "";
-    resultCount.textContent = data.length;
-
-    if (!data.length) {
-      resultList.innerHTML = `<div class="card"><div class="card__title">Không có kết quả</div><div class="card__meta">Thử đổi điều kiện lọc.</div></div>`;
-      return;
-    }
-
-    data.forEach(school => {
-      const score = latestScoreValue(school.diem_chuan);
-      const card = document.createElement("a");
-      card.href = "javascript:void(0)";
-      card.className = "card";
-      card.innerHTML = `
-        <div class="card__title">${school.tentruong}</div>
-        <div class="card__meta">
-          ${school.tinh_thanh || "Chưa rõ"} • 
-          ${(school.nganh_hoc || []).slice(0, 2).join(", ") || "Chưa cập nhật"} • 
-          ${score ?? "Chưa có điểm"} • 
-          ${school._distance ? school._distance.toFixed(2) + " km" : ""}
-        </div>
-      `;
-
-      card.addEventListener("click", async () => {
-        map.setView([school.lat, school.lng], 15);
-        if (school._marker) {
-          school._marker.openPopup();
-        }
-        await drawRouteToSchool(school);
-      });
-
-      resultList.appendChild(card);
-    });
-  }
-
-  function populateFilters(meta) {
-    const city = document.getElementById("city");
-    const khoi = document.getElementById("khoi");
-    const majorWrap = document.getElementById("major-chips");
-
-    city.innerHTML = `<option value="">-- Chọn --</option>` +
-      (meta.cities || []).map(x => `<option value="${x}">${x}</option>`).join("");
-
-    khoi.innerHTML = `<option value="">-- Tất cả --</option>` +
-      (meta.blocks || []).map(x => `<option value="${x}">${x}</option>`).join("");
-
-    majorWrap.innerHTML = "";
-    (meta.majors || []).forEach(major => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "chip";
-      btn.textContent = major;
-      btn.addEventListener("click", () => {
-        if (selectedMajor === major) {
-          selectedMajor = "";
-          btn.classList.remove("active");
-        } else {
-          selectedMajor = major;
-          [...majorWrap.querySelectorAll(".chip")].forEach(c => c.classList.remove("active"));
-          btn.classList.add("active");
-        }
-      });
-      majorWrap.appendChild(btn);
-    });
-  }
-
-  function applyNeedFilter(data) {
-    const kw = document.getElementById("kw").value.trim().toLowerCase();
-    const city = document.getElementById("city").value.trim().toLowerCase();
-    const khoi = document.getElementById("khoi").value.trim().toLowerCase();
-    const score = parseFloat(document.getElementById("score").value || "0");
-
-    return data.filter(school => {
-      const name = (school.tentruong || "").toLowerCase();
-      const majors = (school.nganh_hoc || []).map(x => x.toLowerCase());
-      const province = (school.tinh_thanh || "").toLowerCase();
-      const blocks = (school.khoi_xet_tuyen || []).map(x => x.toLowerCase());
-      const diemMap = school.diem_chuan || {};
-      const maxScore = latestScoreValue(diemMap);
-
-      const matchKw = !kw || name.includes(kw) || majors.some(m => m.includes(kw));
-      const matchCity = !city || province === city;
-      const matchMajor = !selectedMajor || (school.nganh_hoc || []).includes(selectedMajor);
-      const matchKhoi = !khoi || blocks.includes(khoi);
-      const matchScore = !score || (maxScore !== null && maxScore >= score);
-
-      return matchKw && matchCity && matchMajor && matchKhoi && matchScore;
-    });
-  }
-
-  function applySpaceFilter(data) {
-    const near = parseFloat(document.getElementById("near").value || "0");
-    const sortdist = document.getElementById("sortdist").value;
-
-    data.forEach(school => {
-      school._distance = haversineKm(
-        userLocation.lat,
-        userLocation.lng,
-        school.lat,
-        school.lng
-      );
-    });
-
-    let result = [...data];
-
-    if (near > 0) {
-      result = result.filter(x => x._distance <= near);
-    }
-
-    if (sortdist === "nearest") {
-      result.sort((a, b) => a._distance - b._distance);
-    } else if (sortdist === "farthest") {
-      result.sort((a, b) => b._distance - a._distance);
-    }
-
-    return result;
-  }
-
-  function applyAllFilters() {
-    let data = [...allSchools];
-    data = applyNeedFilter(data);
-    data = applySpaceFilter(data);
-
-    filteredSchools = data;
-    renderMarkers(filteredSchools);
-    renderResults(filteredSchools);
-  }
-
-  function resetFilters() {
-    document.getElementById("kw").value = "";
-    document.getElementById("city").value = "";
-    document.getElementById("khoi").value = "";
-    document.getElementById("score").value = "";
-    document.getElementById("near").value = "";
-    document.getElementById("sortdist").value = "";
-    selectedMajor = "";
-
-    document.querySelectorAll("#major-chips .chip").forEach(chip => {
-      chip.classList.remove("active");
-    });
-
-    clearRoute();
-    applyAllFilters();
-  }
-
-  async function loadData() {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-
-      allSchools = data.schools || [];
-      populateFilters(data);
-      applyAllFilters();
-    } catch (err) {
-      console.error("Không tải được dữ liệu map:", err);
-    }
-  }
-
-  function bindEvents() {
-    document.getElementById("btn-apply").addEventListener("click", applyAllFilters);
-    document.getElementById("btn-reset").addEventListener("click", resetFilters);
-
-    document.getElementById("btn-my-location").addEventListener("click", () => {
-      if (!navigator.geolocation) return;
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          userLocation = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-          };
-          map.setView([userLocation.lat, userLocation.lng], 12);
-          drawUserMarker();
-          clearRoute();
-          applyAllFilters();
-        },
-        err => {
-          console.error("Không lấy được vị trí:", err);
-        }
-      );
-    });
-  }
-
-  initMap();
-  bindEvents();
-  loadData();
 })();
 </script>
 {% endblock %}

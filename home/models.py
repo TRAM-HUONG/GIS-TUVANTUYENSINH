@@ -118,7 +118,6 @@ class ChiTietNganh(models.Model):
     def __str__(self):
         return f"{self.mactn} - {self.matruong_id} - {self.manganh_id}"
 
-
 class DiemChuan(models.Model):
     madiem = models.CharField(db_column="MADIEM", primary_key=True, max_length=5)
     mactn = models.ForeignKey(
@@ -129,6 +128,7 @@ class DiemChuan(models.Model):
     )
     nam = models.IntegerField(db_column="NAM")
     diem = models.FloatField(db_column="DIEM", null=True, blank=True)
+    khoixt = models.CharField(db_column="KHOIXT", max_length=20, null=True, blank=True)
     ghichu = models.CharField(db_column="GHICHU", max_length=200, null=True, blank=True)
 
     class Meta:

@@ -256,6 +256,7 @@ def tracuu(request):
     return render(request, "map/map.html")
 
 from django.http import JsonResponse
+from django.db.models import Prefetch
 import math
 
 def haversine_km(lat1, lon1, lat2, lon2):
@@ -269,32 +270,86 @@ def haversine_km(lat1, lon1, lat2, lon2):
 
 
 def map_data_api(request):
-    from .models import TruongDaiHoc
+    truongs = (
+        TruongDaiHoc.objects
+        .select_related("madvhc", "madvhc__matinh")
+        .prefetch_related(
+            "hinh_anh_truong",
+            Prefetch(
+                "ctn_nganhs",
+                queryset=ChiTietNganh.objects.select_related("manganh").prefetch_related("diem_chuans")
+            )
+        )
+        .all()
+        .order_by("tentruong")
+    )
 
     schools = []
+    cities = set()
+    majors = set()
+    blocks = set()
 
-    truongs = TruongDaiHoc.objects.all()
-
-    for t in truongs:
-        if t.lat is None or t.lng is None:
+    for truong in truongs:
+        if truong.lat is None or truong.lng is None:
             continue
 
+        tinh_thanh = ""
+        if truong.madvhc and truong.madvhc.matinh:
+            tinh_thanh = truong.madvhc.matinh.tentinh
+            cities.add(tinh_thanh)
+
+        image_obj = truong.hinh_anh_truong.first()
+        image_url = ""
+        if image_obj and image_obj.tenfile:
+            image_url = f"/static/img/TDH/{image_obj.tenfile}"
+
+        nganh_list = []
+        diem_chuan_list = []
+        khoi_list = set()
+
+        for ctn in truong.ctn_nganhs.all():
+            ten_nganh = ctn.manganh.tennganh if ctn.manganh else ""
+            if ten_nganh:
+                nganh_list.append(ten_nganh)
+                majors.add(ten_nganh)
+
+            for dc in ctn.diem_chuans.all():
+                khoi = (getattr(dc, "khoixt", "") or "").strip()
+                if khoi:
+                    khoi_list.add(khoi)
+                    blocks.add(khoi)
+
+                diem_chuan_list.append({
+                    "mactn": ctn.mactn,
+                    "manganh": ctn.manganh.manganh if ctn.manganh else "",
+                    "tennganh": ten_nganh,
+                    "nam": dc.nam,
+                    "diem": dc.diem,
+                    "khoixt": khoi,
+                    "ghichu": dc.ghichu or "",
+                })
+
         schools.append({
-            "matruong": t.matruong,
-            "tentruong": t.tentruong,
-            "lat": t.lat,
-            "lng": t.lng,
-            "tinh_thanh": t.madvhc.matinh.tentinh if t.madvhc and t.madvhc.matinh else "",
-            "nganh_hoc": [],
-            "khoi_xet_tuyen": [],
-            "diem_chuan": {}
+            "matruong": truong.matruong,
+            "tentruong": truong.tentruong,
+            "lat": truong.lat,
+            "lng": truong.lng,
+            "diachi": truong.diachi or "",
+            "website": truong.website or "",
+            "email": truong.email or "",
+            "dienthoai": truong.dienthoai or "",
+            "tinh_thanh": tinh_thanh,
+            "image_url": image_url,
+            "nganh_hoc": sorted(list(set(nganh_list))),
+            "khoi_xet_tuyen": sorted(list(khoi_list)),
+            "diem_chuan": diem_chuan_list,
         })
 
     return JsonResponse({
         "schools": schools,
-        "cities": [],
-        "majors": [],
-        "blocks": []
+        "cities": sorted(list(cities)),
+        "majors": sorted(list(majors)),
+        "blocks": sorted(list(blocks)),
     })
 
 # =========================================================
