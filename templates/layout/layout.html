@@ -7,15 +7,69 @@
   <title>{% block title %}GIS Tư Vấn Tuyển Sinh{% endblock %}</title>
 
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  
+  <style>
+    /* CSS bổ sung cho Thanh tìm kiếm trên Header */
+    .header-search {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 25px;
+      padding: 4px 15px;
+      margin: 0 15px;
+      transition: all 0.3s ease;
+    }
+
+    .header-search:focus-within {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .search-form input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      outline: none;
+      font-size: 0.9rem;
+      width: 180px; /* Độ rộng mặc định */
+      padding: 5px;
+    }
+
+    .search-form input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .search-form button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      padding-left: 5px;
+    }
+
+    /* Đảm bảo menu hiển thị đẹp khi có thêm thanh tìm kiếm */
+    .menu {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+  </style>
+  
   {% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
-  <!-- ✅ HERO SLIDER FULL -->
   <header class="hero">
     <div class="hero-slider" id="heroSlider">
-      <!-- 3 ảnh banner -->
       <div class="hero-slide active" style="background-image:url('{% static 'img/banner/Bk.jpg' %}')"></div>
       <div class="hero-slide" style="background-image:url('{% static 'img/banner/DTM.jpg' %}')"></div>
       <div class="hero-slide" style="background-image:url('{% static 'img/banner/HCMUS.png' %}')"></div>
@@ -23,33 +77,45 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <div class="wrap hero-top">
-          <!-- HÀNG 1 -->
           <div class="row row-1">
             <a class="brand" href="{% url 'home' %}">
               <span class="logo" aria-hidden="true"></span>
               <span class="brand-text">Tư Vấn Tuyển Sinh</span>
             </a>
             <div class="auth">
+              {% if request.session.hoten %}
+              <span class="user-name">👤 {{ request.session.hoten }}</span>
+              <a class="btn" href="{% url 'logout' %}">🚪 Đăng xuất</a>
+              {% else %}
               <a class="btn" href="{% url 'login' %}">🔐 Đăng nhập</a>
               <a class="btn" href="{% url 'register' %}">🧾 Đăng ký</a>
+              {% endif %}
             </div>
           </div>
-          <!-- HÀNG 2 -->
+
           <div class="row row-2">
               <nav class="menu">
                 <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
                 <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
-
-                <!-- ✅ THÊM 2 NÚT MỚI -->
                 <a class="btn" href="{% url 'truong_list' %}">🏫 Trường</a>
+
+                <div class="header-search">
+                  <form action="{% url 'truong_list' %}" method="GET" class="search-form">
+                    <input type="text" name="keyword" placeholder="Tìm trường hoặc ngành..." value="{{ request.GET.keyword|default:'' }}">
+                    <button type="submit">🔍</button>
+                  </form>
+                </div>
 
                 <a class="btn ghost" href="{% url 'tracuu' %}">🗺️ Bản đồ</a>
                 <a class="btn" href="{% url 'khaosat' %}">📝 Khảo Sát</a>
-                <a class="btn" href="{% url 'khoahoc' %}">📚 KHÓA HỌC</a>
+                
+                {% if request.session.tenvaitro == "ADMIN" %}
+                 <a class="btn admin-btn" href="{% url 'admin_dashboard' %}">⚙️ Admin</a>
+                {% endif %} 
               </nav>
           </div>
         </div>
-        <!-- Dots -->
+        
         <div class="dots" id="heroDots">
           <span class="dot active"></span>
           <span class="dot"></span>
@@ -59,9 +125,6 @@
       </div>
     </div>
   </header>
-  <div class="falling-flowers right">
-    <img src="{% static 'img/tet2.png' %}" alt="Flower" />
-  </div>
 
   <main>
     <div class="wrap">
@@ -72,68 +135,90 @@
   </main>
 
   <footer class="site-footer">
-    <!-- Footer content here -->
+    <div class="wrap footer-wrap">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <a class="footer-brand" href="{% url 'home' %}">
+            <span class="footer-logo" aria-hidden="true"></span>
+            <span class="footer-title">GIS Tư Vấn Tuyển Sinh</span>
+          </a>
+          <p class="footer-desc">Nền tảng hỗ trợ tra cứu trường – ngành – điểm chuẩn trực quan.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-h">Điều hướng</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'home' %}">🏠 Trang Chủ</a></li>
+            <li><a href="{% url 'truong_list' %}">🏫 Trường</a></li>
+            <li><a href="{% url 'tracuu' %}">🗺️ Bản đồ</a></li>
+            <li><a href="{% url 'khaosat' %}">📝 Khảo Sát</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-h">Tài khoản</h4>
+          <ul class="footer-links">
+            {% if request.session.hoten %}
+              <li><span>👤 {{ request.session.hoten }}</span></li>
+              <li><a href="{% url 'logout' %}">🚪 Đăng xuất</a></li>
+            {% else %}
+              <li><a href="{% url 'login' %}">🔐 Đăng nhập</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-h">Liên hệ</h4>
+          <div class="footer-contact">
+            <div class="footer-line">📧 support@gis-tvts.local</div>
+            <div class="footer-line">☎️ 0888 040 735</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copy">© {% now "Y" %} GIS Tư Vấn Tuyển Sinh.</div>
+        <button class="to-top" id="toTopBtn" type="button">⬆</button>
+      </div>
+    </div>
   </footer>
 
-  <!-- JavaScript -->
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const flowerImages = [
-      '{% static "img/tet2.png" %}'
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+      const flowerImages = ['{% static "img/tet2.png" %}'];
+      let flowerCount = 0;
+      const maxFlowers = 30;
 
-    let flowerCount = 0;  // Biến đếm số lượng hoa đã tạo
-    const maxFlowers = 30; // Số lượng hoa tối đa
+      const createFallingFlower = () => {
+        if (flowerCount >= maxFlowers) return;
+        flowerCount++;
 
-    const createFallingFlower = () => {
-      if (flowerCount >= maxFlowers) {
-        return;  // Dừng không tạo hoa nữa khi đã đạt số lượng tối đa
-      }
+        const flower = document.createElement('img');
+        flower.src = flowerImages[0];
+        flower.className = 'falling-flower';
+        flower.style.cssText = `
+          position: fixed; top: -50px; 
+          left: ${Math.random() * 100}%; 
+          width: 30px; opacity: ${Math.random() * 0.5 + 0.3};
+          z-index: 9999; pointer-events: none;
+        `;
+        document.body.appendChild(flower);
 
-      flowerCount++;  // Tăng số lượng hoa đã tạo lên 1
+        const duration = Math.random() * 5 + 5;
+        const animation = flower.animate([
+          { transform: `translateY(0) rotate(0deg)` },
+          { transform: `translateY(110vh) rotate(360deg)` }
+        ], { duration: duration * 1000, easing: 'linear' });
 
-      const flower = document.createElement('img');
-      flower.src = flowerImages[Math.floor(Math.random() * flowerImages.length)];
-      flower.style.position = 'absolute';
-      flower.style.top = '0';
-      flower.style.left = `${Math.random() * 100}%`;
-      flower.style.width = '50px';
-      flower.style.height = 'auto';
-      flower.style.opacity = Math.random() * 0.5 + 0.3;
-      document.body.appendChild(flower);
+        animation.onfinish = () => {
+          flower.remove();
+          flowerCount--;
+        };
+      };
+      setInterval(createFallingFlower, 1000);
+    });
+  </script>
 
-      const animationDuration = Math.random() * 10 + 5; // Thời gian rơi hoa
-      flower.style.animation = `fall ${animationDuration}s linear`;
-
-      // Tạo keyframe cho animation
-      const style = document.createElement('style');
-      style.innerHTML = `
-        @keyframes fall {
-          0% {
-            top: 0;
-          }
-          100% {
-            top: 100vh; /* Hoa rơi hết màn hình */
-            opacity: 0; /* Hoa biến mất khi rơi hết màn hình */
-          }
-        }
-      `;
-      document.head.appendChild(style);
-
-      // Xóa hoa sau khi animation kết thúc
-      setTimeout(() => {
-        flower.remove(); // Xóa hoa khi hoàn tất
-      }, animationDuration * 1000); // Dừng sau khi hoa rơi
-
-      flower.addEventListener('animationiteration', () => {
-        flower.style.left = `${Math.random() * 100}%`;
-        flower.style.opacity = Math.random() * 0.5 + 0.3;
-      });
-    };
-
-    setInterval(createFallingFlower, 300); // Tạo hoa mỗi 300ms
-  });
-</script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
