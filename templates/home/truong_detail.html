@@ -5,13 +5,17 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/truong_detail.css' %}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-
+<style>
+    /* Đảm bảo map có chiều cao hiển thị */
+    #school-map { width: 100%; height: 450px; border-radius: 12px; z-index: 1; }
+    .major-details { background: #f9f9f9; padding: 10px; border-left: 3px solid #2563eb; margin-top: 5px; border-radius: 4px; }
+    .status-box { padding: 10px; margin-top: 10px; background: #eef2ff; border-radius: 8px; font-size: 14px; color: #3730a3; }
+    .map-note { margin-top: 10px; font-size: 13px; color: #666; }
+</style>
 {% endblock %}
 
 {% block content %}
 <section class="td-wrap">
-
   <div class="td-hero">
     <div class="td-hero-left">
       <div class="td-brand">
@@ -29,16 +33,12 @@
           <div class="meta-label">📍 Địa chỉ</div>
           <div class="meta-value">{{ truong.diachi }}</div>
         </div>
-
         <div class="meta-item">
           <div class="meta-label">🌐 Website</div>
           <div class="meta-value">
-            <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">
-              {{ truong.website }}
-            </a>
+            <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">{{ truong.website }}</a>
           </div>
         </div>
-
         {% if ctt %}
         <div class="meta-item">
           <div class="meta-label">📝 Ghi chú</div>
@@ -52,16 +52,14 @@
       {% if hinh_truong %}
         <img class="td-cover" src="{% static 'img/TDH/' %}{{ hinh_truong.tenfile }}" alt="Ảnh {{ truong.tentruong }}">
       {% else %}
-        <div class="td-cover-empty">
-          📷 Chưa có ảnh trường trong HINHANH
-        </div>
+        <div class="td-cover-empty">📷 Chưa có ảnh trường</div>
       {% endif %}
     </div>
   </div>
 
   <div class="card">
     <div class="card-head">
-      <h2 class="card-title">🗺️ Vị trí trường học</h2>
+      <h2 class="card-title">🗺️ Vị trí & Chỉ đường</h2>
       <div class="card-sub">Nhập vị trí hiện tại hoặc dùng GPS để tính đường đi đến trường</div>
     </div>
 
@@ -70,30 +68,23 @@
         <div id="school-map"></div>
 
         <div class="map-note">
-          <div><b>Tọa độ trường từ database:</b> {{ lat|unlocalize }}, {{ lng|unlocalize }}</div>
+          <div><b>Tọa độ trường:</b> {{ lat|unlocalize }}, {{ lng|unlocalize }}</div>
           <div><b>Mã trường:</b> {{ truong.matruong }}</div>
         </div>
 
         <div class="tool-panel">
           <div class="tool-box tool-box-wide">
             <label for="manualAddress">📍 Nhập vị trí hiện tại của bạn</label>
-            <input
-              type="text"
-              id="manualAddress"
-              placeholder="Ví dụ: 236 Lê Văn Sỹ, Tân Bình, TP.HCM"
-            >
-            <div class="muted" style="margin-top:8px; font-size:13px;">
-              Nhập càng rõ càng dễ ra đúng vị trí.
-            </div>
+            <input type="text" id="manualAddress" placeholder="Ví dụ: 236 Lê Văn Sỹ, Tân Bình, TP.HCM">
           </div>
 
           <div class="tool-box">
             <label>&nbsp;</label>
-            <button type="button" id="btnSearchAddress">🔎 Tìm vị trí đã nhập</button>
+            <button type="button" id="btnSearchAddress">🔎 Tìm vị trí</button>
           </div>
 
           <div class="tool-box">
-            <label for="vehicleSelect">🚗 Chọn phương tiện</label>
+            <label for="vehicleSelect">🚗 Phương tiện</label>
             <select id="vehicleSelect">
               <option value="driving" selected>Ô tô / Xe máy</option>
               <option value="cycling">Xe đạp</option>
@@ -103,66 +94,46 @@
 
           <div class="tool-box">
             <label>&nbsp;</label>
-            <button type="button" id="btnGetLocation">📡 Dùng GPS hiện tại</button>
-          </div>
-
-          <div class="tool-box">
-            <label>&nbsp;</label>
-            <button type="button" id="btnRecalc" class="secondary">🔁 Tính lại tuyến đường</button>
+            <button type="button" id="btnGetLocation">📡 Dùng GPS</button>
           </div>
         </div>
 
         <div class="route-panel">
           <div class="route-box">
-            <div class="route-label">📌 Vị trí xuất phát</div>
-            <div class="route-value" id="userLocationText">Chưa có vị trí</div>
+            <div class="route-label">📌 Xuất phát</div>
+            <div class="route-value" id="userLocationText">Chưa xác định</div>
           </div>
-
           <div class="route-box">
             <div class="route-label">🏫 Điểm đến</div>
             <div class="route-value">{{ truong.tentruong }}</div>
           </div>
-
           <div class="route-box">
-            <div class="route-label">🛣️ Quãng đường thực tế</div>
+            <div class="route-label">🛣️ Quãng đường</div>
             <div class="route-value" id="routeDistanceText">-- km</div>
           </div>
-
           <div class="route-box">
-            <div class="route-label">⏱️ Thời gian di chuyển</div>
+            <div class="route-label">⏱️ Thời gian (ETA)</div>
             <div class="route-value" id="durationText">-- phút</div>
           </div>
         </div>
 
-        <div class="status-box" id="statusBox">
-          Hãy nhập vị trí hiện tại hoặc dùng GPS để bắt đầu tính đường đi.
-        </div>
+        <div class="status-box" id="statusBox">Sẵn sàng tính toán lộ trình.</div>
       {% else %}
-        <div class="desc muted">Chưa có tọa độ LAT/LNG cho trường này trong database.</div>
+        <div class="desc muted">Trường này chưa có tọa độ trên bản đồ.</div>
       {% endif %}
     </div>
   </div>
 
   <div class="td-grid">
     <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">✨ Mô tả trường</h2>
-      </div>
+      <div class="card-head"><h2 class="card-title">✨ Mô tả trường</h2></div>
       <div class="card-body">
-        {% if ctt %}
-          <p class="desc">{{ ctt.mota }}</p>
-        {% else %}
-          <p class="desc muted">Chưa có mô tả. (Thêm vào bảng CHITIETTRUONG)</p>
-        {% endif %}
+        <p class="desc">{{ ctt.mota|default:"Chưa có mô tả chi tiết cho trường này." }}</p>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head">
-        <h2 class="card-title">🎓 Ngành đào tạo liên quan</h2>
-        <div class="card-sub">Danh sách ngành theo trường</div>
-      </div>
-
+      <div class="card-head"><h2 class="card-title">🎓 Ngành đào tạo</h2></div>
       <div class="card-body">
         {% if ct_nganh %}
         <div class="major-list">
@@ -170,52 +141,41 @@
             <div class="major-item">
               <div class="major-top">
                 <a href="javascript:void(0)" onclick="showDetails('{{ x.manganh.manganh }}')" class="major-name">
-                  {{ x.manganh.tennganh }}
+                  🔥 {{ x.manganh.tennganh }}
                 </a>
               </div>
               <div id="details-{{ x.manganh.manganh }}" class="major-details" style="display: none;">
                 <p><b>Mã ngành:</b> {{ x.manganh.manganh }}</p>
                 <p><b>Mô tả:</b> {{ x.manganh.mota }}</p>
-                <p><b>Học phí:</b> {{ x.hocphi }}</p>
-                <p><b>Thời gian học:</b> {{ x.thoigianhoc }}</p>
+                <p><b>Học phí:</b> {{ x.hocphi|default:"Liên hệ" }}</p>
+                <p><b>Thời gian học:</b> {{ x.thoigianhoc|default:"4 năm" }}</p>
               </div>
             </div>
           {% endfor %}
         </div>
         {% else %}
-          <div class="desc muted">Chưa có ngành liên quan. (Thêm vào bảng CHITIETNGANH)</div>
+          <p class="desc muted">Thông tin ngành học đang được cập nhật.</p>
         {% endif %}
       </div>
     </div>
-
+  </div>
+  
+  <div style="margin-top: 20px;">
     <a class="back-btn" href="{% url 'home' %}">⬅ Quay lại Trang Chủ</a>
   </div>
 </section>
-
-<script>
-  function showDetails(majorId) {
-    var detailsDiv = document.getElementById("details-" + majorId);
-    if (detailsDiv.style.display === "none") {
-      detailsDiv.style.display = "block";
-    } else {
-      detailsDiv.style.display = "none";
-    }
-  }
-</script>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 {% if lat and lng %}
 <script>
-  const schoolLat = parseFloat("{{ lat|unlocalize|default:'0' }}");
-  const schoolLng = parseFloat("{{ lng|unlocalize|default:'0' }}");
+  // Dữ liệu từ Django
+  const schoolLat = parseFloat("{{ lat|unlocalize }}");
+  const schoolLng = parseFloat("{{ lng|unlocalize }}");
   const schoolName = "{{ truong.tentruong|escapejs }}";
   const schoolAddress = "{{ truong.diachi|default:'Chưa có địa chỉ'|escapejs }}";
 
-  let userLat = null;
-  let userLng = null;
-  let userMarker = null;
-  let routeLine = null;
+  let userLat = null, userLng = null, userMarker = null, routeLine = null;
 
   const userLocationText = document.getElementById("userLocationText");
   const routeDistanceText = document.getElementById("routeDistanceText");
@@ -224,254 +184,105 @@
   const vehicleSelect = document.getElementById("vehicleSelect");
   const manualAddressInput = document.getElementById("manualAddress");
 
-  const map = L.map("school-map").setView([schoolLat, schoolLng], 16);
+  // 1. KHỞI TẠO BẢN ĐỒ VỚI CÁC LỚP (SỬA LỖI 403)
+  const mapLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB'
+  });
+  const mapDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CartoDB'
+  });
+  const mapSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri'
+  });
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
+  const map = L.map('school-map', {
+    center: [schoolLat, schoolLng],
+    zoom: 16,
+    layers: [mapLight]
+  });
 
+  const baseLayers = {
+    "Giao thông (Sáng)": mapLight,
+    "Giao thông (Tối)": mapDark,
+    "Vệ tinh thực tế": mapSatelite
+  };
+  L.control.layers(baseLayers).addTo(map);
+
+  // Marker Trường học
   const schoolIcon = L.divIcon({
-    html: `
-      <div style="
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #2563eb;
-        border: 3px solid #fff;
-        box-shadow: 0 0 0 2px rgba(37,99,235,.25);
-      "></div>
-    `,
-    className: "",
-    iconSize: [18, 18],
-    iconAnchor: [9, 9]
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px rgba(37,99,235,.25);"></div>`,
+    className: "", iconSize: [18, 18], iconAnchor: [9, 9]
   });
 
   const personIcon = L.divIcon({
-    html: `
-      <div style="
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: #dc2626;
-        border: 3px solid #fff;
-        box-shadow: 0 0 0 2px rgba(220,38,38,.25);
-      "></div>
-    `,
-    className: "",
-    iconSize: [18, 18],
-    iconAnchor: [9, 9]
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:#dc2626;border:3px solid #fff;box-shadow:0 0 0 2px rgba(220,38,38,.25);"></div>`,
+    className: "", iconSize: [18, 18], iconAnchor: [9, 9]
   });
 
-  L.marker([schoolLat, schoolLng], { icon: schoolIcon })
-    .addTo(map)
-    .bindPopup(`
-      <b>🏫 ${schoolName}</b><br>
-      ${schoolAddress}<br>
-      <b>Tọa độ:</b> ${schoolLat}, ${schoolLng}
-    `)
-    .openPopup();
+  L.marker([schoolLat, schoolLng], { icon: schoolIcon }).addTo(map)
+    .bindPopup(`<b>🏫 ${schoolName}</b><br>${schoolAddress}`).openPopup();
 
-  function setStatus(message) {
-    statusBox.innerText = message;
-  }
-
-  function formatDuration(seconds) {
-    if (!seconds || isNaN(seconds)) return "-- phút";
-
-    const totalMinutes = Math.round(seconds / 60);
-    const hours = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-
-    if (hours > 0) {
-      return `${hours} giờ ${mins} phút`;
-    }
-    return `${mins} phút`;
-  }
-
-  function clearRoute() {
-    if (routeLine) {
-      map.removeLayer(routeLine);
-      routeLine = null;
-    }
-  }
-
-  function updateUserMarker(lat, lng, labelText = "Vị trí của bạn") {
-    if (userMarker) {
-      userMarker.setLatLng([lat, lng]);
-    } else {
-      userMarker = L.marker([lat, lng], { icon: personIcon }).addTo(map);
-    }
-
-    userMarker.bindPopup(`
-      <b>📍 ${labelText}</b><br>
-      ${lat.toFixed(6)}, ${lng.toFixed(6)}
-    `);
-  }
-
+  // 2. LOGIC TÍNH ĐƯỜNG ĐI
   async function drawRealRoute() {
-    if (userLat === null || userLng === null) {
-      alert("Bạn chưa có vị trí xuất phát.");
-      return;
-    }
-
+    if (userLat === null || userLng === null) return;
     const profile = vehicleSelect.value;
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${userLng},${userLat};${schoolLng},${schoolLat}?overview=full&geometries=geojson&steps=true`;
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${userLng},${userLat};${schoolLng},${schoolLat}?overview=full&geometries=geojson`;
 
-    setStatus("Đang tính tuyến đường thực tế...");
-
+    statusBox.innerText = "Đang tính toán tuyến đường...";
     try {
       const response = await fetch(url);
       const data = await response.json();
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        if (routeLine) map.removeLayer(routeLine);
+        
+        routeLine = L.polyline(route.geometry.coordinates.map(c => [c[1], c[0]]), {
+          color: "#ef4444", weight: 5, opacity: 0.9
+        }).addTo(map);
 
-      if (!data.routes || data.routes.length === 0) {
-        clearRoute();
-        routeDistanceText.innerText = "-- km";
-        durationText.innerText = "-- phút";
-        setStatus("Không tìm thấy tuyến đường phù hợp.");
-        return;
+        routeDistanceText.innerText = (route.distance / 1000).toFixed(2) + " km";
+        durationText.innerText = Math.round(route.duration / 60) + " phút";
+        statusBox.innerText = "Đã vẽ tuyến đường đi thực tế.";
+        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
       }
-
-      const route = data.routes[0];
-      const coords = route.geometry.coordinates.map(item => [item[1], item[0]]);
-
-      clearRoute();
-
-      routeLine = L.polyline(coords, {
-        color: "#ef4444",
-        weight: 5,
-        opacity: 0.9
-      }).addTo(map);
-
-      const routeDistanceKm = route.distance / 1000;
-      const routeDurationSec = route.duration;
-
-      routeDistanceText.innerText = routeDistanceKm.toFixed(2) + " km";
-      durationText.innerText = formatDuration(routeDurationSec);
-
-      map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
-
-      setStatus("Đã vẽ tuyến đường đi thực tế đến trường.");
-    } catch (error) {
-      console.error("Lỗi route:", error);
-      clearRoute();
-      routeDistanceText.innerText = "-- km";
-      durationText.innerText = "-- phút";
-      setStatus("Không gọi được dịch vụ chỉ đường. Hãy kiểm tra Internet và thử lại.");
-    }
+    } catch (error) { statusBox.innerText = "Lỗi kết nối dịch vụ chỉ đường."; }
   }
 
-  async function setUserLocation(lat, lng, displayText = null) {
-    userLat = lat;
-    userLng = lng;
-
-    userLocationText.innerText = displayText || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
-    updateUserMarker(lat, lng, "Điểm xuất phát");
-    await drawRealRoute();
+  // 3. XỬ LÝ VỊ TRÍ
+  function updatePosition(lat, lng, text) {
+    userLat = lat; userLng = lng;
+    userLocationText.innerText = text || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    if (userMarker) userMarker.setLatLng([lat, lng]);
+    else userMarker = L.marker([lat, lng], { icon: personIcon }).addTo(map);
+    drawRealRoute();
   }
 
-  async function searchManualAddress() {
-    const keyword = manualAddressInput.value.trim();
+  document.getElementById("btnGetLocation").onclick = () => {
+    statusBox.innerText = "Đang lấy vị trí GPS...";
+    navigator.geolocation.getCurrentPosition(p => {
+      updatePosition(p.coords.latitude, p.coords.longitude, "Vị trí GPS của bạn");
+    }, e => { statusBox.innerText = "Lỗi GPS: " + e.message; }, { enableHighAccuracy: true });
+  };
 
-    if (!keyword) {
-      alert("Bạn chưa nhập vị trí hiện tại.");
-      manualAddressInput.focus();
-      return;
-    }
-
-    setStatus("Đang tìm tọa độ từ địa chỉ đã nhập...");
-
+  document.getElementById("btnSearchAddress").onclick = async () => {
+    const addr = manualAddressInput.value.trim();
+    if (!addr) return alert("Vui lòng nhập địa chỉ");
+    statusBox.innerText = "Đang tìm địa chỉ...";
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(keyword)}`;
-      const response = await fetch(url, {
-        headers: {
-          "Accept": "application/json"
-        }
-      });
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}`);
+      const data = await res.json();
+      if (data.length > 0) updatePosition(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name);
+      else statusBox.innerText = "Không tìm thấy địa chỉ này.";
+    } catch (e) { statusBox.innerText = "Lỗi tìm kiếm."; }
+  };
 
-      const data = await response.json();
+  vehicleSelect.onchange = drawRealRoute;
+  manualAddressInput.onkeydown = (e) => { if (e.key === "Enter") document.getElementById("btnSearchAddress").click(); };
 
-      if (!data || data.length === 0) {
-        setStatus("Không tìm thấy địa chỉ đã nhập. Hãy nhập chi tiết hơn.");
-        return;
-      }
-
-      const item = data[0];
-      const lat = parseFloat(item.lat);
-      const lng = parseFloat(item.lon);
-      const displayName = item.display_name || keyword;
-
-      setStatus("Đã đổi địa chỉ thành tọa độ thành công.");
-
-      await setUserLocation(lat, lng, displayName);
-    } catch (error) {
-      console.error("Geocoding error:", error);
-      setStatus("Không tìm được vị trí từ địa chỉ nhập vào. Vui lòng thử lại.");
-    }
+  function showDetails(id) {
+    const el = document.getElementById("details-" + id);
+    el.style.display = el.style.display === "none" ? "block" : "none";
   }
-
-  function getCurrentLocation() {
-    if (!navigator.geolocation) {
-      alert("Trình duyệt không hỗ trợ định vị.");
-      return;
-    }
-
-    setStatus("Đang lấy vị trí GPS hiện tại...");
-
-    navigator.geolocation.getCurrentPosition(
-      async function(position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        setStatus("Đã lấy vị trí GPS hiện tại thành công.");
-
-        await setUserLocation(lat, lng, `${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-      },
-      function(error) {
-        console.error("Geolocation error:", error);
-
-        let msg = "Không lấy được vị trí GPS.";
-        if (error.code === 1) msg = "Bạn đã từ chối quyền vị trí.";
-        if (error.code === 2) msg = "Không xác định được vị trí hiện tại.";
-        if (error.code === 3) msg = "Hết thời gian chờ lấy vị trí.";
-
-        setStatus(msg);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      }
-    );
-  }
-
-  async function recalcRoute() {
-    if (userLat === null || userLng === null) {
-      alert("Bạn chưa có vị trí xuất phát. Hãy nhập địa chỉ hoặc dùng GPS.");
-      return;
-    }
-
-    await drawRealRoute();
-  }
-
-  document.getElementById("btnSearchAddress").addEventListener("click", searchManualAddress);
-  document.getElementById("btnGetLocation").addEventListener("click", getCurrentLocation);
-  document.getElementById("btnRecalc").addEventListener("click", recalcRoute);
-
-  vehicleSelect.addEventListener("change", function() {
-    if (userLat !== null && userLng !== null) {
-      recalcRoute();
-    }
-  });
-
-  manualAddressInput.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      searchManualAddress();
-    }
-  });
 </script>
 {% endif %}
-
 {% endblock %}
