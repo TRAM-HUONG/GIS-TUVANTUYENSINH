@@ -398,7 +398,7 @@ def khao_sat_view(request):
         request.session["khao_sat_summary"] = (ketqua.mota or ketqua.manganh.mota) if ketqua else "Không tìm thấy nhóm phù hợp."
         return redirect("ketqua_khaosat")
 
-    return render(request, "khaosat/ketqua.html", {"questions": questions})
+    return render(request, "khaosat/khaosat.html", {"questions": questions})
 
 
 def ketqua_khao_sat_view(request):
@@ -407,6 +407,21 @@ def ketqua_khao_sat_view(request):
         "level": request.session.get("khao_sat_level"),
         "summary": request.session.get("khao_sat_summary"),
     })
+import json
+from django.http import JsonResponse
+from .services import get_ai_response
+
+def chat_with_ai(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            message = data.get("message", "")
+            # Gọi hàm xử lý AI
+            reply = get_ai_response(message)
+            return JsonResponse({"reply": reply})
+        except Exception as e:
+            return JsonResponse({"reply": "Hệ thống đang bận một chút, bạn thử lại nhé!"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
 # =========================================================
 # ADMIN - DASHBOARD & MANAGEMENT
 # =========================================================

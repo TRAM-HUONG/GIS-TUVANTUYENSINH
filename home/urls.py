@@ -23,6 +23,7 @@ urlpatterns = [
 
     path("khao-sat/", views.khao_sat_view, name="khaosat"),
     path("ket-qua-khao-sat/", views.ketqua_khao_sat_view, name="ketqua_khaosat"),
+    path("chat-ai/", views.chat_with_ai, name="chat_ai"),
 
     # =========================
     # ADMIN DASHBOARD
