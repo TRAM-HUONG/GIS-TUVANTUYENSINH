@@ -39,6 +39,7 @@
             <a class="td-link" href="{{ truong.website }}" target="_blank" rel="noopener">{{ truong.website }}</a>
           </div>
         </div>
+
         {% if ctt %}
         <div class="meta-item">
           <div class="meta-label">📝 Ghi chú</div>
@@ -49,8 +50,24 @@
     </div>
 
     <div class="td-hero-right">
-      {% if hinh_truong %}
-        <img class="td-cover" src="{% static 'img/TDH/' %}{{ hinh_truong.tenfile }}" alt="Ảnh {{ truong.tentruong }}">
+      {% if ds_hinh_truong %}
+        <img
+          id="mainSchoolImage"
+          class="td-cover"
+          src="{% static 'img/TDH/' %}{{ ds_hinh_truong.0.tenfile }}"
+          alt="Ảnh {{ truong.tentruong }}"
+        >
+
+        <div class="td-thumb-list" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+          {% for img in ds_hinh_truong %}
+            <img
+              src="{% static 'img/TDH/' %}{{ img.tenfile }}"
+              alt="Ảnh {{ truong.tentruong }}"
+              onclick="changeMainImage(this)"
+              style="width:90px; height:70px; object-fit:cover; border-radius:10px; cursor:pointer; border:2px solid #ddd;"
+            >
+          {% endfor %}
+        </div>
       {% else %}
         <div class="td-cover-empty">📷 Chưa có ảnh trường</div>
       {% endif %}
@@ -167,8 +184,19 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-{% if lat and lng %}
 <script>
+  // Chức năng đổi ảnh chính
+  function changeMainImage(img) {
+    document.getElementById("mainSchoolImage").src = img.src;
+  }
+
+  // Chức năng ẩn hiện chi tiết ngành
+  function showDetails(id) {
+    const el = document.getElementById("details-" + id);
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+
+  {% if lat and lng %}
   // Dữ liệu từ Django
   const schoolLat = parseFloat("{{ lat|unlocalize }}");
   const schoolLng = parseFloat("{{ lng|unlocalize }}");
@@ -184,7 +212,7 @@
   const vehicleSelect = document.getElementById("vehicleSelect");
   const manualAddressInput = document.getElementById("manualAddress");
 
-  // 1. KHỞI TẠO BẢN ĐỒ VỚI CÁC LỚP (SỬA LỖI 403)
+  // 1. KHỞI TẠO BẢN ĐỒ
   const mapLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '© CartoDB'
   });
@@ -208,7 +236,6 @@
   };
   L.control.layers(baseLayers).addTo(map);
 
-  // Marker Trường học
   const schoolIcon = L.divIcon({
     html: `<div style="width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid #fff;box-shadow:0 0 0 2px rgba(37,99,235,.25);"></div>`,
     className: "", iconSize: [18, 18], iconAnchor: [9, 9]
@@ -222,7 +249,7 @@
   L.marker([schoolLat, schoolLng], { icon: schoolIcon }).addTo(map)
     .bindPopup(`<b>🏫 ${schoolName}</b><br>${schoolAddress}`).openPopup();
 
-  // 2. LOGIC TÍNH ĐƯỜNG ĐI
+  // 2. LOGIC TÍNH ĐƯỜNG ĐI (OSRM)
   async function drawRealRoute() {
     if (userLat === null || userLng === null) return;
     const profile = vehicleSelect.value;
@@ -278,11 +305,6 @@
 
   vehicleSelect.onchange = drawRealRoute;
   manualAddressInput.onkeydown = (e) => { if (e.key === "Enter") document.getElementById("btnSearchAddress").click(); };
-
-  function showDetails(id) {
-    const el = document.getElementById("details-" + id);
-    el.style.display = el.style.display === "none" ? "block" : "none";
-  }
+  {% endif %}
 </script>
-{% endif %}
 {% endblock %}

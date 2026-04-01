@@ -1,0 +1,32 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/delete.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="delete-wrapper">
+    <div class="delete-card">
+        <div class="delete-icon">⚠️</div>
+        <h3 class="fw-bold">Bạn chắc chắn muốn xóa?</h3>
+        <p class="text-muted">
+            Ảnh <strong>{{ hinhanh.tieude|default:hinhanh.tenfile }}</strong>
+            của trường <strong>{{ hinhanh.matruong.tentruong }}</strong>
+            sẽ bị xóa vĩnh viễn.
+        </p>
+
+        {% if hinhanh.tenfile %}
+            <img src="{% static 'img/TDH/'|add:hinhanh.tenfile %}" class="img-thumbnail-delete" alt="Preview">
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete-confirm">CÓ, XÓA NGAY</button>
+            <a href="{% url 'admin_hinhanh_list' %}" class="btn btn-light w-100 mt-2" style="border-radius: var(--r16); padding: 12px;">
+                HỦY BỎ
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

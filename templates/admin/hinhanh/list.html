@@ -1,0 +1,71 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Quản lý Hình Ảnh Trường</h2>
+
+    <form method="get">
+        <input type="text" name="keyword" value="{{ keyword|default:'' }}" placeholder="Nhập tên file hoặc tên trường...">
+        <button type="submit">Tìm kiếm</button>
+        <a href="{% url 'admin_hinhanh_insert' %}">+ Thêm mới</a>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã hình</th>
+                <th>Hình ảnh</th>
+                <th>Tên file</th>
+                <th>Trường</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ha in hinhanhs %}
+            <tr>
+                <td>{{ ha.mahinh_truong }}</td>
+                <td>
+                    {% if ha.tenfile %}
+                        <img src="{% static 'img/TDH/'|add:ha.tenfile %}" alt="{{ ha.tenfile }}" width="120">
+                    {% else %}
+                        <img src="https://placehold.co/120x80?text=No+Image" alt="No Image" width="120">
+                    {% endif %}
+                </td>
+                <td>{{ ha.tenfile|default:"Chưa đặt tên" }}</td>
+                <td>{{ ha.matruong.tentruong }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'admin_hinhanh_detail' ha.mahinh_truong %}">Xem</a>
+                        <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}">Sửa</a>
+                        <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}">Xóa</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align:center;">Không có hình ảnh nào.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if hinhanhs.has_other_pages %}
+    <div class="pagination">
+        {% if hinhanhs.has_previous %}
+            <a href="?page={{ hinhanhs.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">« Trước</a>
+        {% endif %}
+
+        <span>Trang {{ hinhanhs.number }} / {{ hinhanhs.paginator.num_pages }}</span>
+
+        {% if hinhanhs.has_next %}
+            <a href="?page={{ hinhanhs.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">Sau »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

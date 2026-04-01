@@ -31,7 +31,7 @@
   background: linear-gradient(135deg, var(--c1), var(--c6));
   box-shadow: var(--shadow);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Giữ overflow visible để đổ bóng ảnh đẹp hơn */
 }
 
 .td-hero::after {
@@ -43,6 +43,7 @@
   background: rgba(255, 255, 255, .22);
   filter: blur(1px);
   border-radius: 50%;
+  pointer-events: none;
 }
 
 .td-hero-left {
@@ -110,20 +111,31 @@
   font-weight: 800;
 }
 
-/* Ảnh trường */
+/* Phần hiển thị ảnh bên phải Hero */
 .td-hero-right {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
 }
 
 .td-cover {
+  display: block;
   width: 100%;
-  height: 100%;
-  min-height: 240px;
+  height: 300px;
   object-fit: cover;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, .55);
-  background: rgba(255, 255, 255, .35);
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, .85);
+  background: #ffffff;
+  padding: 4px;
+  box-shadow: 0 14px 30px rgba(2, 8, 23, .18);
+  transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .td-cover-empty {
@@ -138,6 +150,14 @@
   font-weight: 800;
   text-align: center;
   padding: 12px;
+}
+
+.td-thumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 2px 2px;
+  margin-top: 4px;
 }
 
 /* Content Grid */
@@ -170,7 +190,6 @@
 
 .card-sub {
   margin-top: 4px;
-
   font-size: 13px;
   color: var(--muted);
   font-weight: 600;
@@ -180,377 +199,189 @@
   padding: 14px 16px;
 }
 
-.desc {
-  margin: 0;
-  line-height: 1.7;
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.back-btn {
-  margin-top: 20px;
-  text-decoration: none;
-  font-size: 16px;
-  color: var(--c5);
-  font-weight: 600;
-}
-
-.back-btn:hover {
-  color: var(--c4);
-}
-/* Danh sách ngành đào tạo liên quan */
+/* Danh sách ngành đào tạo */
 .major-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* Khoảng cách giữa các tên ngành */
-  padding: 10px;
+  gap: 12px;
+  padding: 10px 0;
 }
 
 .major-item {
   background-color: var(--c2);
   padding: 10px 20px;
   border-radius: 30px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #071026;
-  text-transform: capitalize;
   box-shadow: 0 4px 12px rgba(2, 8, 23, .1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  border: none;
 }
 
 .major-item:hover {
-  background-color: var(--c5); /* Thay đổi màu khi hover */
-  transform: translateY(-4px); /* Hiệu ứng nâng lên khi hover */
+  background-color: var(--c5);
+  color: white;
+  transform: translateY(-4px);
 }
 
-.major-item:last-child {
-  margin-right: 0;
+.major-name {
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Nút Quay lại Trang Chủ */
+/* Phần bản đồ (Bản đồ tương tác Leaflet) */
+#school-map {
+  width: 100%;
+  height: 520px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #dbe3ef;
+}
+
+.map-note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Công cụ tính đường đi (Tool Panel) */
+.tool-panel {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.tool-box {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.tool-box label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.tool-box select,
+.tool-box button,
+.tool-box input {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 0 12px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.tool-box input:focus,
+.tool-box select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.tool-box button {
+  cursor: pointer;
+  font-weight: 700;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, #0b57d0, #2b7fff);
+}
+
+.tool-box-wide {
+  grid-column: span 2;
+}
+
+/* Kết quả đường đi (Route Panel) */
+.route-panel {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.route-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.route-label {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.route-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+  word-break: break-word;
+}
+
+.status-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  font-size: 14px;
+}
+
+/* Nút quay lại */
 .back-btn {
   margin-top: 30px;
-  font-size: 18px;
-  color: var(--c5); /* Sử dụng màu xanh dương */
+  font-size: 16px;
+  color: white;
   font-weight: 600;
   text-decoration: none;
-  padding: 12px 24px; /* Tăng kích thước để nút nhìn đẹp hơn */
-  border-radius: 50px; /* Bo tròn nút để mềm mại hơn */
-  background-color: var(--c6); /* Màu nền sáng của nút */
-  display: inline-block; /* Để nút hiển thị trên cùng một dòng */
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Hiệu ứng khi hover và nhấn */
+  padding: 12px 24px;
+  border-radius: 50px;
+  background-color: var(--c6);
+  display: inline-block;
+  transition: all 0.3s ease;
   text-align: center;
 }
 
 .back-btn:hover {
-  background-color: var(--c4); /* Khi hover, đổi sang màu đậm hơn */
-  color: white; /* Đổi màu chữ khi hover */
-  transform: translateY(-3px); /* Hiệu ứng nâng lên khi hover */
+  background-color: var(--c4);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 153, 255, 0.3);
 }
 
-.back-btn:active {
-  transform: translateY(1px); /* Khi nhấn, nút sẽ hạ xuống */
-}
-
-/* Bản đồ */
-.card iframe {
-  border: none;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(2, 8, 23, .08); /* Thêm bóng đổ cho bản đồ */
-}
-
-.card-body {
-  padding: 14px 16px;
-}
-  #school-map {
-    width: 100%;
-    height: 520px;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid #dbe3ef;
+/* Responsive cho điện thoại và tablet */
+@media (max-width: 1200px) {
+  .route-panel, .tool-panel {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .map-note {
-    margin-top: 12px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .muted {
-    color: #6b7280;
-  }
-
-  .route-panel {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(150px, 1fr));
-    gap: 12px;
-  }
-
-  .route-box {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 14px;
-  }
-
-  .route-label {
-    font-size: 13px;
-    color: #6b7280;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-
-  .route-value {
-    font-size: 18px;
-    font-weight: 800;
-    color: #111827;
-    word-break: break-word;
-  }
-
-  .tool-panel {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(180px, 1fr));
-    gap: 12px;
-  }
-
-  .tool-box {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 14px;
-  }
-
-  .tool-box label {
-    display: block;
-    font-size: 14px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 8px;
-  }
-
-  .tool-box select,
-  .tool-box button,
-  .tool-box input {
-    width: 100%;
-    height: 42px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    padding: 0 12px;
-    font-size: 14px;
-    background: #fff;
-    outline: none;
-  }
-
-  .tool-box input:focus,
-  .tool-box select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-  }
-
-  .tool-box button {
-    cursor: pointer;
-    font-weight: 700;
-    border: none;
-    color: #fff;
-    background: linear-gradient(135deg, #0b57d0, #2b7fff);
-  }
-
-  .tool-box button.secondary {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-  }
-
   .tool-box-wide {
-    grid-column: span 2;
+    grid-column: span 1;
   }
+}
 
-  .status-box {
-    margin-top: 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: #fff7ed;
-    border: 1px solid #fdba74;
-    color: #9a3412;
-    font-size: 14px;
-    line-height: 1.6;
+@media (max-width: 768px) {
+  .td-hero {
+    grid-template-columns: 1fr;
   }
-
-  @media (max-width: 1200px) {
-    .route-panel {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .tool-panel {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .tool-box-wide {
-      grid-column: span 1;
-    }
+  .route-panel, .tool-panel {
+    grid-template-columns: 1fr;
   }
-
-  @media (max-width: 768px) {
-    .route-panel,
-    .tool-panel {
-      grid-template-columns: 1fr;
-    }
-
-    #school-map {
-      height: 420px;
-    }
-  
   #school-map {
-    width: 100%;
-    height: 520px;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid #dbe3ef;
+    height: 400px;
   }
-
-  .map-note {
-    margin-top: 12px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .muted {
-    color: #6b7280;
-  }
-
-  .route-panel {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(150px, 1fr));
-    gap: 12px;
-  }
-
-  .route-box {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 14px;
-  }
-
-  .route-label {
-    font-size: 13px;
-    color: #6b7280;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-
-  .route-value {
-    font-size: 18px;
-    font-weight: 800;
-    color: #111827;
-    word-break: break-word;
-  }
-
-  .tool-panel {
-    margin-top: 16px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(180px, 1fr));
-    gap: 12px;
-  }
-
-  .tool-box {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 14px;
-  }
-
-  .tool-box label {
-    display: block;
-    font-size: 14px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 8px;
-  }
-
-  .tool-box select,
-  .tool-box button,
-  .tool-box input {
-    width: 100%;
-    height: 42px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    padding: 0 12px;
-    font-size: 14px;
-    background: #fff;
-    outline: none;
-  }
-
-  .tool-box input:focus,
-  .tool-box select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-  }
-
-  .tool-box button {
-    cursor: pointer;
-    font-weight: 700;
-    border: none;
-    color: #fff;
-    background: linear-gradient(135deg, #0b57d0, #2b7fff);
-  }
-
-  .tool-box button.secondary {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-  }
-
-  .tool-box-wide {
-    grid-column: span 2;
-  }
-
-  .status-box {
-    margin-top: 14px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: #fff7ed;
-    border: 1px solid #fdba74;
-    color: #9a3412;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 1200px) {
-    .route-panel {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .tool-panel {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .tool-box-wide {
-      grid-column: span 1;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .route-panel,
-    .tool-panel {
-      grid-template-columns: 1fr;
-    }
-
-    #school-map {
-      height: 420px;
-    }
-  }
-
-  }
+}

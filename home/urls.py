@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # =========================
@@ -58,6 +60,15 @@ urlpatterns = [
     path("admin/nganh/xoa/<str:manganh>/", views.admin_nganh_delete, name="admin_nganh_delete"),
 
     # =========================
+    # ADMIN - HÌNH ẢNH TRƯỜNG
+    # =========================
+    path('admin/hinhanh/', views.admin_hinhanh_list, name='admin_hinhanh_list'),
+    path('admin/hinhanh/insert/', views.admin_hinhanh_insert, name='admin_hinhanh_insert'),
+    path('admin/hinhanh/detail/<str:mahinh>/', views.admin_hinhanh_detail, name='admin_hinhanh_detail'),
+    path('admin/hinhanh/edit/<str:mahinh>/', views.admin_hinhanh_edit, name='admin_hinhanh_edit'),
+    path('admin/hinhanh/delete/<str:mahinh>/', views.admin_hinhanh_delete, name='admin_hinhanh_delete'),
+
+    # =========================
     # ADMIN - ĐIỂM CHUẨN & KHÁC
     # =========================
     path("admin/diemchuan/", views.admin_diemchuan_list, name="admin_diemchuan_list"),
@@ -65,4 +76,7 @@ urlpatterns = [
     path("admin/nguoidung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
     path("api/map-data/", views.map_data_api, name="map_data_api"),
 ]
-# Thêm vào urlpatterns trong urls.py
+
+# Cấu hình để hiển thị file media (hình ảnh) trong quá trình phát triển
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
