@@ -1,76 +1,120 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Sửa Trường Đại Học</title>
+{% extends 'layout/layout.html' %}
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/insert.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        #map { height: 400px; width: 100%; border-radius: 10px; margin-top: 10px; border: 2px solid #007bff; }
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 8px; box-sizing: border-box; }
-        .btn { padding: 10px 20px; border-radius: 5px; color: white; border: none; cursor: pointer; }
-        .btn-primary { background-color: #007bff; }
-    </style>
-</head>
-<body>
-    <h2>Chỉnh sửa: {{ truong.tentruong }}</h2>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 insert-container">
+    <h2 class="text-primary fw-bold">Thêm Trường Đại Học</h2>
+    <hr>
 
     <form method="POST">
-        <div class="form-group">
-            <label>Tên Trường</label>
-            <input type="text" name="tentruong" class="form-control" value="{{ truong.tentruong }}">
-        </div>
+        {% csrf_token %} <div class="row">
+            <div class="col-lg-5">
+                <div class="form-section">
+                    <div class="mb-3">
+                        <label class="fw-bold">Tên trường *</label>
+                        <input type="text" name="tentruong" class="form-control" required>
+                    </div>
 
-        <div class="form-group">
-            <label>Vị trí hiện tại (Kéo Marker hoặc Click để đổi vị trí)</label>
-            <div id="map"></div>
-        </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="fw-bold text-success">Vĩ độ (Lat)</label>
+                            <input type="text" id="lat" name="lat" class="form-control" readonly style="background-color: #e9ecef;">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="fw-bold text-success">Kinh độ (Lng)</label>
+                            <input type="text" id="lng" name="lng" class="form-control" readonly style="background-color: #e9ecef;">
+                        </div>
+                    </div>
 
-        <div style="display: flex; gap: 15px;">
-            <div class="form-group">
-                <label>Vĩ độ</label>
-                <input type="text" id="lat" name="lat" class="form-control" value="{{ truong.lat|default:'' }}" readonly>
+                    <div class="mb-3">
+                        <label class="fw-bold">Đơn vị hành chính *</label>
+                        <select name="madvhc" class="form-select" required>
+                            <option value="">-- Chọn đơn vị --</option>
+                            {% for dv in dshc %}
+                                <option value="{{ dv.madvhc }}">{{ dv.tendvhc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold">Địa chỉ</label>
+                        <textarea name="diachi" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold">Mô tả</label>
+                        <textarea name="mota" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">LƯU TRƯỜNG ĐẠI HỌC</button>
+                    <a href="{% url 'admin_truong_list' %}" class="btn btn-link w-100 mt-2">Hủy bỏ</a>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Kinh độ</label>
-                <input type="text" id="lng" name="lng" class="form-control" value="{{ truong.lng|default:'' }}" readonly>
+
+            <div class="col-lg-7">
+                <div class="alert alert-warning py-2">
+                    <i class="fas fa-info-circle"></i> Click biểu tượng <strong>Kính lúp</strong> trên Map để tìm địa chỉ.
+                </div>
+                <div id="map"></div>
             </div>
         </div>
-
-        <button type="submit" class="btn btn-primary">Cập nhật thay đổi</button>
     </form>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // Lấy tọa độ từ database, nếu không có thì để mặc định TP.HCM
-        var savedLat = {{ truong.lat|default:10.762622 }};
-        var savedLng = {{ truong.lng|default:106.660172 }};
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
-        var map = L.map('map').setView([savedLat, savedLng], 15);
+<script>
+    // 1. Khởi tạo Map
+    var map = L.map('map').setView([10.762622, 106.660172], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-        // Tạo marker có thể kéo (draggable)
-        var marker = L.marker([savedLat, savedLng], {draggable: true}).addTo(map);
+    // 2. Thêm thanh tìm kiếm (Biểu tượng kính lúp)
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        placeholder: "Tìm địa điểm...",
+        collapsed: false // Để ô tìm kiếm luôn hiện ra, không cần bấm kính lúp mới hiện
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 17);
+        placeMarker(center);
+    })
+    .addTo(map);
 
-        function updateFields(lat, lng) {
-            document.getElementById('lat').value = lat.toFixed(6);
-            document.getElementById('lng').value = lng.toFixed(6);
+    var marker;
+
+    function placeMarker(latlng) {
+        if (marker) {
+            marker.setLatLng(latlng);
+        } else {
+            marker = L.marker(latlng, {draggable: true}).addTo(map);
+            marker.on('dragend', function() {
+                updateInputs(marker.getLatLng());
+            });
         }
+        updateInputs(latlng);
+    }
 
-        // Khi người dùng kéo Marker
-        marker.on('dragend', function(event) {
-            var position = marker.getLatLng();
-            updateFields(position.lat, position.lng);
-        });
+    function updateInputs(latlng) {
+        document.getElementById('lat').value = latlng.lat.toFixed(6);
+        document.getElementById('lng').value = latlng.lng.toFixed(6);
+    }
 
-        // Khi người dùng click vào điểm khác trên bản đồ
-        map.on('click', function(e) {
-            marker.setLatLng(e.latlng);
-            updateFields(e.latlng.lat, e.latlng.lng);
-        });
-    </script>
-</body>
-</html>
+    // 3. Click map để lấy vị trí
+    map.on('click', function(e) {
+        placeMarker(e.latlng);
+    });
+</script>
+{% endblock %}

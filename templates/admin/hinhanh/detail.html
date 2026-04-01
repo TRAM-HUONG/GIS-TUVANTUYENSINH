@@ -1,0 +1,47 @@
+{% extends 'layout/layout.html' %}
+{% load static %} 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="insert-container">
+    <h2 style="color: var(--c6);">Chi Tiết Hình Ảnh</h2>
+
+    <div class="main-layout">
+        <div class="detail-info-card">
+            <h4 class="fw-bold">{{ hinhanh.tieude|default:hinhanh.tenfile|default:"Không có tên file" }}</h4>
+            <hr>
+
+            <p><strong>Trường:</strong> {{ hinhanh.matruong.tentruong }}</p>
+            <p><strong>Mã hình:</strong> #{{ hinhanh.mahinh_truong }}</p>
+            <p><strong>Tên file:</strong> {{ hinhanh.tenfile }}</p>
+
+            {% if hinhanh.ngaytao %}
+                <p><strong>Ngày tạo:</strong> {{ hinhanh.ngaytao|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+
+            {% if hinhanh.mota %}
+                <p><strong>Mô tả:</strong> {{ hinhanh.mota }}</p>
+            {% endif %}
+
+            <div class="mt-5">
+                <a href="{% url 'admin_hinhanh_edit' hinhanh.mahinh_truong %}" class="btn btn-warning w-100 mb-2" style="border-radius: var(--r14);">
+                    SỬA THÔNG TIN
+                </a>
+                <a href="{% url 'admin_hinhanh_list' %}" class="btn btn-secondary w-100" style="border-radius: var(--r14);">
+                    QUAY LẠI
+                </a>
+            </div>
+        </div>
+
+        <div class="detail-image-full">
+            {% if hinhanh.tenfile %}
+                <img src="{% static 'img/TDH/'|add:hinhanh.tenfile %}" alt="{{ hinhanh.tenfile }}">
+            {% else %}
+                <img src="https://placehold.co/800x500?text=No+Image" alt="No Image">
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

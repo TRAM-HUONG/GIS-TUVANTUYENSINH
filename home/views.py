@@ -590,13 +590,170 @@ def admin_nganh_detail(request, manganh):
 
 
 # =========================================================
-# ADMIN - ĐIỂM CHUẨN
+# ADMIN - HÌNH ẢNH 
 # =========================================================
+import os
+import uuid
+from pathlib import Path
+from django.conf import settings
+from django.utils import timezone
 
-def admin_diemchuan_list(request):
-    return render(request, "admin/diemchuan/list.html")
+def generate_mahinh_truong():
+    last = HinhAnhTruong.objects.order_by("-mahinh_truong").first()
+    if not last:
+        return "HA001"
+
+    try:
+        number = int(last.mahinh_truong[2:])
+    except:
+        number = 0
+
+    return f"HA{number + 1:03d}"
 
 
+def save_uploaded_image(file_obj):
+    """
+    Lưu file upload vào thư mục static/img/TDH
+    và trả về tên file đã lưu.
+    """
+    upload_dir = Path(settings.BASE_DIR) / "static" / "img" / "TDH"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    original_name = file_obj.name
+    ext = os.path.splitext(original_name)[1].lower()
+
+    # Tạo tên file duy nhất để tránh trùng
+    new_filename = f"{uuid.uuid4().hex}{ext}"
+    file_path = upload_dir / new_filename
+
+    with open(file_path, "wb+") as destination:
+        for chunk in file_obj.chunks():
+            destination.write(chunk)
+
+    return new_filename
+
+
+def delete_image_file(filename):
+    """
+    Xóa file ảnh khỏi static/img/TDH nếu tồn tại.
+    """
+    if not filename:
+        return
+
+    file_path = Path(settings.BASE_DIR) / "static" / "img" / "TDH" / filename
+    if file_path.exists() and file_path.is_file():
+        try:
+            file_path.unlink()
+        except:
+            pass
+
+
+# 1. Danh sách hình ảnh
+def admin_hinhanh_list(request):
+    hinhanhs = HinhAnhTruong.objects.select_related("matruong").all().order_by("-mahinh_truong")
+    keyword = request.GET.get("keyword", "").strip()
+
+    if keyword:
+        hinhanhs = hinhanhs.filter(
+            Q(tenfile__icontains=keyword) |
+            Q(matruong__tentruong__icontains=keyword)
+        )
+
+    return render(request, "admin/hinhanh/list.html", {
+        "hinhanhs": hinhanhs,
+        "keyword": keyword,
+    })
+
+
+# 2. Thêm mới hình ảnh
+def admin_hinhanh_insert(request):
+    if request.method == "POST":
+        matruong_id = request.POST.get("matruong", "").strip()
+        tenfile_text = request.POST.get("tenfile", "").strip()
+        file_anh = request.FILES.get("hinhanh")
+
+        if not matruong_id:
+            messages.error(request, "Vui lòng chọn trường.")
+        elif not file_anh:
+            messages.error(request, "Vui lòng chọn file ảnh.")
+        else:
+            truong = get_object_or_404(TruongDaiHoc, pk=matruong_id)
+
+            # Lưu file thật vào thư mục static/img/TDH
+            saved_filename = save_uploaded_image(file_anh)
+
+            # Nếu muốn người dùng nhập mô tả thì vẫn lưu tên file thật để hiển thị ảnh
+            # vì template đang dùng ha.tenfile để build đường dẫn ảnh
+            HinhAnhTruong.objects.create(
+                mahinh_truong=generate_mahinh_truong(),
+                matruong=truong,
+                tenfile=saved_filename,
+                tieude=tenfile_text or None,
+                ngaytao=timezone.now()
+            )
+
+            messages.success(request, "Tải lên hình ảnh thành công.")
+            return redirect("admin_hinhanh_list")
+
+    dstruong = TruongDaiHoc.objects.all().order_by("tentruong")
+    return render(request, "admin/hinhanh/insert.html", {"dstruong": dstruong})
+
+
+# 3. Sửa thông tin hình ảnh
+def admin_hinhanh_edit(request, mahinh):
+    hinhanh = get_object_or_404(HinhAnhTruong, pk=mahinh)
+
+    if request.method == "POST":
+        matruong_id = request.POST.get("matruong", "").strip()
+        tenfile_text = request.POST.get("tenfile", "").strip()
+        moi_anh = request.FILES.get("hinhanh")
+
+        truong = get_object_or_404(TruongDaiHoc, pk=matruong_id)
+        hinhanh.matruong = truong
+        hinhanh.tieude = tenfile_text or None
+
+        # Nếu có chọn ảnh mới thì xóa ảnh cũ và lưu ảnh mới
+        if moi_anh:
+            old_filename = hinhanh.tenfile
+            new_filename = save_uploaded_image(moi_anh)
+            hinhanh.tenfile = new_filename
+            delete_image_file(old_filename)
+
+        hinhanh.save()
+
+        messages.success(request, "Cập nhật hình ảnh thành công.")
+        return redirect("admin_hinhanh_list")
+
+    dstruong = TruongDaiHoc.objects.all().order_by("tentruong")
+    return render(request, "admin/hinhanh/edit.html", {
+        "hinhanh": hinhanh,
+        "dstruong": dstruong
+    })
+
+
+# 4. Xóa hình ảnh
+def admin_hinhanh_delete(request, mahinh):
+    hinhanh = get_object_or_404(HinhAnhTruong, pk=mahinh)
+
+    if request.method == "POST":
+        old_filename = hinhanh.tenfile
+        hinhanh.delete()
+        delete_image_file(old_filename)
+
+        messages.success(request, "Xóa hình ảnh thành công.")
+        return redirect("admin_hinhanh_list")
+
+    return render(request, "admin/hinhanh/delete.html", {
+        "hinhanh": hinhanh
+    })
+
+
+# 5. Chi tiết hình ảnh
+def admin_hinhanh_detail(request, mahinh):
+    hinhanh = get_object_or_404(HinhAnhTruong.objects.select_related("matruong"), pk=mahinh)
+    return render(request, "admin/hinhanh/detail.html", {
+        "hinhanh": hinhanh
+    })
 # =========================================================
 # ADMIN - KHẢO SÁT
 # =========================================================

@@ -93,3 +93,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]  # ✅ bắt thư mục static ở root
 
 
 
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

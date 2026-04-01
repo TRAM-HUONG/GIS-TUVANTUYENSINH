@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", views.home_page, name="home"),
@@ -32,4 +34,14 @@ urlpatterns = [
     path('admin/nganh/sua/<str:manganh>/', views.admin_nganh_edit, name='admin_nganh_edit'),
     path('admin/nganh/xoa/<str:manganh>/', views.admin_nganh_delete, name='admin_nganh_delete'),
     path('admin/nganh/chi-tiet/<str:manganh>/', views.admin_nganh_detail, name='admin_nganh_detail'),
+    
+    path('admin/hinhanh/detail/<str:mahinh>/', views.admin_hinhanh_detail, name='admin_hinhanh_detail'),
+    path('admin/hinhanh/edit/<str:mahinh>/', views.admin_hinhanh_edit, name='admin_hinhanh_edit'),
+    path('admin/hinhanh/delete/<str:mahinh>/', views.admin_hinhanh_delete, name='admin_hinhanh_delete'),
+    
+    # Các URL không tham số
+    path('admin/hinhanh/', views.admin_hinhanh_list, name='admin_hinhanh_list'),
+    path('admin/hinhanh/insert/', views.admin_hinhanh_insert, name='admin_hinhanh_insert'),
     ]
+if settings.DEBUG:
+    urlpatterns += static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
