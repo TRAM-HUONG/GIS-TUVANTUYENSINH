@@ -222,13 +222,17 @@ def truong_detail(request, matruong):
         TruongDaiHoc.objects.select_related("madvhc"),
         pk=matruong
     )
-    hinh_truong = HinhAnhTruong.objects.filter(matruong_id=matruong).first()
+
+    ds_hinh_truong = HinhAnhTruong.objects.filter(matruong_id=matruong).order_by("mahinh_truong")
+    hinh_truong_chinh = ds_hinh_truong.first()
+
     ctt = ChiTietTruong.objects.filter(matruong_id=matruong).first()
     ct_nganh = ChiTietNganh.objects.filter(matruong_id=matruong).select_related("manganh")
 
     return render(request, "home/truong_detail.html", {
         "truong": truong,
-        "hinh_truong": hinh_truong,
+        "hinh_truong_chinh": hinh_truong_chinh,
+        "ds_hinh_truong": ds_hinh_truong,
         "ctt": ctt,
         "ct_nganh": ct_nganh,
     })

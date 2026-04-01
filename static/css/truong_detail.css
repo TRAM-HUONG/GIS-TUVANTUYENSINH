@@ -266,3 +266,49 @@
 .card-body {
   padding: 14px 16px;
 }
+.td-hero {
+  display: grid;
+  grid-template-columns: 1.25fr .9fr;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--c1), var(--c6));
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: visible;
+}
+
+.td-hero-right {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  overflow: visible;
+}
+
+.td-cover {
+  display: block;
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, .85);
+  background: #ffffff;
+  padding: 4px;
+  box-shadow: 0 14px 30px rgba(2, 8, 23, .18);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.td-thumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 2px 2px;
+  margin-top: 4px;
+}
