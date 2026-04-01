@@ -7,19 +7,139 @@
 <link rel="stylesheet" href="{% static 'css/map.css' %}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 <style>
-    /* Style cho Popup chi tiết */
+
+    .leaflet-routing-container {
+        display: none !important;
+    }
+
     .popup-content { min-width: 250px; font-family: sans-serif; }
-    .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
-    .popup-title { font-weight: bold; color: #0056b3; font-size: 15px; margin-bottom: 5px; display: block; text-decoration: none; }
-    .popup-info { font-size: 13px; line-height: 1.5; color: #333; }
+    .popup-img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        background: #f3f4f6;
+    }
+    .popup-title {
+        font-weight: bold;
+        color: #0056b3;
+        font-size: 15px;
+        margin-bottom: 5px;
+        display: block;
+        text-decoration: none;
+    }
+    .popup-info {
+        font-size: 13px;
+        line-height: 1.5;
+        color: #333;
+    }
     .popup-info b { color: #555; }
-    .popup-link { color: #d93025; font-weight: bold; text-decoration: none; display: block; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; }
-    
-    /* Chips ngành học */
-    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-    .chip { padding: 5px 12px; border-radius: 15px; background: #e8f0fe; border: 1px solid #ccc; font-size: 12px; cursor: pointer; }
-    .chip.active { background: #1a73e8; color: white; border-color: #1a73e8; }
+    .popup-link {
+        color: #d93025;
+        font-weight: bold;
+        text-decoration: none;
+        display: block;
+        margin-top: 10px;
+        border-top: 1px solid #eee;
+        padding-top: 8px;
+    }
+
+    .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+    .chip {
+        padding: 5px 12px;
+        border-radius: 15px;
+        background: #e8f0fe;
+        border: 1px solid #ccc;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .chip.active {
+        background: #1a73e8;
+        color: white;
+        border-color: #1a73e8;
+    }
+
+    /* Nút trong popup */
+    .popup-route-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        background: #0d6efd;
+        color: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        width: 100%;
+    }
+
+    .popup-route-btn:hover {
+        background: #0b5ed7;
+    }
+
+    /* Card kết quả */
+    .card {
+        padding: 12px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+    .card__title {
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #1f2937;
+    }
+    .card__meta {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+    .card__actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .btn-route-mini {
+        border: none;
+        padding: 7px 10px;
+        border-radius: 8px;
+        background: #198754;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .btn-route-mini:hover {
+        background: #157347;
+    }
+
+    #real-map {
+        width: 100%;
+        height: 100%;
+        min-height: 650px;
+    }
+
+    .leaflet-routing-container {
+        max-width: 320px;
+        font-size: 13px;
+    }
 </style>
 {% endblock %}
 
@@ -42,95 +162,200 @@
         </div>
 
         <div class="tab__panel tab__panel--active" id="tab-need">
-            <div class="field"><label>🔎 Tên trường</label><input id="kw" type="text" placeholder="Tìm tên trường..." /></div>
-            <div class="field"><label>📍 Tỉnh/Thành</label><select id="city"><option value="">-- Tất cả --</option></select></div>
-            <div class="field"><label>🧮 Khối xét tuyển</label><select id="khoi"><option value="">-- Tất cả --</option></select></div>
-            <div class="field"><label>📊 Điểm tối thiểu</label><input id="score" type="number" step="0.1" placeholder="VD: 20.5" /></div>
-            <div class="field"><label>🧩 Ngành quan tâm</label><div class="chips" id="major-chips"></div></div>
+            <div class="field">
+                <label>🔎 Tên trường</label>
+                <input id="kw" type="text" placeholder="Tìm tên trường..." />
+            </div>
+            <div class="field">
+                <label>📍 Tỉnh/Thành</label>
+                <select id="city">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>🧮 Khối xét tuyển</label>
+                <select id="khoi">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>📊 Điểm tối thiểu</label>
+                <input id="score" type="number" step="0.1" placeholder="VD: 20.5" />
+            </div>
+            <div class="field">
+                <label>🧩 Ngành quan tâm</label>
+                <div class="chips" id="major-chips"></div>
+            </div>
         </div>
 
         <div class="tab__panel" id="tab-space" hidden>
-            <div class="field"><label>📌 Bán kính (km)</label><input id="near" type="number" /></div>
-            <div class="field"><label>📏 Sắp xếp</label><select id="sortdist"><option value="nearest">Gần nhất trước</option></select></div>
+            <div class="field">
+                <label>📌 Bán kính (km)</label>
+                <input id="near" type="number" placeholder="VD: 20" />
+            </div>
+            <div class="field">
+                <label>📏 Sắp xếp</label>
+                <select id="sortdist">
+                    <option value="nearest">Gần nhất trước</option>
+                </select>
+            </div>
         </div>
 
         <div class="filter__actions">
             <button type="button" class="btn btn--primary" id="btn-apply">Áp dụng</button>
             <button type="button" class="btn btn--ghost" id="btn-reset">Làm mới</button>
+            <button type="button" class="btn btn--ghost" id="btn-clear-route">Xóa tuyến đường</button>
         </div>
 
         <div class="result" id="result-box">
-            <div class="result__head"><h3>📌 Kết quả</h3> <span class="badge" id="result-count">0</span></div>
+            <div class="result__head">
+                <h3>📌 Kết quả</h3>
+                <span class="badge" id="result-count">0</span>
+            </div>
             <div class="result__list" id="result-list"></div>
         </div>
     </aside>
 
     <main class="map">
         <div class="map__top">
-            <div class="map__title"><h1>🗺️ Bản đồ Tuyển sinh</h1></div>
-            <div class="map__tools"><button type="button" class="tool" id="btn-my-location">📍 GPS</button></div>
+            <div class="map__title">
+                <h1>🗺️ Bản đồ Tuyển sinh</h1>
+            </div>
+            <div class="map__tools">
+                <button type="button" class="tool" id="btn-my-location">📍 GPS</button>
+            </div>
         </div>
-        <section class="map__frame"><div id="real-map"></div></section>
+        <section class="map__frame">
+            <div id="real-map"></div>
+        </section>
     </main>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script>
 (function () {
     const API_URL = "{% url 'map_data_api' %}";
-    let allSchools = [], selectedMajor = "", userLocation = { lat: 10.7769, lng: 106.7009 };
-    let map, markerLayer, userMarker = null;
 
-    // Hàm tính thời gian di chuyển ước tính (giả định tốc độ 35km/h)
+    let allSchools = [];
+    let selectedMajor = "";
+    let userLocation = { lat: 10.7769, lng: 106.7009 };
+
+    let map;
+    let markerLayer;
+    let userMarker = null;
+    let routingControl = null;
+
     function getETA(km) {
         const mins = (km / 35) * 60;
-        return mins < 60 ? Math.round(mins) + " phút" : Math.floor(mins/60) + "h " + Math.round(mins%60) + "p";
+        return mins < 60
+            ? Math.round(mins) + " phút"
+            : Math.floor(mins / 60) + "h " + Math.round(mins % 60) + "p";
     }
 
     function initMap() {
-        map = L.map('real-map').setView([userLocation.lat, userLocation.lng], 12);
-        
-        // SỬA LỖI 403: Dùng CartoDB Voyager thay cho OSM mặc định
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '© CartoDB'
+        map = L.map("real-map").setView([userLocation.lat, userLocation.lng], 12);
+
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+            attribution: "© CartoDB"
         }).addTo(map);
 
         markerLayer = L.layerGroup().addTo(map);
 
-        // Geocoder tìm địa chỉ
-        const control = L.Control.geocoder({ defaultMarkGeocode: false, placeholder: "Nhập địa chỉ của bạn..." })
-            .on('markgeocode', function(e) {
-                userLocation = e.geocode.center;
-                drawUserMarker();
-                map.setView(userLocation, 14);
-            }).addTo(map);
-        document.getElementById('geocoder-input').appendChild(control.onAdd(map));
+        const control = L.Control.geocoder({
+            defaultMarkGeocode: false,
+            placeholder: "Nhập địa chỉ của bạn..."
+        })
+        .on("markgeocode", function (e) {
+            userLocation = {
+                lat: e.geocode.center.lat,
+                lng: e.geocode.center.lng
+            };
+            drawUserMarker();
+            map.setView([userLocation.lat, userLocation.lng], 14);
+        });
+
+        const geocoderContainer = control.onAdd(map);
+        document.getElementById("geocoder-input").appendChild(geocoderContainer);
 
         drawUserMarker();
     }
 
     function drawUserMarker() {
-        if (userMarker) map.removeLayer(userMarker);
+        if (userMarker) {
+            map.removeLayer(userMarker);
+        }
+
         const redIcon = new L.Icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
         });
-        userMarker = L.marker([userLocation.lat, userLocation.lng], {icon: redIcon}).addTo(map).bindPopup("Vị trí của bạn");
+
+        userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: redIcon })
+            .addTo(map)
+            .bindPopup("Vị trí của bạn");
+    }
+
+    function clearRoute() {
+        if (routingControl) {
+            map.removeControl(routingControl);
+            routingControl = null;
+        }
+    }
+
+    function drawRouteToSchool(school) {
+        if (!school || school.lat == null || school.lng == null) return;
+
+        clearRoute();
+
+        routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(userLocation.lat, userLocation.lng),
+                L.latLng(school.lat, school.lng)
+            ],
+            routeWhileDragging: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            fitSelectedRoutes: true,
+            showAlternatives: false,
+            lineOptions: {
+                styles: [
+                    { color: "#0d6efd", opacity: 0.9, weight: 6 }
+                ]
+            },
+            createMarker: function (i, wp, nWps) {
+                if (i === 0) {
+                    return L.marker(wp.latLng).bindPopup("Vị trí của bạn");
+                }
+                return L.marker(wp.latLng).bindPopup(school.tentruong);
+            }
+        }).addTo(map);
     }
 
     function buildPopup(s, dist) {
-        // SỬA LỖI 404: Đường dẫn chuẩn theo image_6a797e.png
-        const detailUrl = `/truong/${s.matruong}/`; 
+        const detailUrl = `/truong/${s.matruong}/`;
         const eta = getETA(dist);
-        const nganhHoc = s.nganh_hoc ? s.nganh_hoc.slice(0, 3).join(", ") + "..." : "Đang cập nhật";
-        const khoi = s.khoi_xet_tuyen ? s.khoi_xet_tuyen.join(", ") : "Đang cập nhật";
-        const diem = (s.diem_chuan && s.diem_chuan.length > 0) ? Math.max(...s.diem_chuan.map(d => d.diem)) : "---";
+        const nganhHoc = s.nganh_hoc && s.nganh_hoc.length
+            ? s.nganh_hoc.slice(0, 3).join(", ") + (s.nganh_hoc.length > 3 ? "..." : "")
+            : "Đang cập nhật";
+        const khoi = s.khoi_xet_tuyen && s.khoi_xet_tuyen.length
+            ? s.khoi_xet_tuyen.join(", ")
+            : "Đang cập nhật";
+        const diem = (s.diem_chuan && s.diem_chuan.length > 0)
+            ? Math.max(...s.diem_chuan.map(d => Number(d.diem) || 0))
+            : "---";
 
         return `
             <div class="popup-content">
-                <a href="${detailUrl}"><img src="${s.image_url || ''}" class="popup-img"></a>
+                <a href="${detailUrl}">
+                    <img src="${s.image_url || ''}" class="popup-img" onerror="this.style.display='none'">
+                </a>
                 <a href="${detailUrl}" class="popup-title">🏫 ${s.tentruong}</a>
                 <div class="popup-info">
                     <b>📏 Khoảng cách:</b> ${dist.toFixed(2)} km<br>
@@ -139,89 +364,218 @@
                     <b>🧮 Khối:</b> ${khoi}<br>
                     <b>🧩 Ngành tiêu biểu:</b> ${nganhHoc}
                 </div>
+                <button class="popup-route-btn" onclick="window.drawRouteBySchoolCode('${s.matruong}')">
+                    🚗 Vẽ đường đi đến trường này
+                </button>
                 <a href="${detailUrl}" class="popup-link">Chuyển đến trang trường →</a>
-            </div>`;
+            </div>
+        `;
     }
 
     function renderMarkers(data) {
         markerLayer.clearLayers();
+
         data.forEach(s => {
-            const dist = L.latLng(userLocation).distanceTo([s.lat, s.lng]) / 1000;
-            const m = L.marker([s.lat, s.lng]).addTo(markerLayer);
-            m.bindPopup(buildPopup(s, dist));
+            const dist = L.latLng(userLocation.lat, userLocation.lng)
+                .distanceTo([s.lat, s.lng]) / 1000;
+
             s._dist = dist;
+
+            const marker = L.marker([s.lat, s.lng]).addTo(markerLayer);
+            marker.bindPopup(buildPopup(s, dist));
+
+            marker.on("click", function () {
+                map.setView([s.lat, s.lng], 15);
+            });
+
+            marker.on("dblclick", function () {
+                drawRouteToSchool(s);
+            });
         });
     }
 
-    function applyFilters() {
-        const kw = document.getElementById("kw").value.toLowerCase();
-        const city = document.getElementById("city").value;
-        const minScore = parseFloat(document.getElementById("score").value || 0);
-        const selKhoi = document.getElementById("khoi").value;
-
-        let filtered = allSchools.filter(s => {
-            const matchKw = !kw || s.tentruong.toLowerCase().includes(kw);
-            const matchCity = !city || s.tinh_thanh === city;
-            const matchMajor = !selectedMajor || (s.nganh_hoc && s.nganh_hoc.includes(selectedMajor));
-            const matchScore = !minScore || (s.diem_chuan && s.diem_chuan.some(d => d.diem >= minScore));
-            const matchKhoi = !selKhoi || (s.khoi_xet_tuyen && s.khoi_xet_tuyen.includes(selKhoi));
-            return matchKw && matchCity && matchMajor && matchScore && matchKhoi;
-        });
-
-        renderMarkers(filtered);
-        
-        // Cập nhật danh sách kết quả bên trái
+    function renderResultList(filtered) {
         const list = document.getElementById("result-list");
         list.innerHTML = "";
+
         document.getElementById("result-count").textContent = filtered.length;
         document.getElementById("result-box").classList.add("show");
 
         filtered.forEach(s => {
             const item = document.createElement("div");
             item.className = "card";
-            item.innerHTML = `<div class="card__title">${s.tentruong}</div><div class="card__meta">${s._dist.toFixed(2)} km - ~${getETA(s._dist)}</div>`;
-            item.onclick = () => map.setView([s.lat, s.lng], 15);
+
+            item.innerHTML = `
+                <div class="card__title">${s.tentruong}</div>
+                <div class="card__meta">${s._dist.toFixed(2)} km - ~${getETA(s._dist)}</div>
+                <div class="card__actions">
+                    <button type="button" class="btn-route-mini">Vẽ đường đi</button>
+                </div>
+            `;
+
+            item.addEventListener("click", function (e) {
+                if (e.target.classList.contains("btn-route-mini")) return;
+                map.setView([s.lat, s.lng], 15);
+            });
+
+            item.querySelector(".btn-route-mini").addEventListener("click", function (e) {
+                e.stopPropagation();
+                drawRouteToSchool(s);
+                map.setView([s.lat, s.lng], 15);
+            });
+
             list.appendChild(item);
         });
     }
 
-    initMap();
+    function applyFilters() {
+        const kw = document.getElementById("kw").value.toLowerCase().trim();
+        const city = document.getElementById("city").value;
+        const minScore = parseFloat(document.getElementById("score").value || 0);
+        const selKhoi = document.getElementById("khoi").value;
+        const nearKm = parseFloat(document.getElementById("near").value || 0);
 
-    fetch(API_URL).then(r => r.json()).then(data => {
-        allSchools = data.schools || [];
-        
-        // Đổ dữ liệu vào các select
-        const citySel = document.getElementById("city");
-        data.cities?.forEach(c => citySel.add(new Option(c, c)));
-        
-        const khoiSel = document.getElementById("khoi");
-        data.blocks?.forEach(b => khoiSel.add(new Option(b, b)));
+        let filtered = allSchools.filter(s => {
+            const matchKw = !kw || (s.tentruong || "").toLowerCase().includes(kw);
+            const matchCity = !city || s.tinh_thanh === city;
+            const matchMajor = !selectedMajor || (s.nganh_hoc && s.nganh_hoc.includes(selectedMajor));
+            const matchScore = !minScore || (
+                s.diem_chuan &&
+                s.diem_chuan.some(d => Number(d.diem) >= minScore)
+            );
+            const matchKhoi = !selKhoi || (
+                s.khoi_xet_tuyen &&
+                s.khoi_xet_tuyen.includes(selKhoi)
+            );
 
-        const majorWrap = document.getElementById("major-chips");
-        data.majors?.slice(0, 10).forEach(m => {
-            const btn = document.createElement("button");
-            btn.className = "chip"; btn.textContent = m;
-            btn.onclick = () => {
-                document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-                if (selectedMajor === m) selectedMajor = "";
-                else { selectedMajor = m; btn.classList.add("active"); }
-            };
-            majorWrap.appendChild(btn);
+            const dist = L.latLng(userLocation.lat, userLocation.lng)
+                .distanceTo([s.lat, s.lng]) / 1000;
+            s._dist = dist;
+
+            const matchNear = !nearKm || dist <= nearKm;
+
+            return matchKw && matchCity && matchMajor && matchScore && matchKhoi && matchNear;
         });
 
-        renderMarkers(allSchools);
+        filtered.sort((a, b) => a._dist - b._dist);
+
+        renderMarkers(filtered);
+        renderResultList(filtered);
+    }
+
+    function loadMapData() {
+        fetch(API_URL)
+            .then(r => r.json())
+            .then(data => {
+                allSchools = data.schools || [];
+
+                const citySel = document.getElementById("city");
+                (data.cities || []).forEach(c => citySel.add(new Option(c, c)));
+
+                const khoiSel = document.getElementById("khoi");
+                (data.blocks || []).forEach(b => khoiSel.add(new Option(b, b)));
+
+                const majorWrap = document.getElementById("major-chips");
+                majorWrap.innerHTML = "";
+
+                (data.majors || []).slice(0, 20).forEach(m => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "chip";
+                    btn.textContent = m;
+
+                    btn.addEventListener("click", function () {
+                        const allChips = document.querySelectorAll(".chip");
+
+                        if (selectedMajor === m) {
+                            selectedMajor = "";
+                            btn.classList.remove("active");
+                        } else {
+                            selectedMajor = m;
+                            allChips.forEach(c => c.classList.remove("active"));
+                            btn.classList.add("active");
+                        }
+                    });
+
+                    majorWrap.appendChild(btn);
+                });
+
+                allSchools.forEach(s => {
+                    s._dist = L.latLng(userLocation.lat, userLocation.lng)
+                        .distanceTo([s.lat, s.lng]) / 1000;
+                });
+
+                renderMarkers(allSchools);
+                renderResultList(allSchools.sort((a, b) => a._dist - b._dist));
+            })
+            .catch(err => {
+                console.error("Lỗi tải dữ liệu bản đồ:", err);
+            });
+    }
+
+    window.drawRouteBySchoolCode = function (matruong) {
+        const school = allSchools.find(s => s.matruong === matruong);
+        if (!school) return;
+        drawRouteToSchool(school);
+        map.setView([school.lat, school.lng], 15);
+    };
+
+    initMap();
+    loadMapData();
+
+    document.getElementById("btn-apply").addEventListener("click", applyFilters);
+
+    document.getElementById("btn-reset").addEventListener("click", function () {
+        location.reload();
     });
 
-    document.getElementById("btn-apply").onclick = applyFilters;
-    document.getElementById("btn-reset").onclick = () => location.reload();
-    document.getElementById("btn-my-location").onclick = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(p => {
-                userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
-                drawUserMarker(); map.setView(userLocation, 13);
+    document.getElementById("btn-clear-route").addEventListener("click", function () {
+        clearRoute();
+    });
+
+    document.getElementById("btn-my-location").addEventListener("click", function () {
+        if (!navigator.geolocation) return;
+
+        navigator.geolocation.getCurrentPosition(function (p) {
+            userLocation = {
+                lat: p.coords.latitude,
+                lng: p.coords.longitude
+            };
+            drawUserMarker();
+            map.setView([userLocation.lat, userLocation.lng], 13);
+
+            allSchools.forEach(s => {
+                s._dist = L.latLng(userLocation.lat, userLocation.lng)
+                    .distanceTo([s.lat, s.lng]) / 1000;
             });
-        }
-    };
+
+            applyFilters();
+        });
+    });
+
+    // Tab chuyển panel
+    const tabNeedBtn = document.getElementById("tab-need-btn");
+    const tabSpaceBtn = document.getElementById("tab-space-btn");
+    const tabNeed = document.getElementById("tab-need");
+    const tabSpace = document.getElementById("tab-space");
+
+    tabNeedBtn.addEventListener("click", function () {
+        tabNeedBtn.classList.add("tab--active");
+        tabSpaceBtn.classList.remove("tab--active");
+        tabNeed.hidden = false;
+        tabSpace.hidden = true;
+        tabNeed.classList.add("tab__panel--active");
+        tabSpace.classList.remove("tab__panel--active");
+    });
+
+    tabSpaceBtn.addEventListener("click", function () {
+        tabSpaceBtn.classList.add("tab--active");
+        tabNeedBtn.classList.remove("tab--active");
+        tabSpace.hidden = false;
+        tabNeed.hidden = true;
+        tabSpace.classList.add("tab__panel--active");
+        tabNeed.classList.remove("tab__panel--active");
+    });
 })();
 </script>
 {% endblock %}

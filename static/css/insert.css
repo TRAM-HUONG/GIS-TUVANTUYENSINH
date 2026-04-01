@@ -58,7 +58,7 @@ h2 {
 
 /* Style cho Form */
 form {
-    width: 100%;
+    width: 75%;
     padding: 25px;
     background-color: var(--card);
     border-radius: var(--r20);
@@ -104,7 +104,7 @@ form button:hover { background-color: var(--accent2); }
 
 /* Ô tìm kiếm to rõ */
 .leaflet-control-geocoder {
-    min-width: 400px !important;
+    min-width: 300px !important;
     background: white;
     border: 2px solid var(--c6) !important;
     border-radius: var(--r14) !important;
