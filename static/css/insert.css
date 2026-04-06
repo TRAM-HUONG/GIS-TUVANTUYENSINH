@@ -53,7 +53,7 @@ h2 {
 }
 
 .map-column {
-    flex: 1; /* Map chiếm toàn bộ phần còn lại */
+    flex: 2; /* Map chiếm toàn bộ phần còn lại */
 }
 
 /* Style cho Form */
@@ -94,7 +94,7 @@ form button:hover { background-color: var(--accent2); }
 
 /* Style cho Map */
 #map { 
-    height: 780px !important; /* Cao lên cho bằng form */
+    height: 700px !important; /* Cao lên cho bằng form */
     width: 100%; 
     border-radius: var(--r20); 
     border: 3px solid var(--c4);
@@ -104,7 +104,11 @@ form button:hover { background-color: var(--accent2); }
 
 /* Ô tìm kiếm to rõ */
 .leaflet-control-geocoder {
+<<<<<<< HEAD
     min-width: 300px !important;
+=======
+    min-width: 100px !important;
+>>>>>>> feature/admin
     background: white;
     border: 2px solid var(--c6) !important;
     border-radius: var(--r14) !important;

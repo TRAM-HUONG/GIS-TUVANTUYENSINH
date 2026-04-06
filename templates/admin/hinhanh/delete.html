@@ -2,30 +2,48 @@
 {% load static %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'css/delete.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="delete-wrapper">
-    <div class="delete-card">
-        <div class="delete-icon">⚠️</div>
-        <h3 class="fw-bold">Bạn chắc chắn muốn xóa?</h3>
-        <p class="text-muted">
-            Ảnh <strong>{{ hinhanh.tieude|default:hinhanh.tenfile }}</strong>
-            của trường <strong>{{ hinhanh.matruong.tentruong }}</strong>
-            sẽ bị xóa vĩnh viễn.
-        </p>
+<div class="main-content-wrapper">
+    <div class="delete-confirmation-card">
+        <div class="icon-section">
+            <div class="warning-icon-circle">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+        
+        <div class="text-section">
+            <h3 class="confirmation-title">Xác nhận xóa hình ảnh?</h3>
+            <p class="confirmation-subtitle">
+                Hành động này <strong class="danger-text">không thể hoàn tác</strong>. Bạn đang thực hiện xóa ảnh 
+                <span class="highlight-text">"{{ hinhanh.tieude|default:hinhanh.tenfile }}"</span> 
+                của trường <span class="highlight-text">{{ hinhanh.matruong.tentruong }}</span>.
+            </p>
+        </div>
 
         {% if hinhanh.tenfile %}
-            <img src="{% static 'img/TDH/'|add:hinhanh.tenfile %}" class="img-thumbnail-delete" alt="Preview">
+        <div class="image-preview-section">
+            <div class="preview-container">
+                <img src="{% static 'img/TDH/'|add:hinhanh.tenfile %}" alt="Xem trước">
+            </div>
+        </div>
         {% endif %}
 
-        <form method="post">
+        <form method="post" class="action-form-section">
             {% csrf_token %}
-            <button type="submit" class="btn-delete-confirm">CÓ, XÓA NGAY</button>
-            <a href="{% url 'admin_hinhanh_list' %}" class="btn btn-light w-100 mt-2" style="border-radius: var(--r16); padding: 12px;">
-                HỦY BỎ
-            </a>
+            <div class="button-group-vertical">
+                <button type="submit" class="btn-action btn-danger-delete">
+                    <i class="fas fa-trash-alt icon-left"></i>
+                    <span class="btn-text">CÓ, XÓA VĨNH VIỄN</span>
+                </button>
+                
+                <a href="{% url 'admin_hinhanh_list' %}" class="btn-action btn-secondary-cancel">
+                    HỦY BỎ
+                </a>
+            </div>
         </form>
     </div>
 </div>
