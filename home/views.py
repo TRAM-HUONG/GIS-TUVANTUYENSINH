@@ -611,6 +611,7 @@ def admin_truong_insert(request):
     if request.method == "POST":
         tentruong = request.POST.get("tentruong", "").strip()
         madvhc = request.POST.get("madvhc", "").strip()
+
         if not tentruong or not madvhc:
             messages.error(request, "Vui lòng nhập đủ thông tin bắt buộc.")
         else:
@@ -620,6 +621,67 @@ def admin_truong_insert(request):
                 diachi=request.POST.get("diachi"), website=request.POST.get("website"),
                 email=request.POST.get("email"), dienthoai=request.POST.get("dienthoai"),
                 lat=request.POST.get("lat") or None, lng=request.POST.get("lng") or None
+
+                diachi = request.POST.get("diachi", "").strip()
+                website = request.POST.get("website", "").strip()
+                email = request.POST.get("email", "").strip()
+                dienthoai = request.POST.get("dienthoai", "").strip()
+                lat = request.POST.get("lat", "").strip()
+                lng = request.POST.get("lng", "").strip()
+                mota = request.POST.get("mota", "").strip()
+                ghichu = request.POST.get("ghichu", "").strip()
+
+        # 1. Kiểm tra trống các trường bắt buộc
+        if not tentruong or not madvhc:
+            messages.error(request, "Tên trường và đơn vị hành chính không được để trống.")
+            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
+
+        # 2. Xử lý và kiểm tra logic tọa độ
+        try:
+            lat_val = float(lat) if lat else None
+            lng_val = float(lng) if lng else None
+
+            if lat_val is not None and lng_val is not None:
+                # Rào lỗi: Không cho phép tọa độ âm
+                if lat_val < 0 or lng_val < 0:
+                    messages.error(request, "Lỗi: Tọa độ (Vĩ độ hoặc Kinh độ) không được là số âm.")
+                    return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
+
+                # Rào lỗi: Không cho phép trùng tọa độ với trường đã có
+                exists = TruongDaiHoc.objects.filter(lat=lat_val, lng=lng_val).exists()
+                if exists:
+                    messages.error(request, f"Lỗi: Tọa độ ({lat_val}, {lng_val}) đã tồn tại cho một trường khác.")
+                    return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
+            
+        except ValueError:
+            messages.error(request, "Lỗi: Định dạng tọa độ không hợp lệ.")
+            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
+
+        # 3. Tiến hành lưu dữ liệu
+        dvhc = get_object_or_404(DonViHanhChinh, pk=madvhc)
+
+        truong = TruongDaiHoc(
+            matruong=generate_matruong(),
+            tentruong=tentruong,
+            loaitruong=loaitruong or None,
+            madvhc=dvhc,
+            diachi=diachi or None,
+            website=website or None,
+            email=email or None,
+            dienthoai=dienthoai or None,
+            lat=lat_val,
+            lng=lng_val,
+        )
+        truong.save()
+
+        # Lưu thông tin mô tả vào bảng ChiTietTruong
+        if mota or ghichu:
+            ChiTietTruong.objects.create(
+                mactt=generate_mactt(),
+                matruong=truong,
+                mota=mota or None,
+                ghichu=ghichu or None,
+>>>>>>> feature/admin
             )
             if request.POST.get("mota"):
                 ChiTietTruong.objects.create(mactt=generate_mactt(), matruong=truong, mota=request.POST.get("mota"))
@@ -627,12 +689,35 @@ def admin_truong_insert(request):
             return redirect("admin_truong_list")
     return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
 
+<<<<<<< HEAD
 @admin_required
+=======
+        messages.success(request, "Thêm trường đại học thành công.")
+        return redirect("admin_truong_list")
+
+    return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
+
+def admin_truong_detail(request, matruong):
+    truong = get_object_or_404(
+        TruongDaiHoc.objects.select_related("madvhc"),
+        pk=matruong
+    )
+    chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
+
+    return render(request, "admin/truongdaihoc/detail.html", {
+        "truong": truong,
+        "chitiet": chitiet
+    })
+
+
+>>>>>>> feature/admin
 def admin_truong_edit(request, matruong):
+    # 1. Lấy dữ liệu hiện tại
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
     chitiet = ChiTietTruong.objects.filter(matruong=truong).first()
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
     if request.method == "POST":
+<<<<<<< HEAD
         truong.tentruong = request.POST.get("tentruong")
         truong.madvhc_id = request.POST.get("madvhc")
         truong.diachi = request.POST.get("diachi")
@@ -642,6 +727,67 @@ def admin_truong_edit(request, matruong):
     return render(request, "admin/truongdaihoc/edit.html", {"truong": truong, "chitiet": chitiet, "dshc": dshc})
 
 @admin_required
+=======
+        # 2. Thu thập dữ liệu từ Form
+        tentruong = request.POST.get("tentruong", "").strip()
+        madvhc_id = request.POST.get("madvhc", "").strip()
+        diachi = request.POST.get("diachi", "").strip() or None
+        lat_str = request.POST.get("lat", "").strip()
+        lng_str = request.POST.get("lng", "").strip()
+        mota = request.POST.get("mota", "").strip()
+
+        try:
+            # 3. Xử lý tọa độ
+            lat_val = float(lat_str)
+            lng_val = float(lng_str)
+
+            # Chặn số âm
+            if lat_val < 0 or lng_val < 0:
+                messages.error(request, "Lỗi: Tọa độ (Vĩ độ/Kinh độ) không được là số âm.")
+                return render(request, "admin/truongdaihoc/edit.html", locals())
+
+            # Chặn trùng tọa độ với trường KHÁC (exclude bản thân)
+            trung_toa_do = TruongDaiHoc.objects.filter(lat=lat_val, lng=lng_val).exclude(pk=matruong).exists()
+            if trung_toa_do:
+                messages.error(request, "Lỗi: Tọa độ này đã được sử dụng bởi một trường khác.")
+                return render(request, "admin/truongdaihoc/edit.html", locals())
+
+            # 4. Cập nhật Model chính (TruongDaiHoc)
+            truong.tentruong = tentruong
+            truong.madvhc = get_object_or_404(DonViHanhChinh, pk=madvhc_id)
+            truong.diachi = diachi
+            truong.lat = lat_val
+            truong.lng = lng_val
+            truong.save()
+
+            # 5. Cập nhật Model chi tiết (ChiTietTruong)
+            if chitiet:
+                chitiet.mota = mota or None
+                chitiet.save()
+            elif mota:
+                # Nếu trước đó chưa có chi tiết mà giờ mới nhập mô tả
+                from .views import generate_mactt # Giả định hàm này có trong views của bạn
+                ChiTietTruong.objects.create(
+                    mactt=generate_mactt(),
+                    matruong=truong,
+                    mota=mota
+                )
+
+            messages.success(request, f"Cập nhật thành công trường {tentruong}.")
+            return redirect("admin_truong_list")
+
+        except ValueError:
+            messages.error(request, "Lỗi: Vui lòng nhập đúng định dạng số cho tọa độ.")
+        except Exception as e:
+            messages.error(request, f"Đã xảy ra lỗi: {str(e)}")
+
+    # Trả về giao diện Edit
+    return render(request, "admin/truongdaihoc/edit.html", {
+        "truong": truong,
+        "chitiet": chitiet,
+        "dshc": dshc,
+    })
+>>>>>>> feature/admin
 def admin_truong_delete(request, matruong):
     truong = get_object_or_404(TruongDaiHoc, pk=matruong)
     if request.method == "POST":
