@@ -2,108 +2,267 @@
 {% load static %} 
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/insert.css' %}">
+<link rel="stylesheet" href="{% static 'css/insert.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --bg-light: #f4f7fe;
+            --border-radius-lg: 20px;
+            --border-radius-md: 12px;
+        }
 
+        body {
+            background: var(--bg-light);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Container rộng tối đa */
+        .insert-container-fluid {
+            padding: 20px 30px;
+        }
+
+        /* Header Style */
+        .header-banner {
+            background: var(--primary-gradient);
+            padding: 25px 40px;
+            color: white;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Layout Flexbox để đẩy Map rộng ra */
+        .main-wrapper {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+
+        /* Cột Form: Cố định độ rộng để không bị loãng */
+        .form-sidebar {
+            flex: 0 0 420px;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        /* Cột Map: Chiếm toàn bộ không gian còn lại */
+        .map-display {
+            flex: 1;
+            position: relative;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        #map { 
+            height: 750px !important; /* Tăng chiều cao map */
+            width: 100%; 
+            border-radius: var(--border-radius-lg);
+            border: 5px solid white;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        /* Input & Label */
+        .form-label {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #edf2f7;
+            border-radius: var(--border-radius-md);
+            padding: 12px;
+            background: #f8fafc;
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Tọa độ box */
+        .coord-group {
+            background: #fff5f5;
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            border: 2px dashed #feb2b2;
+            margin-bottom: 20px;
+        }
+
+        .coord-input {
+            text-align: center;
+            font-weight: bold;
+            color: #e53e3e;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Nút bấm */
+        .btn-save {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: var(--border-radius-md);
+            font-weight: bold;
+            width: 100%;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4);
+            color: white;
+        }
+
+        /* Custom Search Box trên Map */
+        .leaflet-control-geocoder {
+            margin-top: 15px !important;
+            margin-right: 15px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4 insert-container">
-    <h2 class="text-primary fw-bold">Thêm Trường Đại Học</h2>
-    <hr>
-
-    <form method="POST">
-        {% csrf_token %} <div class="row">
-            <div class="col-lg-5">
-                <div class="form-section">
-                    <div class="mb-3">
-                        <label class="fw-bold">Tên trường *</label>
-                        <input type="text" name="tentruong" class="form-control" required>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="fw-bold text-success">Vĩ độ (Lat)</label>
-                            <input type="text" id="lat" name="lat" class="form-control" readonly style="background-color: #e9ecef;">
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="fw-bold text-success">Kinh độ (Lng)</label>
-                            <input type="text" id="lng" name="lng" class="form-control" readonly style="background-color: #e9ecef;">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold">Đơn vị hành chính *</label>
-                        <select name="madvhc" class="form-select" required>
-                            <option value="">-- Chọn đơn vị --</option>
-                            {% for dv in dshc %}
-                                <option value="{{ dv.madvhc }}">{{ dv.tendvhc }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold">Địa chỉ</label>
-                        <textarea name="diachi" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold">Mô tả</label>
-                        <textarea name="mota" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">LƯU TRƯỜNG ĐẠI HỌC</button>
-                    <a href="{% url 'admin_truong_list' %}" class="btn btn-link w-100 mt-2">Hủy bỏ</a>
-                </div>
-            </div>
-
-            <div class="col-lg-7">
-                <div class="alert alert-warning py-2">
-                    <i class="fas fa-info-circle"></i> Click biểu tượng <strong>Kính lúp</strong> trên Map để tìm địa chỉ.
-                </div>
-                <div id="map"></div>
-            </div>
+<div class="container-fluid insert-container-fluid">
+    <div class="header-banner d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1 text-white"><i class="fas fa-plus-circle me-2"></i>Thêm Trường Đại Học</h2>
+            <p class="mb-0 opacity-75">Quản lý cơ sở dữ liệu vị trí các cơ sở đào tạo</p>
         </div>
-    </form>
+        <div class="d-none d-md-block">
+            <i class="fas fa-map-marked-alt fa-3x opacity-50"></i>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="form-sidebar">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert border-0 shadow-sm alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="form-label">Tên trường đại học *</label>
+                    <input type="text" name="tentruong" class="form-control" value="{{ old_data.tentruong }}" placeholder="Nhập tên trường..." required>
+                </div>
+
+                <div class="coord-group">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label text-danger">Vĩ độ (Lat)</label>
+                            <input type="number" step="any" id="lat" name="lat" class="form-control coord-input" value="{{ old_data.lat }}" placeholder="0.000000" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-danger">Kinh độ (Lng)</label>
+                            <input type="number" step="any" id="lng" name="lng" class="form-control coord-input" value="{{ old_data.lng }}" placeholder="0.000000" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Đơn vị hành chính *</label>
+                    <select name="madvhc" class="form-select" required>
+                        <option value="">-- Lựa chọn --</option>
+                        {% for dv in dshc %}
+                            <option value="{{ dv.madvhc }}" {% if old_data.madvhc == dv.madvhc %}selected{% endif %}>{{ dv.tendvhc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <textarea name="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Mô tả</label>
+                    <textarea name="mota" class="form-control" rows="3">{{ old_data.mota }}</textarea>
+                </div>
+
+                <button type="submit" class="btn-save mb-2">
+                    <i class="fas fa-check-circle me-2"></i> LƯU THÔNG TIN
+                </button>
+                <a href="{% url 'admin_truong_list' %}" class="btn btn-light w-100 border text-muted fw-bold py-2" style="border-radius: 12px;">Hủy bỏ</a>
+            </form>
+        </div>
+
+        <div class="map-display">
+            <div class="badge bg-white text-primary shadow-sm p-3 position-absolute top-0 start-0 m-3 z-index-2" style="z-index: 1000; border-radius: 50px;">
+                <i class="fas fa-info-circle me-2"></i>Click Map hoặc Kéo Marker để lấy tọa độ chính xác
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    // 1. Khởi tạo Map
-    var map = L.map('map').setView([10.762622, 106.660172], 13);
+    // 1. Init Map (Focus vào Việt Nam)
+    var map = L.map('map', {
+        zoomControl: false
+    }).setView([10.762622, 106.660172], 13);
+    
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO'
     }).addTo(map);
-
-    // 2. Thêm thanh tìm kiếm (Biểu tượng kính lúp)
-    var geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-        placeholder: "Tìm địa điểm...",
-        collapsed: false // Để ô tìm kiếm luôn hiện ra, không cần bấm kính lúp mới hiện
-    })
-    .on('markgeocode', function(e) {
-        var center = e.geocode.center;
-        map.setView(center, 17);
-        placeMarker(center);
-    })
-    .addTo(map);
 
     var marker;
 
-    function placeMarker(latlng) {
+    function placeMarker(latlng, moveCamera = false) {
         if (marker) {
             marker.setLatLng(latlng);
         } else {
-            marker = L.marker(latlng, {draggable: true}).addTo(map);
+            marker = L.marker(latlng, {
+                draggable: true,
+                icon: L.icon({
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map);
+            
             marker.on('dragend', function() {
                 updateInputs(marker.getLatLng());
             });
         }
+        if (moveCamera) map.panTo(latlng);
         updateInputs(latlng);
     }
 
@@ -112,9 +271,40 @@
         document.getElementById('lng').value = latlng.lng.toFixed(6);
     }
 
-    // 3. Click map để lấy vị trí
+    // Sync 2 chiều: Nhập số -> Nhảy Map
+    function syncMapFromInputs() {
+        var lat = parseFloat(document.getElementById('lat').value);
+        var lng = parseFloat(document.getElementById('lng').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            placeMarker([lat, lng], true);
+        }
+    }
+
+    document.getElementById('lat').addEventListener('input', syncMapFromInputs);
+    document.getElementById('lng').addEventListener('input', syncMapFromInputs);
+
     map.on('click', function(e) {
         placeMarker(e.latlng);
     });
+
+    // Geocoder Search
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        placeholder: "🔍 Tìm kiếm địa điểm...",
+        collapsed: false
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 17);
+        placeMarker(center);
+    })
+    .addTo(map);
+
+    // Old data recovery
+    var oldLat = "{{ old_data.lat }}";
+    var oldLng = "{{ old_data.lng }}";
+    if (oldLat && oldLng && oldLat !== "None") {
+        placeMarker([parseFloat(oldLat), parseFloat(oldLng)], true);
+    }
 </script>
 {% endblock %}
