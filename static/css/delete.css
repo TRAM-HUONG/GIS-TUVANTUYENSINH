@@ -1,91 +1,203 @@
-:root{
-  /* palette theo ảnh */
-  --c1:#FF99FF;
-  --c2:#CC99FF;
-  --c3:#9999FF;
-  --c4:#6699FF;
-  --c5:#3399FF;
-  --c6:#0099FF;
-
-  --p1:#FF99CC;
-  --p2:#CC99CC;
-  --p3:#9999CC;
-  --p4:#6699CC;
-  --p5:#3399CC;
-  --p6:#0099CC;
-
-  --ink:#0b1b33;
-  --muted:rgba(11,27,51,.65);
-
-  --card:rgba(255,255,255,.88);
-  --glass:rgba(255,255,255,.30);
-  --border:rgba(11,27,51,.10);
-
-  --shadow: 0 18px 50px rgba(0,0,0,.12);
-  --shadowStrong: 0 24px 60px rgba(0,0,0,.18);
-
-  --r14:14px;
-  --r18:18px;
-  --r20:20px;
-
-  --wrap: 1800px;
-}
-body {
-    background-color: var(--bg1);
-    color: var(--text);
-    font-family: 'Arial', sans-serif;
+/* delete.css */
+:root {
+    --primary-danger: #d93025; /* Màu đỏ đậm Google */
+    --danger-hover: #b31412;
+    --text-on-danger: #ffffff;
+    
+    --cancel-bg: #f1f3f4; /* Màu xám nhạt */
+    --cancel-hover: #e8eaed;
+    --text-on-cancel: #3c4043;
+    
+    --text-main: #202124;
+    --text-muted: #5f6368;
+    
+    --card-bg: #ffffff;
+    --border-radius-lg: 20px;
+    --border-radius-sm: 12px;
 }
 
-h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: var(--accent);
-}
-
-p {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    color: var(--text);
-}
-
-form {
-    display: inline-block;
-    width: 100%;
-    max-width: 600px; /* Limit form width */
+/* Căn giữa toàn bộ card trên màn hình */
+.main-content-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Chiếm 80% chiều cao màn hình */
     padding: 20px;
-    background-color: var(--card);
-    border-radius: var(--r16);
-    box-shadow: var(--shadow);
+    /* Thêm nền gradient nhẹ cho đẹp */
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
 }
 
-form button {
-    padding: 12px 24px;
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    border-radius: var(--r16);
-    cursor: pointer;
-    box-shadow: var(--shadow2);
-    margin-top: 10px;
+/* Style cho cái card chính */
+.delete-confirmation-card {
+    background-color: var(--card-bg);
     width: 100%;
+    max-width: 480px; /* Độ rộng tối đa của card */
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* Đổ bóng nhẹ sang trọng */
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.03);
 }
 
-form button:hover {
-    background-color: var(--accent2);
+.delete-confirmation-card:hover {
+    transform: translateY(-3px); /* Hiệu ứng nổi lên khi hover */
 }
 
-form a {
-    padding: 12px 24px;
-    background-color: var(--muted);
-    color: white;
-    text-decoration: none;
-    border-radius: var(--r16);
-    box-shadow: var(--shadow2);
-    display: block;
+/* Phần Icon */
+.icon-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0 20px 0;
+}
+
+.warning-icon-circle {
+    width: 80px;
+    height: 80px;
+    background-color: #fef7f7;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--primary-danger);
+    font-size: 40px;
+    /* Hiệu ứng nhịp đập thu hút chú ý */
+    animation: pulseWarning 2s infinite;
+}
+
+/* Phần Văn Bản */
+.text-section {
     text-align: center;
-    margin-top: 10px;
+    padding: 0 40px 20px 40px;
 }
 
-form a:hover {
-    background-color: var(--accent2);
+.confirmation-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+
+.confirmation-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.danger-text {
+    color: var(--primary-danger);
+    font-weight: 600;
+}
+
+.highlight-text {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* Phần Xem Trước Ảnh */
+.image-preview-section {
+    display: flex;
+    justify-content: center;
+    padding: 0 40px 25px 40px;
+}
+
+.preview-container {
+    width: 100%;
+    height: 180px;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ảnh phủ kín khung không bị méo */
+    display: block;
+}
+
+/* Phần Nút Bấm */
+.action-form-section {
+    padding: 0 40px 40px 40px;
+}
+
+.button-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Khoảng cách giữa 2 nút */
+}
+
+/* Style chung cho nút */
+.btn-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    border-radius: var(--border-radius-sm);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-action:hover {
+    transform: scale(1.02); /* Phóng to nhẹ khi hover */
+}
+
+.icon-left {
+    margin-right: 10px;
+}
+
+/* KHẮC PHỤC LỖI: Nút xóa màu đỏ, chữ trắng nổi bật */
+.btn-danger-delete {
+    background-color: var(--primary-danger);
+    color: var(--text-on-danger) !important; /* Đảm bảo chữ luôn trắng */
+    box-shadow: 0 4px 6px rgba(217, 48, 37, 0.2);
+}
+
+.btn-danger-delete:hover {
+    background-color: var(--danger-hover);
+    box-shadow: 0 6px 12px rgba(217, 48, 37, 0.3);
+}
+
+/* Nút hủy màu xám */
+.btn-secondary-cancel {
+    background-color: var(--cancel-bg);
+    color: var(--text-on-cancel);
+}
+
+.btn-secondary-cancel:hover {
+    background-color: var(--cancel-hover);
+}
+
+/* Animation nhịp đập */
+@keyframes pulseWarning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.1);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(217, 48, 37, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(217, 48, 37, 0);
+    }
+}
+
+/* Tương thích điện thoại */
+@media (max-width: 576px) {
+    .delete-confirmation-card {
+        border-radius: 0;
+        max-width: 100%;
+        box-shadow: none;
+    }
+    .main-content-wrapper {
+        padding: 0;
+        min-height: 100vh;
+    }
+    .text-section, .image-preview-section, .action-form-section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 }

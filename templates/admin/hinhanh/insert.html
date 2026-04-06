@@ -28,12 +28,11 @@
                     <label class="fw-bold">Tên mô tả file</label>
                     <input type="text" name="tenfile" placeholder="Ví dụ: Cổng trường, Thư viện...">
                 </div>
-
-                <div class="mb-3">
-                    <label class="fw-bold">Chọn hình ảnh</label>
-                    <input type="file" name="hinhanh" id="imgInput" accept="image/*" required>
+                    <div class="mb-3">
+                    <label class="fw-bold">Chọn các hình ảnh</label>
+                    <input type="file" name="hinhanh" id="imgInput" accept="image/*" multiple required>
+                    <small class="text-muted">Bạn có thể chọn nhiều ảnh cùng lúc.</small>
                 </div>
-
                 <button type="submit" class="btn-save">TẢI ẢNH LÊN</button>
                 <a href="{% url 'admin_hinhanh_list' %}" class="btn btn-light w-100 mt-2" style="border-radius:var(--r14); display:block; text-align:center; padding:12px; text-decoration:none;">
                     Hủy bỏ
@@ -55,19 +54,27 @@
     </div>
 </div>
 
+
 <script>
     document.getElementById('imgInput').onchange = function (evt) {
-        const file = evt.target.files[0];
-        const preview = document.getElementById('preview');
+        const files = evt.target.files;
         const placeholder = document.getElementById('placeholder');
+        const mapColumn = document.querySelector('.map-column #map');
+        
+        // Xóa các ảnh preview cũ nếu có
+        const oldPreviews = mapColumn.querySelectorAll('.preview-item');
+        oldPreviews.forEach(img => img.remove());
 
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = 'block';
+        if (files.length > 0) {
             placeholder.style.display = 'none';
+            Array.from(files).forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'preview-item';
+                img.style = "width:100px; height:100px; object-fit:cover; margin:5px; border-radius:8px;";
+                mapColumn.appendChild(img);
+            });
         } else {
-            preview.style.display = 'none';
-            preview.src = '#';
             placeholder.style.display = 'flex';
         }
     };

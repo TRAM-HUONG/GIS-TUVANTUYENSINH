@@ -3,67 +3,94 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/list.css' %}">
+    <style>
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-item {
+            position: relative;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .image-item img {
+            display: block;
+            object-fit: cover;
+        }
+        .img-actions {
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.85em;
+        }
+        .btn-add-more {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <h2>Quản lý Hình Ảnh Trường</h2>
+    <h2>Quản lý Hình Ảnh Theo Trường</h2>
 
-    <form method="get">
-        <input type="text" name="keyword" value="{{ keyword|default:'' }}" placeholder="Nhập tên file hoặc tên trường...">
+    <form method="get" style="margin-bottom: 20px;">
+        <input type="text" name="keyword" value="{{ keyword|default:'' }}" placeholder="Tìm tên trường...">
         <button type="submit">Tìm kiếm</button>
-        <a href="{% url 'admin_hinhanh_insert' %}">+ Thêm mới</a>
+        <a href="{% url 'admin_hinhanh_insert' %}" class="btn-add-more">+ Thêm hình ảnh mới</a>
     </form>
 
     <table class="table">
         <thead>
             <tr>
-                <th>Mã hình</th>
-                <th>Hình ảnh</th>
-                <th>Tên file</th>
-                <th>Trường</th>
-                <th>Thao tác</th>
+                <th width="15%">Mã trường</th>
+                <th width="25%">Tên trường</th>
+                <th width="60%">Danh sách hình ảnh</th>
             </tr>
         </thead>
         <tbody>
-            {% for ha in hinhanhs %}
+            {% for truong in page_obj %}
             <tr>
-                <td>{{ ha.mahinh_truong }}</td>
+                <td>{{ truong.matruong }}</td>
+                <td><strong>{{ truong.tentruong }}</strong></td>
                 <td>
-                    {% if ha.tenfile %}
-                        <img src="{% static 'img/TDH/'|add:ha.tenfile %}" alt="{{ ha.tenfile }}" width="120">
-                    {% else %}
-                        <img src="https://placehold.co/120x80?text=No+Image" alt="No Image" width="120">
-                    {% endif %}
-                </td>
-                <td>{{ ha.tenfile|default:"Chưa đặt tên" }}</td>
-                <td>{{ ha.matruong.tentruong }}</td>
-                <td>
-                    <div class="action-buttons">
-                        <a href="{% url 'admin_hinhanh_detail' ha.mahinh_truong %}">Xem</a>
-                        <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}">Sửa</a>
-                        <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}">Xóa</a>
+                    <div class="image-gallery">
+                        {% for ha in truong.hinh_anh_truong.all %}
+                        <div class="image-item">
+                            <img src="{% static 'img/TDH/'|add:ha.tenfile %}" alt="{{ ha.tenfile }}" width="100" height="70">
+                            <div class="img-actions">
+                                <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}" title="Sửa">Sửa</a> | 
+                                <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}" title="Xóa" style="color:red;">Xóa</a>
+                                
+                            </div>
+                        </div>
+                        {% empty %}
+                        <span style="color: #999; font-style: italic;">Chưa có hình ảnh nào.</span>
+                        {% endfor %}
                     </div>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align:center;">Không có hình ảnh nào.</td>
+                <td colspan="3" style="text-align:center;">Không tìm thấy trường nào.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    {% if hinhanhs.has_other_pages %}
+    {% if page_obj.has_other_pages %}
     <div class="pagination">
-        {% if hinhanhs.has_previous %}
-            <a href="?page={{ hinhanhs.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">« Trước</a>
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">« Trước</a>
         {% endif %}
-
-        <span>Trang {{ hinhanhs.number }} / {{ hinhanhs.paginator.num_pages }}</span>
-
-        {% if hinhanhs.has_next %}
-            <a href="?page={{ hinhanhs.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">Sau »</a>
+        <span>Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">Sau »</a>
         {% endif %}
     </div>
     {% endif %}

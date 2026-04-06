@@ -654,54 +654,95 @@ def delete_image_file(filename):
 
 # 1. Danh sách hình ảnh
 def admin_hinhanh_list(request):
-    hinhanhs = HinhAnhTruong.objects.select_related("matruong").all().order_by("-mahinh_truong")
+    # Lấy danh sách trường và tất cả hình ảnh thuộc về từng trường
+    truong_list = TruongDaiHoc.objects.prefetch_related('hinh_anh_truong').all().order_by("matruong")
+    
     keyword = request.GET.get("keyword", "").strip()
 
     if keyword:
-        hinhanhs = hinhanhs.filter(
-            Q(tenfile__icontains=keyword) |
-            Q(matruong__tentruong__icontains=keyword)
+        truong_list = truong_list.filter(
+            Q(tentruong__icontains=keyword) | 
+            Q(matruong__icontains=keyword)
         )
 
+    # Phân trang theo số lượng trường (ví dụ 5 trường mỗi trang)
+    paginator = Paginator(truong_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "admin/hinhanh/list.html", {
-        "hinhanhs": hinhanhs,
+        "page_obj": page_obj,
         "keyword": keyword,
     })
-
 
 # 2. Thêm mới hình ảnh
 def admin_hinhanh_insert(request):
     if request.method == "POST":
         matruong_id = request.POST.get("matruong", "").strip()
         tenfile_text = request.POST.get("tenfile", "").strip()
-        file_anh = request.FILES.get("hinhanh")
+        # Lấy danh sách nhiều file (nếu HTML có thuộc tính multiple)
+        files = request.FILES.getlist("hinhanh")
 
         if not matruong_id:
             messages.error(request, "Vui lòng chọn trường.")
-        elif not file_anh:
-            messages.error(request, "Vui lòng chọn file ảnh.")
+        elif not files:
+            messages.error(request, "Vui lòng chọn ít nhất một file ảnh.")
         else:
             truong = get_object_or_404(TruongDaiHoc, pk=matruong_id)
+            
+            # --- LOGIC TẠO MÃ ID AN TOÀN ---
+            # Tìm mã số lớn nhất của riêng tiền tố "HA"
+            last_ha_image = HinhAnhTruong.objects.filter(
+                mahinh_truong__startswith="HA"
+            ).order_by("-mahinh_truong").first()
 
-            # Lưu file thật vào thư mục static/img/TDH
-            saved_filename = save_uploaded_image(file_anh)
+            if last_ha_image:
+                try:
+                    # Tách số từ mã (ví dụ HA011 -> lấy 11)
+                    current_number = int(last_ha_image.mahinh_truong[2:])
+                except (ValueError, IndexError):
+                    current_number = 0
+            else:
+                # Nếu chưa có HA nào, lấy số từ mã cuối cùng bất kỳ hoặc bắt đầu từ 0
+                last_any = HinhAnhTruong.objects.order_by("-mahinh_truong").first()
+                if last_any:
+                    try:
+                        current_number = int(last_any.mahinh_truong[2:])
+                    except:
+                        current_number = 0
+                else:
+                    current_number = 0
 
-            # Nếu muốn người dùng nhập mô tả thì vẫn lưu tên file thật để hiển thị ảnh
-            # vì template đang dùng ha.tenfile để build đường dẫn ảnh
-            HinhAnhTruong.objects.create(
-                mahinh_truong=generate_mahinh_truong(),
-                matruong=truong,
-                tenfile=saved_filename,
-                tieude=tenfile_text or None,
-                ngaytao=timezone.now()
-            )
+            count = 0
+            for file_anh in files:
+                # Tăng số thứ tự
+                current_number += 1
+                new_id = f"HA{current_number:03d}"
+                
+                # Vòng lặp kiểm tra: Nếu new_id đã tồn tại trong DB thì nhảy số tiếp
+                # Điều này giúp vượt qua các mã "rác" như HA011 đang bị lỗi
+                while HinhAnhTruong.objects.filter(mahinh_truong=new_id).exists():
+                    current_number += 1
+                    new_id = f"HA{current_number:03d}"
 
-            messages.success(request, "Tải lên hình ảnh thành công.")
+                # Lưu file vật lý (giữ nguyên hàm save_uploaded_image của bạn)
+                saved_filename = save_uploaded_image(file_anh)
+
+                # Tạo bản ghi trong Database
+                HinhAnhTruong.objects.create(
+                    mahinh_truong=new_id,
+                    matruong=truong,
+                    tenfile=saved_filename,
+                    tieude=f"{tenfile_text} ({count+1})" if tenfile_text else None,
+                    ngaytao=timezone.now()
+                )
+                count += 1
+
+            messages.success(request, f"Đã tải lên thành công {count} hình ảnh.")
             return redirect("admin_hinhanh_list")
 
     dstruong = TruongDaiHoc.objects.all().order_by("tentruong")
     return render(request, "admin/hinhanh/insert.html", {"dstruong": dstruong})
-
 
 # 3. Sửa thông tin hình ảnh
 def admin_hinhanh_edit(request, mahinh):
