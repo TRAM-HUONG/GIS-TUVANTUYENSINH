@@ -1,27 +1,93 @@
 {% extends "layout/layout.html" %}
 {% load static %}
 
+{% block title %}Danh sách trường Đại học{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/truongdaihoc.css' %}">
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+    /* --- CSS BỔ SUNG CHO PHÂN TRANG --- */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 40px;
+        gap: 10px;
+        padding-bottom: 30px;
+    }
+
+    .pagination a, .pagination span {
+        display: inline-block;
+        padding: 10px 16px;
+        border: 1px solid #dee2e6;
+        color: #0d6efd;
+        text-decoration: none;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .pagination .active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+        cursor: default;
+    }
+
+    .pagination a:hover:not(.active) {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
+
+    .pagination .disabled {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #f8f9fa;
+    }
+
+    /* Tinh chỉnh ô tìm kiếm */
+    .search-container {
+        margin-bottom: 25px;
+    }
+    .search-form {
+        display: flex;
+        gap: 10px;
+    }
+    .search-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+    }
+    .search-btn {
+        padding: 0 20px;
+        background: #0d6efd;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <section class="home-wrap">
   <div class="home-layout">
 
-    <!-- Cột trái (sidebar) - chỉ giữ lịch hoạt động -->
     <aside class="home-left">
       <div class="activity-schedule">
-        <h3>Lịch hoạt động</h3>
+        <h3><i class="fas fa-calendar-alt"></i> Lịch hoạt động</h3>
         <ul>
-          <li>Thứ 2, 3, 4, 5, 6: 14:00 - 21:00</li>
-          <li>Thứ 7: 9:00 - 12:00</li>
-          <li>Ngày nghỉ hàng tuần: Từ 12:00 trưa Thứ 7 & cả ngày Chủ nhật</li>
+          <li><strong>Thứ 2 - Thứ 6:</strong> 14:00 - 21:00</li>
+          <li><strong>Thứ 7:</strong> 09:00 - 12:00</li>
+          <li><strong>Nghỉ:</strong> Chiều T7 & Chủ nhật</li>
         </ul>
       </div>
+
       <div class="major-list">
-        <h3>Ngành học</h3>
+        <h3><i class="fas fa-graduation-cap"></i> Ngành học</h3>
         <ul>
           {% for n in nganh_list %}
             <li>
@@ -33,24 +99,76 @@
         </ul>
       </div>
     </aside>
-   
-    <!-- Cột phải (grid tất cả trường) -->
+    
     <main class="home-right">
-      <h2 class="home-section-title">Trường Đại học </h2>
+      <h2 class="home-section-title">Hệ thống Trường Đại học</h2>
+
+      <div class="search-container">
+          <form method="GET" action="{% url 'truong_list' %}" class="search-form">
+              <input type="text" name="keyword" class="search-input" 
+                     placeholder="Tìm tên trường hoặc tên ngành..." 
+                     value="{{ keyword|default:'' }}">
+              <button type="submit" class="search-btn">Tìm kiếm</button>
+          </form>
+      </div>
 
       <div class="home-grid">
         {% for t in truong_list %}
           <a class="home-card" href="{% url 'truong_detail' t.matruong %}">
             <div class="home-card-img">
-              <img src="{% static 'img/TDH/' %}{{ t.anh }}" alt="{{ t.tentruong }}">
+              {% if t.anh %}
+                <img src="{% static 'img/TDH/' %}{{ t.anh }}" alt="{{ t.tentruong }}" 
+                     onerror="this.src='{% static 'img/default.png' %}'">
+              {% else %}
+                <img src="{% static 'img/default.png' %}" alt="Default Image">
+              {% endif %}
             </div>
-            <h3 class="home-card-title">{{ t.tentruong }}</h3>
-            <p class="home-card-sub">{{ t.loaitruong }}</p>
+            <div class="home-card-body">
+                <h3 class="home-card-title">{{ t.tentruong }}</h3>
+                <p class="home-card-sub">
+                    <i class="fas fa-university"></i> {{ t.loaitruong }}
+                </p>
+                <p class="home-card-sub">
+                    <i class="fas fa-map-marker-alt"></i> {{ t.madvhc.tendvhc }}
+                </p>
+            </div>
           </a>
         {% empty %}
-          <p style="padding:12px;">Chưa có dữ liệu trường đại học.</p>
+          <div style="grid-column: 1/-1; text-align: center; padding: 50px;">
+              <p style="font-size: 18px; color: #666;">Không tìm thấy kết quả nào phù hợp với "{{ keyword }}".</p>
+              <a href="{% url 'truong_list' %}" style="color: #0d6efd;">Xem tất cả trường</a>
+          </div>
         {% endfor %}
       </div>
+
+      {% if truong_list.has_other_pages %}
+      <div class="pagination">
+          {% if truong_list.has_previous %}
+              <a href="?page=1{% if keyword %}&keyword={{ keyword }}{% endif %}">&laquo;</a>
+              <a href="?page={{ truong_list.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">Trước</a>
+          {% else %}
+              <span class="disabled">&laquo;</span>
+              <span class="disabled">Trước</span>
+          {% endif %}
+
+          {% for num in truong_list.paginator.page_range %}
+              {% if truong_list.number == num %}
+                  <span class="active">{{ num }}</span>
+              {% elif num > truong_list.number|add:'-3' and num < truong_list.number|add:'3' %}
+                  <a href="?page={{ num }}{% if keyword %}&keyword={{ keyword }}{% endif %}">{{ num }}</a>
+              {% endif %}
+          {% endfor %}
+
+          {% if truong_list.has_next %}
+              <a href="?page={{ truong_list.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}">Sau</a>
+              <a href="?page={{ truong_list.paginator.num_pages }}{% if keyword %}&keyword={{ keyword }}{% endif %}">&raquo;</a>
+          {% else %}
+              <span class="disabled">Sau</span>
+              <span class="disabled">&raquo;</span>
+          {% endif %}
+      </div>
+      {% endif %}
+
     </main>
 
   </div>
