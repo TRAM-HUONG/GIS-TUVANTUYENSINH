@@ -5,44 +5,52 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/ketqua.css' %}">
+<style>
+    /* CSS bổ sung để hiển thị thanh phần trăm */
+    .result-item { margin-bottom: 20px; }
+    .progress-bg { background: #eee; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin-top: 5px; }
+    .progress-fill { background: #4caf50; height: 100%; transition: width 0.5s ease-in-out; }
+    .nganh-info { display: flex; justify-content: space-between; font-weight: bold; }
+</style>
 {% endblock %}
 
 {% block content %}
 <section class="ks-wrap">
   <div class="kq-head">
     <h1 class="ks-title">🎯 Phân tích độ phù hợp</h1>
-    <p class="ks-sub">Dựa trên câu trả lời của bạn, đây là Top 3 nhóm ngành phù hợp nhất:</p>
+    <p class="ks-sub">Dựa trên câu trả lời của bạn, đây là tỉ lệ phù hợp với các nhóm ngành:</p>
   </div>
 
   <div class="kq-card">
     <div class="kq-row">
         <span class="kq-label">Tổng điểm tích lũy:</span>
-        <span class="kq-value">{{ total|default:0 }}</span>
+        <span class="kq-value">{{ total }}</span>
     </div>
 
     <div class="kq-divider"></div>
 
-    <div class="kq-main">
-      {% if results %}
-        {% for item in results %}
-        <div class="result-item">
-            <div class="nganh-info">
-                <span class="nganh-name">Top {{ forloop.counter }}: {{ item.name }}</span>
-                <span class="nganh-percent">{{ item.percent }}%</span>
-            </div>
-            <div class="progress-bg">
-                <div class="progress-fill" style="width: {{ item.percent }}%;"></div>
-            </div>
+<div class="kq-main">
+  {% if results %}
+    <div class="results-grid">
+      {% for item in results %}
+      <div class="result-card-item">
+        <div class="result-card-content">
+          <span class="nganh-name">{{ item.name }}</span>
+          <div class="nganh-percent-wrapper">
+            <span class="nganh-percent">{{ item.percent }}</span>
+            <span class="percent-unit">%</span>
+          </div>
         </div>
-        {% endfor %}
-      {% else %}
-        <p class="kq-desc">Vui lòng hoàn thành khảo sát để xem kết quả phân tích.</p>
-      {% endif %}
+      </div>
+      {% endfor %}
     </div>
+  {% else %}
+    <p class="kq-desc">Vui lòng làm khảo sát để xem kết quả.</p>
+  {% endif %}
+</div>
 
     <div class="kq-actions">
-      <a class="ks-btn" href="{% url 'tracuu' %}">🔎 Tìm trường đào tạo</a>
-      <a class="ks-btn ks-btn--ghost" href="{% url 'khaosat' %}">↩️ Làm lại khảo sát</a>
+      <a class="ks-btn ks-btn--ghost" href="{% url 'khao_sat' %}">↩️ Làm lại khảo sát</a>
     </div>
   </div>
 </section>

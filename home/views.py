@@ -392,20 +392,22 @@ def map_data_api(request):
 
 # =========================================================
 # KHẢO SÁT
-
 def khao_sat_view(request):
+    # Lấy danh sách câu hỏi
     questions = KhaoSat.objects.prefetch_related("luachons").order_by("maks")
 
     if request.method == "POST":
         total_score = 0
-        counts = {}  # Lưu tổng ĐIỂM cho từng ngành { 'Tên Ngành': tổng_điểm_ngành }
-        max_possible_score = 0 # Để tính phần trăm chính xác
+        counts = {}  # Lưu tổng điểm cho từng ngành: { 'Tên Ngành': tổng_điểm }
 
         for question in questions:
             selected_malc = request.POST.get(question.maks)
+            
+            # Kiểm tra xem người dùng đã chọn hết chưa
             if not selected_malc:
                 messages.error(request, "Vui lòng trả lời đầy đủ tất cả câu hỏi.")
-                return redirect("khao_sat")
+                # LƯU Ý: Phải khớp với name trong urls.py. Nếu urls.py là name="khao_sat" thì giữ nguyên
+                return redirect("khao_sat") 
 
             try:
                 luachon = LuaChonKhaoSat.objects.select_related("manganhgoiy").get(
@@ -418,27 +420,21 @@ def khao_sat_view(request):
                 
                 if luachon.manganhgoiy:
                     ten_nganh = luachon.manganhgoiy.tennganh
-                    # CỘNG DỒN ĐIỂM thay vì cộng 1
+                    # Cộng dồn điểm vào ngành được gợi ý
                     counts[ten_nganh] = counts.get(ten_nganh, 0) + score
                 
-                # Giả sử điểm tối đa mỗi câu là 5, dùng để tính tỷ lệ % trên thang 100
-                max_possible_score += 5 
-
             except LuaChonKhaoSat.DoesNotExist:
                 continue
 
-# Trong views.py
-
-        # Giả sử mỗi ngành chỉ xuất hiện trong đúng 1 câu hỏi và điểm max là 5
-        # Nếu ngành đó xuất hiện trong N câu hỏi, max_nganh_score phải là N * 5
+        # Tính toán phần trăm cho từng ngành
         results_percent = []
         for nganh, nganh_score in counts.items():
-            # Tính điểm tối đa dựa trên số câu hỏi liên quan đến ngành này
-            # Ở đây ta tạm thời dùng 5 làm chuẩn cho 1 câu hỏi
-            max_score_for_this_nganh = 5 
+            # GIẢ ĐỊNH: Điểm tối đa của 1 ngành trong 1 câu hỏi là 5đ
+            # Nếu ngành đó xuất hiện ở nhiều câu, bạn cần chia cho (số câu * 5)
+            max_score_per_nganh = 5 
             
-            # Tính phần trăm và dùng min() để chặn không cho vượt 100
-            raw_percent = (nganh_score / max_score_for_this_nganh) * 100
+            # Tính % và giới hạn tối đa 100%
+            raw_percent = (nganh_score / max_score_per_nganh) * 100
             percent = min(round(raw_percent, 1), 100.0)
             
             results_percent.append({
@@ -446,21 +442,32 @@ def khao_sat_view(request):
                 'percent': percent
             })
 
-        # Sắp xếp ngành phù hợp nhất lên đầu
+        # 1. Sắp xếp ngành có % cao nhất lên đầu
         results_percent = sorted(results_percent, key=lambda x: x['percent'], reverse=True)
 
+        # 2. CHỈ LẤY 3 NGÀNH CAO NHẤT
+        top_3_results = results_percent[:3]
+
+        # 3. Lưu vào session để trang kết quả hiển thị
         request.session["khao_sat_total"] = total_score
-        request.session["khao_sat_results"] = results_percent
+        request.session["khao_sat_results"] = top_3_results 
         
+        # Chuyển hướng sang trang kết quả (name="ketqua_khaosat" trong urls.py)
         return redirect("ketqua_khaosat")
 
     return render(request, "khaosat/khaosat.html", {"questions": questions})
 def ketqua_khao_sat_view(request):
-    return render(request, "khaosat/ketqua.html", {
-        "total": request.session.get("khao_sat_total"),
-        "level": request.session.get("khao_sat_level"),
-        "summary": request.session.get("khao_sat_summary"),
-    })
+    total = request.session.get("khao_sat_total")
+    results = request.session.get("khao_sat_results", [])
+
+    return render(
+        request,
+"khaosat/ketqua.html",
+        {
+            "total": total,
+            "results": results, # Danh sách các ngành và %
+        },
+    )
 import json
 from django.http import JsonResponse
 from .services import get_ai_response

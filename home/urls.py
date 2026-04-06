@@ -23,7 +23,7 @@ urlpatterns = [
     path("truong/<str:matruong>/", views.truong_detail, name="truong_detail"),
     path("nganh/<str:manganh>/", views.nganh_detail, name="nganh_detail"),
 
-    path("khao-sat/", views.khao_sat_view, name="khaosat"),
+    path("khao-sat/", views.khao_sat_view, name="khao_sat"),
     path("ket-qua-khao-sat/", views.ketqua_khao_sat_view, name="ketqua_khaosat"),
     path("chat-ai/", views.chat_with_ai, name="chat_ai"),
 
