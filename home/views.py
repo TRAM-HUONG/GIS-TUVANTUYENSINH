@@ -51,31 +51,47 @@ def truong_detail(request, matruong):
             "ct_nganh": ct_nganh,
         },
     )
+
+from django.core.paginator import Paginator
+from django.db.models import Q, Subquery, OuterRef, Value
+from django.db.models.functions import Coalesce
+from django.shortcuts import render
+# Import các model của bạn vào đây
+
 def truong_list(request):
-    anh_sq = (
-        HinhAnhTruong.objects
-        .filter(matruong_id=OuterRef("matruong"))
-        .values("tenfile")[:1]
-    )
+    keyword = request.GET.get('keyword', '').strip()
+    page_number = request.GET.get('page') # Lấy số trang từ URL
+    
+    # Lấy ảnh đầu tiên của mỗi trường làm subquery
+    anh_sq = HinhAnhTruong.objects.filter(matruong_id=OuterRef("matruong")).values("tenfile")[:1]
+    
+    # Query cơ bản
+    truong_qs = TruongDaiHoc.objects.select_related("madvhc").all()
 
-    truong_list = (
-        TruongDaiHoc.objects
-        .all()
-        .order_by("matruong")
-        .annotate(anh=Coalesce(Subquery(anh_sq), Value("default.png")))
-    )
+    # Nếu có từ khóa, lọc theo Tên trường HOẶC Tên ngành liên quan
+    if keyword:
+        truong_qs = truong_qs.filter(
+            Q(tentruong__icontains=keyword) | 
+            Q(ctn_nganhs__manganh__tennganh__icontains=keyword)
+        ).distinct()
 
-  
-    nganh_list = NganhHoc.objects.all().order_by("tennganh")
-
-    return render(
-        request,
-        "truongdaihoc/truongdaihoc.html",
-        {
-            "truong_list": truong_list,
-            "nganh_list": nganh_list,   # ✅ add
-        },
+    # Sắp xếp và lấy ảnh đại diện
+    truong_list_data = truong_qs.order_by("matruong").annotate(
+        anh=Coalesce(Subquery(anh_sq), Value("default.png"))
     )
+    
+    # --- LOGIC PHÂN TRANG ---
+    paginator = Paginator(truong_list_data, 6) # Hiển thị 6 trường trên 1 trang
+    page_obj = paginator.get_page(page_number)
+    
+    nganh_list_data = NganhHoc.objects.all().order_by("tennganh")
+    
+    return render(request, "truongdaihoc/truongdaihoc.html", {
+        "truong_list": page_obj,      # Gửi đối tượng đã phân trang (page_obj) đi
+        "nganh_list": nganh_list_data,
+        "keyword": keyword            # Gửi lại keyword để giữ giá trị trong ô search
+    })
+
 def nganh_detail(request, manganh):
     nganh = get_object_or_404(NganhHoc, pk=manganh)
 
