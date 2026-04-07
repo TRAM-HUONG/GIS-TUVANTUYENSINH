@@ -6,6 +6,25 @@
 <link rel="stylesheet" href="{% static 'css/truong_detail.css' %}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
+  /* Khung chứa ảnh chính */
+.td-hero-right {
+    position: relative;
+    overflow: hidden; /* Quan trọng: Để ảnh không tràn ra ngoài khi zoom */
+   
+}
+
+/* Ảnh chính */
+#mainSchoolImage {
+    transition: transform 0.1s ease; /* Tạo hiệu ứng mượt mà khi zoom */
+    cursor: grab;
+    max-width: 100%;
+    height: auto;
+    transform-origin: center; /* Zoom từ tâm */
+}
+
+#mainSchoolImage:active {
+    cursor: grabbing;
+}
     #school-map {
         width: 100%;
         height: 450px;
@@ -421,6 +440,39 @@
   setTimeout(() => {
     map.invalidateSize();
   }, 300);
+  document.addEventListener("DOMContentLoaded", function() {
+    
+    const mainImg = document.getElementById("mainSchoolImage");
+    if (!mainImg) return;
+
+    let scale = 1;
+    const minScale = 1;
+    const maxScale = 5; // Giới hạn phóng to tối đa 5 lần
+
+    mainImg.addEventListener("wheel", function(e) {
+        e.preventDefault(); // Ngăn trang web bị cuộn lên/xuống khi đang zoom ảnh
+
+        // Tính toán độ phóng tới/lui
+        const delta = e.deltaY > 0 ? -0.2 : 0.2;
+        scale = Math.min(Math.max(minScale, scale + delta), maxScale);
+
+        // Áp dụng zoom
+        mainImg.style.transform = `scale(${scale})`;
+
+        // Nếu quay về mức 1 thì reset lại vị trí
+        if (scale === 1) {
+            mainImg.style.transform = `scale(1) translate(0px, 0px)`;
+        }
+    }, { passive: false });
+
+    // Reset lại zoom khi đổi ảnh khác từ danh sách thumbnail
+    const originalChangeImage = window.changeMainImage;
+    window.changeMainImage = function(img) {
+        scale = 1;
+        mainImg.style.transform = `scale(1)`;
+        originalChangeImage(img);
+    };
+});
 </script>
 {% endif %}
 {% endblock %}
