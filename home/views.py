@@ -326,6 +326,14 @@ def nganh_detail(request, manganh):
 
 def gioithieu(request):
     return render(request, "gioithieu/gioithieu.html")
+def gioithieu(request):
+    # Lấy mã vai trò từ session (được lưu khi đăng nhập thành công)
+    mavaitro = request.session.get('mavaitro')
+    
+    # Kiểm tra nếu mã vai trò khớp với mã Admin trong database của bạn
+    is_admin = (mavaitro == 'VT001')
+    
+    return render(request, 'gioithieu.html', {'is_admin': is_admin})
 
 def map_view(request):
     return render(request, "map/map.html")
@@ -755,7 +763,7 @@ def admin_diemchuan_list(request):
 
 
 def login_view(request):
-    return render(request, "auth/dangnhap.html")
+    return render(request, "auth/dang-nhap.html")
 
 # =========================================================
 # ADMIN - HÌNH ẢNH 
