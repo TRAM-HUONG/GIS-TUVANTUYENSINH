@@ -211,15 +211,6 @@ def home_page(request):
     for t in truong_noi_bat:
         t.anh = img_map.get(t.matruong, "default.png")
     return render(request, "home/home.html", {"truong_noi_bat": truong_noi_bat})
-<<<<<<< HEAD
-
-
-from django.core.paginator import Paginator
-from django.db.models import Q, Subquery, OuterRef, Value
-from django.db.models.functions import Coalesce
-from django.shortcuts import render
-# Import các model của bạn vào đây
-
 def truong_list(request):
     keyword = request.GET.get('keyword', '').strip()
     page_number = request.GET.get('page') # Lấy số trang từ URL
@@ -276,12 +267,6 @@ def truong_detail(request, matruong):
         "ct_nganh": ct_nganh,
     })
 
-from django.core.paginator import Paginator
-from django.db.models import Q, Subquery, OuterRef, Value
-from django.db.models.functions import Coalesce
-from django.shortcuts import render
-# Import các model của bạn vào đây
-
 def truong_list(request):
     keyword = request.GET.get('keyword', '').strip()
     page_number = request.GET.get('page') # Lấy số trang từ URL
@@ -324,9 +309,6 @@ def nganh_detail(request, manganh):
         "nganh": nganh, "hinh_nganh": hinh_nganh, "ds_truong": ds_truong
     })
 
-
-=======
->>>>>>> feature/gioi-thieu
 def gioithieu(request):
     # Lấy mã vai trò từ session (được lưu khi đăng nhập thành công)
     mavaitro = request.session.get('mavaitro')
@@ -334,7 +316,7 @@ def gioithieu(request):
     # Kiểm tra nếu mã vai trò khớp với mã Admin trong database của bạn
     is_admin = (mavaitro == 'VT001')
     
-<<<<<<< HEAD
+
     return render(request, 'gioithieu/gioithieu.html', {'is_admin': is_admin})
 
 def map_view(request):
@@ -969,11 +951,5 @@ def admin_hinhanh_detail(request, mahinh):
     return render(request, "admin/hinhanh/detail.html", {
         "hinhanh": hinhanh
     })
-# =========================================================
-# ADMIN - KHẢO SÁT
-# =========================================================
 def admin_khaosat_list(request):
     return render(request, "admin/khaosat/list.html")
-=======
-    return render(request, 'gioithieu/gioithieu.html', {'is_admin': is_admin})
->>>>>>> feature/gioi-thieu
