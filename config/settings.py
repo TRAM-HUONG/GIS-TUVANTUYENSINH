@@ -91,4 +91,14 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]  # ✅ bắt thư mục static ở root
 
 
+# Cấu hình Email với Mailtrap
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = '2525'
+EMAIL_HOST_USER = 'e5cd71eef0fc28'       # Mã Username của bạn
+EMAIL_HOST_PASSWORD = '1a0fa8fcb13795'   # Mã Password của bạn
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
+# Email mặc định hiển thị ở người gửi
+DEFAULT_FROM_EMAIL = 'GIS Tuyển Sinh <nguyentramhuong22@gmail.com>'
