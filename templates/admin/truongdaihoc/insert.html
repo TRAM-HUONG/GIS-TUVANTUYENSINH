@@ -1,0 +1,173 @@
+{% extends 'layout/layout.html' %}
+{% load static %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/insert.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid insert-container-fluid">
+    <div class="header-banner d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1 text-white"><i class="fas fa-plus-circle me-2"></i>Thêm Trường Đại Học</h2>
+            <p class="mb-0 opacity-75">Quản lý cơ sở dữ liệu vị trí các cơ sở đào tạo</p>
+        </div>
+        <div class="d-none d-md-block">
+            <i class="fas fa-map-marked-alt fa-3x opacity-50"></i>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="form-sidebar">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert border-0 shadow-sm alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="form-label">Tên trường đại học *</label>
+                    <input type="text" name="tentruong" class="form-control" value="{{ old_data.tentruong }}" placeholder="Nhập tên trường..." required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Loại trường *</label>
+                    <select name="loaitruong" class="form-select" required>
+                        <option value="">-- Chọn loại trường --</option>
+                        <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
+                        <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
+                        <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
+                        <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
+                    </select>
+                </div>
+
+                <div class="coord-group">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label text-danger">Vĩ độ (Lat)</label>
+                            <input type="number" step="any" id="lat" name="lat" class="form-control coord-input" value="{{ old_data.lat }}" placeholder="0.000000" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-danger">Kinh độ (Lng)</label>
+                            <input type="number" step="any" id="lng" name="lng" class="form-control coord-input" value="{{ old_data.lng }}" placeholder="0.000000" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Đơn vị hành chính *</label>
+                    <select name="madvhc" class="form-select" required>
+                        <option value="">-- Lựa chọn --</option>
+                        {% for dv in dshc %}
+                            <option value="{{ dv.madvhc }}" {% if old_data.madvhc == dv.madvhc %}selected{% endif %}>{{ dv.tendvhc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <textarea name="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
+                </div>
+                <button type="submit" class="btn-save mb-2">
+                    <i class="fas fa-check-circle me-2"></i> LƯU THÔNG TIN
+                </button>
+                <a href="{% url 'admin_truong_list' %}" class="btn btn-light w-100 border text-muted fw-bold py-2" style="border-radius: 12px;">Hủy bỏ</a>
+            </form>
+        </div>
+
+        <div class="map-display">
+            <div class="badge bg-white text-primary shadow-sm p-3 position-absolute top-0 start-0 m-3 z-index-2" style="z-index: 1000; border-radius: 50px;">
+                <i class="fas fa-info-circle me-2"></i>Click Map hoặc Kéo Marker để lấy tọa độ chính xác
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+ 
+
+    // 1. Init Map
+    var map = L.map('map', {
+        zoomControl: false
+    }).setView([10.762622, 106.660172], 13);
+    
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO'
+    }).addTo(map);
+
+    var marker;
+
+    function placeMarker(latlng, moveCamera = false) {
+        if (marker) {
+            marker.setLatLng(latlng);
+        } else {
+            marker = L.marker(latlng, {
+                draggable: true,
+                icon: L.icon({
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map);
+            
+            marker.on('dragend', function() {
+                updateInputs(marker.getLatLng());
+            });
+        }
+        if (moveCamera) map.panTo(latlng);
+        updateInputs(latlng);
+    }
+
+    function updateInputs(latlng) {
+        document.getElementById('lat').value = latlng.lat.toFixed(6);
+        document.getElementById('lng').value = latlng.lng.toFixed(6);
+    }
+
+    function syncMapFromInputs() {
+        var lat = parseFloat(document.getElementById('lat').value);
+        var lng = parseFloat(document.getElementById('lng').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            placeMarker([lat, lng], true);
+        }
+    }
+
+    document.getElementById('lat').addEventListener('input', syncMapFromInputs);
+    document.getElementById('lng').addEventListener('input', syncMapFromInputs);
+
+    map.on('click', function(e) {
+        placeMarker(e.latlng);
+    });
+
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        placeholder: "🔍 Tìm kiếm địa điểm...",
+        collapsed: false
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 17);
+        placeMarker(center);
+    })
+    .addTo(map);
+
+    var oldLat = "{{ old_data.lat }}";
+    var oldLng = "{{ old_data.lng }}";
+    if (oldLat && oldLng && oldLat !== "None") {
+        placeMarker([parseFloat(oldLat), parseFloat(oldLng)], true);
+    }
+</script>
+{% endblock %}
