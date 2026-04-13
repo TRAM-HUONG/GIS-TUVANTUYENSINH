@@ -732,6 +732,7 @@ def admin_truong_edit(request, matruong):
     if request.method == "POST":
         try:
             truong.tentruong = request.POST.get("tentruong")
+            truong.loaitruong = request.POST.get("loaitruong")
             truong.madvhc_id = request.POST.get("madvhc")
             truong.diachi = request.POST.get("diachi")
             truong.lat = float(request.POST.get("lat")) if request.POST.get("lat") else None

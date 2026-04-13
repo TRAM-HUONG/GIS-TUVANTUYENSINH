@@ -177,6 +177,16 @@
                     <label class="form-label">Tên trường đại học *</label>
                     <input type="text" name="tentruong" class="form-control" value="{{ old_data.tentruong }}" placeholder="Nhập tên trường..." required>
                 </div>
+                <div class="mb-3">
+    <label class="form-label">Loại trường *</label>
+    <select name="loaitruong" class="form-select" required>
+        <option value="">-- Chọn loại trường --</option>
+        <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
+        <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
+        <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
+        <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
+    </select>
+</div>
 
                 <div class="coord-group">
                     <div class="row g-2">
