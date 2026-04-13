@@ -1,0 +1,54 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/list.css' %}">
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Quản lý Hình Ảnh Ngành Học</h2>
+    <form method="get" style="margin-bottom: 20px;">
+        <input type="text" name="keyword" value="{{ keyword|default:'' }}" placeholder="Tìm tên ngành...">
+        <button type="submit">Tìm kiếm</button>
+        <a href="{% url 'admin_hinhanh_nganh_insert' %}" class="btn btn-success">+ Thêm hình ảnh mới</a>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mã ngành</th>
+                <th>Tên ngành</th>
+                <th>Danh sách hình ảnh</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for nganh in page_obj %}
+            <tr>
+                <td>{{ nganh.manganh }}</td>
+                <td><strong>{{ nganh.tennganh }}</strong></td>
+                <td>
+                    <div class="image-gallery" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        {% for ha in nganh.hinh_anh_nganh.all %}
+                        <div class="image-item" style="border: 1px solid #ddd; padding: 5px; text-align: center;">
+                            <img src="{% static 'img/NGANHHOC/'|add:ha.tenfile %}" width="100" height="70" style="object-fit: cover;">
+                            <div class="img-actions">
+                                <a href="{% url 'admin_hinhanh_nganh_edit' ha.mahinh_nganh %}">Sửa</a> | 
+                                <a href="{% url 'admin_hinhanh_nganh_delete' ha.mahinh_nganh %}" style="color:red;">Xóa</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <span class="text-muted">Chưa có ảnh.</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>
+                    {% if nganh.hinh_anh_nganh.all %}
+                        <a href="{% url 'admin_hinhanh_nganh_delete' nganh.hinh_anh_nganh.all.0.mahinh_nganh %}?scope=all" class="btn btn-sm btn-outline-danger">Xóa tất cả</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

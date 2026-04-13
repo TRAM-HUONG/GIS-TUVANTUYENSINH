@@ -1,0 +1,25 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/delete.css' %}">
+{% endblock %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card p-5 mx-auto" style="max-width: 600px;">
+        <h2 class="text-danger">Xác nhận xóa</h2>
+        {% if is_delete_all %}
+            <p>Bạn có chắc muốn xóa TẤT CẢ ảnh của ngành: <strong>{{ nganh.tennganh }}</strong>?</p>
+        {% else %}
+            <p>Xóa tấm ảnh này của ngành {{ nganh.tennganh }}?</p>
+            <img src="{% static 'img/NGANHHOC/'|add:hinhanh.tenfile %}" class="img-thumbnail mb-3" style="max-height: 200px;">
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="mode" value="{% if is_delete_all %}all{% else %}single{% endif %}">
+            <button type="submit" class="btn btn-danger">XÁC NHẬN XÓA</button>
+            <a href="{% url 'admin_hinhanh_nganh_list' %}" class="btn btn-secondary">HỦY</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

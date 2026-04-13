@@ -1,0 +1,58 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4">Chỉnh sửa ngành học</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Tên ngành</label>
+                <input type="text" name="tennganh" class="form-control" 
+                       value="{{ nganh.tennganh }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Lĩnh vực</label>
+                <input type="text" name="linhvuc" class="form-control" 
+                       value="{{ nganh.linhvuc }}">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Mô tả</label>
+                <textarea name="mota" id="editor_mota" class="form-control">{{ nganh.mota }}</textarea>
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+                <a href="{% url 'admin_nganh_list' %}" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Khởi tạo CKEditor cho phần mô tả
+    CKEDITOR.replace('editor_mota', {
+        height: 300,
+        toolbar: [
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+            { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
+            { name: 'links', items: ['Link', 'Unlink'] },
+            { name: 'insert', items: ['Table', 'HorizontalRule'] }
+        ]
+    });
+</script>
+{% endblock %}

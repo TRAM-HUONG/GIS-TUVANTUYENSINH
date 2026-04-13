@@ -1,0 +1,28 @@
+<div class="insert-container">
+    <h2>Thêm Hình Ảnh Ngành Mới</h2>
+    <div class="main-row">
+        <div class="form-column">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="fw-bold">Chọn Ngành Học</label>
+                    <select name="manganh" required>
+                        <option value="">-- Chọn ngành --</option>
+                        {% for n in ds_nganh %}
+                        <option value="{{ n.manganh }}">{{ n.tennganh }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Tên mô tả file</label>
+                    <input type="text" name="tenfile" placeholder="Ví dụ: Phòng thí nghiệm, Giảng đường...">
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Chọn các hình ảnh</label>
+                    <input type="file" name="hinhanh" id="imgInput" accept="image/*" multiple required>
+                </div>
+                <button type="submit" class="btn-submit">TẢI LÊN NGAY</button>
+            </form>
+        </div>
+        </div>
+</div>

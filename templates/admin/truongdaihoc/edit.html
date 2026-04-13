@@ -1,0 +1,158 @@
+{% extends 'layout/layout.html' %}
+{% load static %} 
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="header-banner d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1 text-white"><i class="fas fa-university me-2"></i>Chỉnh sửa Trường</h2>
+            <p class="mb-0 opacity-75">Cập nhật tọa độ và thông tin chi tiết</p>
+        </div>
+        <div class="text-end text-white">
+            <span class="badge bg-white text-dark">ID: {{ truong.matruong }}</span>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="form-sidebar">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} border-0 shadow-sm mb-3">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Tên trường đại học *</label>
+                    <input type="text" name="tentruong" class="form-control" value="{{ truong.tentruong }}" required>
+                </div>
+
+                <div class="coord-group">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label text-primary small">Vĩ độ</label>
+                            <input type="number" step="any" id="lat" name="lat" class="form-control coord-input" value="{{ truong.lat|stringformat:'.6f' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-primary small">Kinh độ</label>
+                            <input type="number" step="any" id="lng" name="lng" class="form-control coord-input" value="{{ truong.lng|stringformat:'.6f' }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Đơn vị hành chính *</label>
+                    <select name="madvhc" class="form-select" required>
+                        {% for dv in dshc %}
+                            <option value="{{ dv.madvhc }}" {% if truong.madvhc.madvhc == dv.madvhc %}selected{% endif %}>{{ dv.tendvhc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <textarea name="diachi" class="form-control" rows="2">{{ truong.diachi|default:'' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn-update mb-2"><i class="fas fa-check me-2"></i> LƯU THAY ĐỔI</button>
+                <a href="{% url 'admin_truong_list' %}" class="btn btn-light w-100 border text-muted fw-bold">Hủy bỏ</a>
+            </form>
+        </div>
+
+        <div class="map-display">
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+
+    var initialLat = parseFloat("{{ truong.lat|default:'10.762622' }}");
+    var initialLng = parseFloat("{{ truong.lng|default:'106.660172' }}");
+
+    var oldLat = "{{ old_data.lat }}";
+    var oldLng = "{{ old_data.lng }}";
+    if (oldLat && oldLng && oldLat !== "None") {
+        initialLat = parseFloat(oldLat);
+        initialLng = parseFloat(oldLng);
+    }
+
+    var map = L.map('map', {
+        zoomControl: false
+    }).setView([initialLat, initialLng], 16);
+    
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO'
+    }).addTo(map);
+
+    var marker;
+
+    function placeMarker(latlng, moveCamera = false) {
+        if (marker) {
+            marker.setLatLng(latlng);
+        } else {
+            marker = L.marker(latlng, {
+                draggable: true,
+                icon: L.icon({
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map);
+            
+            marker.on('dragend', function() {
+                updateInputs(marker.getLatLng());
+            });
+        }
+        if (moveCamera) map.panTo(latlng);
+        updateInputs(latlng);
+    }
+
+    function updateInputs(latlng) {
+        document.getElementById('lat').value = latlng.lat.toFixed(6);
+        document.getElementById('lng').value = latlng.lng.toFixed(6);
+    }
+
+    placeMarker([initialLat, initialLng]);
+
+    function syncMapFromInputs() {
+        var lat = parseFloat(document.getElementById('lat').value);
+        var lng = parseFloat(document.getElementById('lng').value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            placeMarker([lat, lng], true);
+        }
+    }
+
+    document.getElementById('lat').addEventListener('input', syncMapFromInputs);
+    document.getElementById('lng').addEventListener('input', syncMapFromInputs);
+
+    map.on('click', function(e) {
+        placeMarker(e.latlng);
+    });
+
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        placeholder: "🔍 Tìm kiếm địa điểm...",
+        collapsed: false
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 17);
+        placeMarker(center);
+    })
+    .addTo(map);
+</script>
+{% endblock %}
