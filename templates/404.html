@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lạc lối rồi! - 404 Không tìm thấy</title>
+    <style>
+        /* Thiết lập nền Gradient động */
+        body {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: white;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px;
+            border-radius: 30px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+            max-width: 700px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* Số 404 Hoàng tráng */
+        h1 {
+            font-size: 180px;
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: -10px;
+            position: relative;
+            display: inline-block;
+            filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.1));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Hiệu ứng mống mắt cho số 0 */
+        .zero {
+            display: inline-block;
+            position: relative;
+            color: #fff;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Nút bấm hoàng tráng */
+        .btn-home {
+            display: inline-block;
+            padding: 18px 45px;
+            background: white;
+            color: #e73c7e;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 18px;
+            transition: 0.4s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+        }
+
+        .btn-home:hover {
+            transform: scale(1.1) rotate(-2deg);
+            background: #23a6d5;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        /* Phi thuyền bay lượn */
+        .rocket {
+            font-size: 50px;
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            animation: rocketFly 10s linear infinite;
+        }
+
+        @keyframes rocketFly {
+            0% { transform: translate(-100px, 100vh) rotate(-45deg); }
+            100% { transform: translate(100vw, -100px) rotate(-45deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="rocket">🚀</div>
+    <div class="rocket" style="animation-delay: 5s; left: 70%;">🛸</div>
+
+    <div class="container">
+        <div style="font-size: 100px; margin-bottom: -20px;">😵‍💫</div>
+        <h1>4<span class="zero">0</span>4</h1>
+        <h2>Ôi không! Bạn đã bay khỏi quỹ đạo</h2>
+        <p>Trang bạn đang tìm kiếm hiện không có mặt trên hành tinh này. <br>Có thể nó đã bị hố đen nuốt chửng hoặc chưa từng tồn tại.</p>
+        
+        <a href="/" class="btn-home">Trở về Trạm Căn Cứ</a>
+    </div>
+</body>
+</html>

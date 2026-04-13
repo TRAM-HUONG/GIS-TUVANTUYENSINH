@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRUY CẬP BỊ CHẶN - HỆ THỐNG GIÁM SÁT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            /* Đổi sang nền xám đậm có chiều sâu */
+            background-color: #1a1a1a;
+            background-image: 
+                radial-gradient(circle at center, #2d1a1a 0%, #0a0a0a 100%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 100%, 100% 2px, 3px 100%;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4d4d;
+        }
+
+        .security-box {
+            background: #000;
+            border: 2px solid #ff0000;
+            padding: 60px;
+            width: 100%;
+            max-width: 750px;
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.2);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Hiệu ứng góc vuông kiểu radar */
+        .security-box::before, .security-box::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 4px solid #ff0000;
+        }
+        .security-box::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+        .security-box::after { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+        .status-header {
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 130px;
+            line-height: 1;
+            margin: 10px 0;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+            letter-spacing: -5px;
+        }
+
+        .warning-label {
+            background: #ff0000;
+            color: #fff;
+            padding: 8px 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 30px;
+            font-size: 20px;
+            animation: flash 0.8s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .details {
+            color: #ccc;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .ip-info {
+            font-family: 'Courier New', monospace;
+            color: #ff4d4d;
+            background: #1a0000;
+            padding: 10px;
+            margin-top: 15px;
+            display: inline-block;
+            border: 1px solid #440000;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 15px 45px;
+            border: 2px solid #ff0000;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .btn-return:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 30px #ff0000;
+        }
+
+        /* Đường kẻ scan chạy chậm */
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 0, 0, 0) 0%, rgba(255, 0, 0, 0.1) 50%, rgba(255, 0, 0, 0) 100%);
+            background-size: 100% 20px;
+            animation: move 5s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes move {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(100%); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="security-box">
+        <div class="scan-line"></div>
+        <p class="status-header">Hệ thống phát hiện xâm nhập trái phép</p>
+        
+        <div class="warning-label">TRUY CẬP BỊ TỪ CHỐI</div>
+        
+        <h1>403</h1>
+        
+        <div class="details">
+            <p>Tài khoản của bạn không được cấp quyền để truy cập phân khu này.</p>
+            <p>Mọi nỗ lực truy cập trái phép đều được ghi lại trong nhật ký hệ thống.</p>
+            
+            <div class="ip-info">
+                TRẠNG THÁI: ĐÃ CHẶN KẾT NỐI
+            </div>
+        </div>
+        
+        <a href="/" class="btn-return">Quay lại trang an toàn</a>
+    </div>
+
+</body>
+</html>

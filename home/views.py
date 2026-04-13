@@ -6,6 +6,14 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.paginator import Paginator
 from functools import wraps
 import re
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+import uuid
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.exceptions import PermissionDenied # Thêm dòng này lên đầu file
+
 
 from .models import (
     NguoiDung,
@@ -37,17 +45,19 @@ def login_required_custom(view_func):
     return wrapper
 
 
+
+
 def admin_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
+        # Nếu chưa đăng nhập, vẫn có thể cho redirect về trang login
         if not request.session.get("mand"):
-            messages.error(request, "Bạn cần đăng nhập trước.")
             return redirect("login")
 
+        # NẾU ĐÃ ĐĂNG NHẬP NHƯNG KHÔNG PHẢI ADMIN -> HIỆN 403
         if request.session.get("tenvaitro") != "ADMIN":
-            messages.error(request, "Bạn không có quyền truy cập trang quản trị.")
-            return redirect("home")
-
+            raise PermissionDenied # Dòng này sẽ kích hoạt trang 403.html của bạn
+            
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -107,15 +117,6 @@ def get_role_user():
 # =========================================================
 # AUTH
 # =========================================================
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth.hashers import make_password
-import uuid
-
-# Trang nhập Email để nhận link
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 
 def forgot_password_view(request):
     if request.method == "POST":
