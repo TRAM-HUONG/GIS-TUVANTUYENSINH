@@ -1050,8 +1050,146 @@ def admin_hinhanh_detail(request, mahinh):
     
     
   # ============ADMIN ANH NGANH================
-  
-  
-  
+import os
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.conf import settings
+from pathlib import Path
+from .models import NganhHoc, HinhAnhNganh
+
+def delete_nganh_image_file(filename):
+    """Xóa file ảnh khỏi static/img/NGANHHOC"""
+    if not filename:
+        return
+    file_path = Path(settings.BASE_DIR) / "static" / "img" / "NGANHHOC" / filename
+    if file_path.exists() and file_path.is_file():
+        try:
+            file_path.unlink()
+        except:
+            pass
+
+def save_uploaded_nganh_image(file_obj):
+    """Hàm bổ trợ để lưu file vào thư mục NGANHHOC (Bạn cần đảm bảo hàm này đã được định nghĩa)"""
+    folder = os.path.join(settings.BASE_DIR, 'static/img/NGANHHOC')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    
+    file_path = os.path.join(folder, file_obj.name)
+    with open(file_path, 'wb+') as destination:
+        for chunk in file_obj.chunks():
+            destination.write(chunk)
+    return file_obj.name
+
+# 1. Danh sách hình ảnh ngành
+def admin_hinhanh_nganh_list(request):
+    nganh_list = NganhHoc.objects.prefetch_related('hinh_anh_nganh').all().order_by("manganh")
+    
+    keyword = request.GET.get("keyword", "").strip()
+    if keyword:
+        nganh_list = nganh_list.filter(
+            Q(tennganh__icontains=keyword) | Q(manganh__icontains=keyword)
+        )
+
+    paginator = Paginator(nganh_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "admin/hinhanh_nganh/list.html", {
+        "page_obj": page_obj,
+        "keyword": keyword,
+    })
+
+# 2. Thêm mới hình ảnh ngành
+def admin_hinhanh_nganh_insert(request):
+    if request.method == "POST":
+        manganh_id = request.POST.get("manganh", "").strip()
+        files = request.FILES.getlist("hinhanh")
+
+        if not manganh_id:
+            messages.error(request, "Vui lòng chọn ngành.")
+        elif not files:
+            messages.error(request, "Vui lòng chọn ít nhất một file ảnh.")
+        else:
+            nganh = get_object_or_404(NganhHoc, pk=manganh_id)
+            
+            last_han_image = HinhAnhNganh.objects.filter(
+                mahinh_nganh__startswith="HAN"
+            ).order_by("-mahinh_nganh").first()
+
+            try:
+                current_number = int(''.join(filter(str.isdigit, last_han_image.mahinh_nganh))) if last_han_image else 0
+            except:
+                current_number = 0
+
+            count = 0
+            for file_anh in files:
+                current_number += 1
+                new_id = f"HAN{current_number:03d}"
+                while HinhAnhNganh.objects.filter(mahinh_nganh=new_id).exists():
+                    current_number += 1
+                    new_id = f"HAN{current_number:03d}"
+
+                saved_filename = save_uploaded_nganh_image(file_anh)
+                HinhAnhNganh.objects.create(
+                    mahinh_nganh=new_id,
+                    manganh=nganh,
+                    tenfile=saved_filename
+                )
+                count += 1
+
+            messages.success(request, f"Đã tải lên {count} ảnh cho ngành {nganh.tennganh}.")
+            return redirect("admin_hinhanh_nganh_list")
+
+    ds_nganh = NganhHoc.objects.all().order_by("tennganh")
+    return render(request, "admin/hinhanh_nganh/insert.html", {"ds_nganh": ds_nganh})
+
+# 3. Sửa hình ảnh ngành
+def admin_hinhanh_nganh_edit(request, mahinh):
+    hinhanh = get_object_or_404(HinhAnhNganh, pk=mahinh)
+    if request.method == "POST":
+        manganh_id = request.POST.get("manganh", "").strip()
+        moi_anh = request.FILES.get("hinhanh")
+        
+        nganh = get_object_or_404(NganhHoc, pk=manganh_id)
+        hinhanh.manganh = nganh
+
+        if moi_anh:
+            delete_nganh_image_file(hinhanh.tenfile)
+            hinhanh.tenfile = save_uploaded_nganh_image(moi_anh)
+
+        hinhanh.save()
+        messages.success(request, "Cập nhật thành công.")
+        return redirect("admin_hinhanh_nganh_list")
+
+    ds_nganh = NganhHoc.objects.all().order_by("tennganh")
+    return render(request, "admin/hinhanh_nganh/edit.html", {"hinhanh": hinhanh, "ds_nganh": ds_nganh})
+
+# 4. Xóa hình ảnh ngành
+def admin_hinhanh_nganh_delete(request, mahinh):
+    hinhanh = get_object_or_404(HinhAnhNganh, pk=mahinh)
+    nganh = hinhanh.manganh
+    is_delete_all = request.GET.get('scope') == 'all'
+
+    if request.method == "POST":
+        mode = request.POST.get('mode')
+        if mode == "all":
+            danh_sach_anh = HinhAnhNganh.objects.filter(manganh=nganh)
+            for anh in danh_sach_anh:
+                delete_nganh_image_file(anh.tenfile)
+                anh.delete()
+            messages.success(request, f"Đã xóa toàn bộ ảnh của ngành {nganh.tennganh}.")
+        else:
+            delete_nganh_image_file(hinhanh.tenfile)
+            hinhanh.delete()
+            messages.success(request, "Đã xóa ảnh thành công.")
+        return redirect("admin_hinhanh_nganh_list")
+
+    return render(request, "admin/hinhanh_nganh/delete.html", {
+        "hinhanh": hinhanh, "nganh": nganh, "is_delete_all": is_delete_all
+    })
+    
+    
 def admin_khaosat_list(request):
     return render(request, "admin/khaosat/list.html")

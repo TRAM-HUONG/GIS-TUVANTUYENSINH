@@ -77,14 +77,17 @@ urlpatterns = [
     path("admin/khaosat/", views.admin_khaosat_list, name="admin_khaosat_list"),
     path("admin/nguoidung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
     path("api/map-data/", views.map_data_api, name="map_data_api"),
+    # =========================
+    # ADMIN - HÌNH ẢNH NGÀNH
+    # =========================
+    path('admin/hinhanh_nganh/', views.admin_hinhanh_nganh_list, name='admin_hinhanh_nganh_list'),
+    path('admin/hinhanh_nganh/insert/', views.admin_hinhanh_nganh_insert, name='admin_hinhanh_nganh_insert'),
+   
+    path('admin/hinhanh_nganh/edit/<str:mahinh>/', views.admin_hinhanh_nganh_edit, name='admin_hinhanh_nganh_edit'),
+    path('admin/hinhanh_nganh/delete/<str:mahinh>/', views.admin_hinhanh_nganh_delete, name='admin_hinhanh_nganh_delete'),
 ]
-# =========================
-# ADMIN - CHI TIẾT NGÀNH
-# =========================
-path("admin/chi-tiet-nganh/", views.admin_chitietnganh_list, name="admin_chitietnganh_list"),
-path("admin/chi-tiet-nganh/them/", views.admin_chitietnganh_insert, name="admin_chitietnganh_insert"),
-path("admin/chi-tiet-nganh/sua/<str:mactn>/", views.admin_chitietnganh_edit, name="admin_chitietnganh_edit"),
-path("admin/chi-tiet-nganh/xoa/<str:mactn>/", views.admin_chitietnganh_delete, name="admin_chitietnganh_delete"),
+
+
 
 # Cấu hình để hiển thị file media (hình ảnh) trong quá trình phát triển
 if settings.DEBUG:

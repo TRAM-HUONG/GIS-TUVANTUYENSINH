@@ -1,0 +1,42 @@
+{% extends 'layout/layout.html' %}
+{% load static %} 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+{% endblock %}
+{% block content %}
+<div class="insert-container">
+    <h2>Cập Nhật Hình Ảnh Ngành</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>Mã hình ảnh: {{ hinhanh.mahinh_nganh }}</label>
+        </div>
+        <div class="mb-3">
+            <label>Thuộc Ngành</label>
+            <select name="manganh" required>
+                {% for n in ds_nganh %}
+                <option value="{{ n.manganh }}" {% if n.manganh == hinhanh.manganh.manganh %}selected{% endif %}>
+                    {{ n.tennganh }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>Thay đổi hình ảnh</label>
+            <input type="file" name="hinhanh" id="imgInput" accept="image/*">
+            <small>Ảnh hiện tại: {{ hinhanh.tenfile }}</small>
+        </div>
+        <div class="mb-3">
+            <img id="preview" src="{% static 'img/NGANHHOC/'|add:hinhanh.tenfile %}" style="max-width: 300px; border-radius: 8px;">
+        </div>
+        <button type="submit" class="btn btn-primary">CẬP NHẬT</button>
+        <a href="{% url 'admin_hinhanh_nganh_list' %}">HỦY</a>
+    </form>
+</div>
+<script>
+    document.getElementById('imgInput').onchange = function (evt) {
+        const [file] = evt.target.files;
+        if (file) { document.getElementById('preview').src = URL.createObjectURL(file); }
+    };
+</script>
+{% endblock %}
