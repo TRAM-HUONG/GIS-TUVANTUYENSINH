@@ -1,50 +1,30 @@
 {% extends 'layout/layout.html' %}
-{% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/delete.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="main-content-wrapper">
-    <div class="delete-confirmation-card">
-        <div class="icon-section">
-            <div class="warning-icon-circle">
-                <i class="fas fa-exclamation-triangle"></i>
+<div class="container mt-5">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px;">
+        <div class="card-body text-center p-5">
+            <div class="text-danger mb-4">
+                <i class="fas fa-exclamation-triangle fa-4x"></i>
             </div>
-        </div>
-        
-        <div class="text-section">
-            <h3 class="confirmation-title">Xác nhận xóa hình ảnh?</h3>
-            <p class="confirmation-subtitle">
-                Hành động này <strong class="danger-text">không thể hoàn tác</strong>. Bạn đang thực hiện xóa ảnh 
-                <span class="highlight-text">"{{ hinhanh.tieude|default:hinhanh.tenfile }}"</span> 
-                của trường <span class="highlight-text">{{ hinhanh.matruong.tentruong }}</span>.
-            </p>
-        </div>
+            
+            {% if is_delete_all %}
+                <h3>Xác nhận xóa TẤT CẢ ảnh</h3>
+                <p class="text-muted">Bạn có chắc chắn muốn xóa toàn bộ danh sách hình ảnh của trường:<br>
+                <strong class="text-dark">{{ truong.tentruong }}</strong>?</p>
+            {% else %}
+                <h3>Xác nhận xóa ảnh</h3>
+                <p class="text-muted">Bạn có chắc chắn muốn xóa tấm ảnh này không?</p>
+                <img src="/static/img/TDH/{{ hinhanh.tenfile }}" class="img-thumbnail mb-3" style="max-height: 150px;">
+            {% endif %}
 
-        {% if hinhanh.tenfile %}
-        <div class="image-preview-section">
-            <div class="preview-container">
-                <img src="{% static 'img/TDH/'|add:hinhanh.tenfile %}" alt="Xem trước">
-            </div>
-        </div>
-        {% endif %}
-
-        <form method="post" class="action-form-section">
-            {% csrf_token %}
-            <div class="button-group-vertical">
-                <button type="submit" class="btn-action btn-danger-delete">
-                    <i class="fas fa-trash-alt icon-left"></i>
-                    <span class="btn-text">CÓ, XÓA VĨNH VIỄN</span>
-                </button>
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <input type="hidden" name="mode" value="{% if is_delete_all %}all{% else %}single{% endif %}">
                 
-                <a href="{% url 'admin_hinhanh_list' %}" class="btn-action btn-secondary-cancel">
-                    HỦY BỎ
-                </a>
-            </div>
-        </form>
+                <button type="submit" class="btn btn-danger px-4 py-2 fw-bold">Xác nhận xóa</button>
+                <a href="{% url 'admin_hinhanh_list' %}" class="btn btn-light px-4 py-2 border">Hủy bỏ</a>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

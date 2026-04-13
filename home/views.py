@@ -1006,18 +1006,38 @@ def admin_hinhanh_edit(request, mahinh):
 
 # 4. Xóa hình ảnh
 def admin_hinhanh_delete(request, mahinh):
+    # mahinh ở đây là mahinh_truong (theo models.py của bạn)
     hinhanh = get_object_or_404(HinhAnhTruong, pk=mahinh)
+    truong = hinhanh.matruong
+    
+    # Kiểm tra xem người dùng nhấn từ nút "Xóa tất cả" (URL có ?scope=all)
+    is_delete_all = request.GET.get('scope') == 'all'
 
     if request.method == "POST":
-        old_filename = hinhanh.tenfile
-        hinhanh.delete()
-        delete_image_file(old_filename)
+        # Kiểm tra giá trị từ hidden input trong form xác nhận
+        mode = request.POST.get('mode')
 
-        messages.success(request, "Xóa hình ảnh thành công.")
+        if mode == "all":
+            # 1. XÓA TẤT CẢ DÒNG ẢNH CỦA TRƯỜNG NÀY
+            danh_sach_anh = HinhAnhTruong.objects.filter(matruong=truong)
+            count = danh_sach_anh.count()
+            for anh in danh_sach_anh:
+                delete_image_file(anh.tenfile) # Xóa file vật lý
+                anh.delete() # Xóa dòng trong DB
+            messages.success(request, f"Đã xóa toàn bộ {count} ảnh của trường {truong.tentruong}.")
+        else:
+            # 2. CHỈ XÓA 1 DÒNG ĐANG CHỌN
+            old_filename = hinhanh.tenfile
+            hinhanh.delete()
+            delete_image_file(old_filename)
+            messages.success(request, "Đã xóa 1 hình ảnh thành công.")
+
         return redirect("admin_hinhanh_list")
 
     return render(request, "admin/hinhanh/delete.html", {
-        "hinhanh": hinhanh
+        "hinhanh": hinhanh,
+        "truong": truong,
+        "is_delete_all": is_delete_all
     })
 
 

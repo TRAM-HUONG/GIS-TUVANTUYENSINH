@@ -10,7 +10,7 @@
 
     <table class="table table-bordered">
         <tr>
-            <th>Mã trường</th>
+            <th width="200">Mã trường</th>
             <td>{{ truong.matruong }}</td>
         </tr>
         <tr>
@@ -51,7 +51,7 @@
         </tr>
         <tr>
             <th>Mô tả</th>
-            <td>{% if chitiet %}{{ chitiet.mota }}{% endif %}</td>
+            <td class="bg-light">{% if chitiet %}{{ chitiet.mota|safe }}{% endif %}</td>
         </tr>
         <tr>
             <th>Ghi chú</th>

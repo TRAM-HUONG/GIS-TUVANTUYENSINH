@@ -5,81 +5,8 @@
     <link rel="stylesheet" href="{% static 'css/edit.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --accent-color: #667eea;
-            --bg-light: #f4f7fe;
-            --border-radius-lg: 20px;
-            --border-radius-md: 12px;
-        }
 
-        body { background: var(--bg-light); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
 
-        .header-banner {
-            background: var(--primary-gradient);
-            padding: 25px 40px; color: white;
-            border-radius: var(--border-radius-lg);
-            margin: 20px 30px;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .main-wrapper {
-            display: flex; gap: 25px;
-            padding: 0 30px 30px 30px;
-            height: calc(100vh - 180px); min-height: 750px;
-        }
-
-        .form-sidebar {
-            flex: 0 0 420px; background: white; padding: 25px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
-            overflow-y: auto;
-        }
-
-        .map-display {
-            flex: 1; position: relative;
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-            border: 5px solid white;
-        }
-
-        #map { height: 100%; width: 100%; z-index: 1; }
-
-        /* THANH TÌM KIẾM CUSTOM GIỐNG ẢNH MẪU */
-        .leaflet-control-geocoder.leaflet-bar {
-            border: none !important;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15) !important;
-            border-radius: 30px !important; /* Bo tròn mạnh */
-            background: white !important;
-            display: flex; align-items: center;
-            padding: 5px 20px;
-            min-width: 400px !important;
-            margin-top: 20px !important; margin-left: 20px !important;
-        }
-
-        .leaflet-control-geocoder-icon { display: none !important; } /* Ẩn icon cũ */
-
-        .leaflet-control-geocoder-form input {
-            border: none !important; outline: none !important;
-            font-size: 15px !important; padding: 10px 5px !important;
-            width: 100% !important; background: transparent !important;
-        }
-
-        /* Thêm icon kính lúp của FontAwesome vào đầu thanh */
-        .leaflet-control-geocoder.leaflet-bar::before {
-            content: '\f002'; font-family: 'Font Awesome 6 Free';
-            font-weight: 900; color: #aaa; margin-right: 10px; font-size: 16px;
-        }
-
-        .form-label { font-weight: 700; color: #2d3748; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 6px; display: block; }
-        .coord-group { background: #f0f7ff; padding: 18px; border-radius: var(--border-radius-md); border: 2px dashed #bee3f8; margin-bottom: 20px; }
-        .coord-input { text-align: center; font-weight: bold; color: #2b6cb0; font-family: monospace; background: white !important; }
-        .btn-update { background: var(--primary-gradient); color: white; border: none; padding: 14px; border-radius: var(--border-radius-md); font-weight: bold; width: 100%; }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -87,7 +14,7 @@
     <div class="header-banner d-flex justify-content-between align-items-center">
         <div>
             <h2 class="fw-bold mb-1 text-white"><i class="fas fa-university me-2"></i>Chỉnh sửa Trường</h2>
-            <p class="mb-0 opacity-75">Cập nhật tọa độ chính xác bằng cách kéo thả hoặc tìm kiếm</p>
+            <p class="mb-0 opacity-75">Cập nhật tọa độ và thông tin chi tiết</p>
         </div>
         <div class="text-end text-white">
             <span class="badge bg-white text-dark">ID: {{ truong.matruong }}</span>
@@ -135,12 +62,6 @@
                     <label class="form-label">Địa chỉ</label>
                     <textarea name="diachi" class="form-control" rows="2">{{ truong.diachi|default:'' }}</textarea>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Mô tả</label>
-                    <textarea name="mota" class="form-control" rows="3">{{ chitiet.mota|default:'' }}</textarea>
-                </div>
-
                 <button type="submit" class="btn-update mb-2"><i class="fas fa-check me-2"></i> LƯU THAY ĐỔI</button>
                 <a href="{% url 'admin_truong_list' %}" class="btn btn-light w-100 border text-muted fw-bold">Hủy bỏ</a>
             </form>
@@ -156,12 +77,11 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    // 1. Lấy tọa độ từ trường hiện tại (truong.lat, truong.lng)
-    // Nếu không có tọa độ thì mới lấy mặc định TP.HCM
+
+
     var initialLat = parseFloat("{{ truong.lat|default:'10.762622' }}");
     var initialLng = parseFloat("{{ truong.lng|default:'106.660172' }}");
 
-    // Nếu có dữ liệu cũ từ form submit lỗi (old_data), ưu tiên dùng nó
     var oldLat = "{{ old_data.lat }}";
     var oldLng = "{{ old_data.lng }}";
     if (oldLat && oldLng && oldLat !== "None") {
@@ -169,10 +89,9 @@
         initialLng = parseFloat(oldLng);
     }
 
-    // 2. Khởi tạo Map với vị trí đã xác định
     var map = L.map('map', {
         zoomControl: false
-    }).setView([initialLat, initialLng], 16); // Zoom gần hơn (16) để thấy rõ trường
+    }).setView([initialLat, initialLng], 16);
     
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -209,10 +128,8 @@
         document.getElementById('lng').value = latlng.lng.toFixed(6);
     }
 
-    // 3. Hiển thị Marker ngay khi load trang
     placeMarker([initialLat, initialLng]);
 
-    // Sync 2 chiều: Nhập số -> Nhảy Map
     function syncMapFromInputs() {
         var lat = parseFloat(document.getElementById('lat').value);
         var lng = parseFloat(document.getElementById('lng').value);
@@ -228,7 +145,6 @@
         placeMarker(e.latlng);
     });
 
-    // Geocoder Search
     var geocoder = L.Control.geocoder({
         defaultMarkGeocode: false,
         placeholder: "🔍 Tìm kiếm địa điểm...",

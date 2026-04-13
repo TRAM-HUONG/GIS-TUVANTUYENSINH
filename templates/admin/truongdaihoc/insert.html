@@ -2,149 +2,10 @@
 {% load static %} 
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/insert.css' %}">
+   <link rel="stylesheet" href="{% static 'css/insert.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --accent-color: #667eea;
-            --bg-light: #f4f7fe;
-            --border-radius-lg: 20px;
-            --border-radius-md: 12px;
-        }
-
-        body {
-            background: var(--bg-light);
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        /* Container rộng tối đa */
-        .insert-container-fluid {
-            padding: 20px 30px;
-        }
-
-        /* Header Style */
-        .header-banner {
-            background: var(--primary-gradient);
-            padding: 25px 40px;
-            color: white;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 25px;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        /* Layout Flexbox để đẩy Map rộng ra */
-        .main-wrapper {
-            display: flex;
-            gap: 25px;
-            align-items: flex-start;
-        }
-
-        /* Cột Form: Cố định độ rộng để không bị loãng */
-        .form-sidebar {
-            flex: 0 0 420px;
-            background: white;
-            padding: 30px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
-            animation: slideInLeft 0.5s ease-out;
-        }
-
-        /* Cột Map: Chiếm toàn bộ không gian còn lại */
-        .map-display {
-            flex: 1;
-            position: relative;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        #map { 
-            height: 750px !important; /* Tăng chiều cao map */
-            width: 100%; 
-            border-radius: var(--border-radius-lg);
-            border: 5px solid white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
-
-        /* Input & Label */
-        .form-label {
-            font-weight: 700;
-            color: #2d3748;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-control, .form-select {
-            border: 2px solid #edf2f7;
-            border-radius: var(--border-radius-md);
-            padding: 12px;
-            background: #f8fafc;
-            transition: 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent-color);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Tọa độ box */
-        .coord-group {
-            background: #fff5f5;
-            padding: 20px;
-            border-radius: var(--border-radius-md);
-            border: 2px dashed #feb2b2;
-            margin-bottom: 20px;
-        }
-
-        .coord-input {
-            text-align: center;
-            font-weight: bold;
-            color: #e53e3e;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* Nút bấm */
-        .btn-save {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: var(--border-radius-md);
-            font-weight: bold;
-            width: 100%;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
-        }
-
-        .btn-save:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4);
-            color: white;
-        }
-
-        /* Custom Search Box trên Map */
-        .leaflet-control-geocoder {
-            margin-top: 15px !important;
-            margin-right: 15px !important;
-            border-radius: 10px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -178,15 +39,15 @@
                     <input type="text" name="tentruong" class="form-control" value="{{ old_data.tentruong }}" placeholder="Nhập tên trường..." required>
                 </div>
                 <div class="mb-3">
-    <label class="form-label">Loại trường *</label>
-    <select name="loaitruong" class="form-select" required>
-        <option value="">-- Chọn loại trường --</option>
-        <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
-        <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
-        <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
-        <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
-    </select>
-</div>
+                    <label class="form-label">Loại trường *</label>
+                    <select name="loaitruong" class="form-select" required>
+                        <option value="">-- Chọn loại trường --</option>
+                        <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
+                        <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
+                        <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
+                        <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
+                    </select>
+                </div>
 
                 <div class="coord-group">
                     <div class="row g-2">
@@ -216,10 +77,7 @@
                     <textarea name="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Mô tả</label>
-                    <textarea name="mota" class="form-control" rows="3">{{ old_data.mota }}</textarea>
-                </div>
+
 
                 <button type="submit" class="btn-save mb-2">
                     <i class="fas fa-check-circle me-2"></i> LƯU THÔNG TIN
@@ -241,7 +99,8 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    // 1. Init Map (Focus vào Việt Nam)
+
+    // 1. Init Map
     var map = L.map('map', {
         zoomControl: false
     }).setView([10.762622, 106.660172], 13);
@@ -281,7 +140,6 @@
         document.getElementById('lng').value = latlng.lng.toFixed(6);
     }
 
-    // Sync 2 chiều: Nhập số -> Nhảy Map
     function syncMapFromInputs() {
         var lat = parseFloat(document.getElementById('lat').value);
         var lng = parseFloat(document.getElementById('lng').value);
@@ -297,7 +155,6 @@
         placeMarker(e.latlng);
     });
 
-    // Geocoder Search
     var geocoder = L.Control.geocoder({
         defaultMarkGeocode: false,
         placeholder: "🔍 Tìm kiếm địa điểm...",
@@ -310,7 +167,6 @@
     })
     .addTo(map);
 
-    // Old data recovery
     var oldLat = "{{ old_data.lat }}";
     var oldLng = "{{ old_data.lng }}";
     if (oldLat && oldLng && oldLat !== "None") {

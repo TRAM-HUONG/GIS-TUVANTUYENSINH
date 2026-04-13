@@ -3,6 +3,11 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/insert.css' %}">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -22,13 +27,30 @@
             <input type="text" name="linhvuc" class="form-control">
         </div>
 
-        <div class="mb-3">
-            <label>Mô tả</label>
-            <textarea name="mota" class="form-control"></textarea>
-        </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Mô tả</label>
+                    <textarea name="mota" id="editor_mota" class="form-control" rows="3">{{ old_data.mota }}</textarea>
+                </div>
 
         <button type="submit" class="btn btn-success">Lưu</button>
         <a href="{% url 'admin_nganh_list' %}" class="btn btn-secondary">Quay lại</a>
     </form>
 </div>
+
+<script>
+    // Khởi tạo CKEditor
+    CKEDITOR.replace('editor_mota', {
+        height: 200,
+        // Cấu hình thanh công cụ đầy đủ để chỉnh màu sắc, font...
+        toolbar: [
+            { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+            { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
+            { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
+            { name: 'links', items: ['Link', 'Unlink'] },
+            { name: 'insert', items: ['Table', 'HorizontalRule'] }
+        ]
+    });
+</script>
 {% endblock %}

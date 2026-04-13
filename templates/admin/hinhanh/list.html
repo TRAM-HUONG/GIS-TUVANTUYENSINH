@@ -66,8 +66,19 @@
                             <div class="img-actions">
                                 <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}" title="Sửa">Sửa</a> | 
                                 <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}" title="Xóa" style="color:red;">Xóa</a>
-                                
+                
                             </div>
+                            <td>
+    {% if truong.hinh_anh_truong.all %}
+        {% with first_img=truong.hinh_anh_truong.all.0 %}
+            <a href="{% url 'admin_hinhanh_delete' first_img.mahinh_truong %}?scope=all" 
+               class="btn btn-outline-danger btn-sm" 
+               style="font-size: 0.75rem; padding: 2px 8px;">
+                <i class="fas fa-trash-alt me-1"></i> Xóa tất cả ảnh
+            </a>
+        {% endwith %}
+    {% endif %}
+</td>
                         </div>
                         {% empty %}
                         <span style="color: #999; font-style: italic;">Chưa có hình ảnh nào.</span>
