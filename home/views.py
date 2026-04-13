@@ -1047,5 +1047,11 @@ def admin_hinhanh_detail(request, mahinh):
     return render(request, "admin/hinhanh/detail.html", {
         "hinhanh": hinhanh
     })
+    
+    
+  # ============ADMIN ANH NGANH================
+  
+  
+  
 def admin_khaosat_list(request):
     return render(request, "admin/khaosat/list.html")

@@ -78,6 +78,13 @@ urlpatterns = [
     path("admin/nguoidung/", views.admin_nguoidung_list, name="admin_nguoidung_list"),
     path("api/map-data/", views.map_data_api, name="map_data_api"),
 ]
+# =========================
+# ADMIN - CHI TIẾT NGÀNH
+# =========================
+path("admin/chi-tiet-nganh/", views.admin_chitietnganh_list, name="admin_chitietnganh_list"),
+path("admin/chi-tiet-nganh/them/", views.admin_chitietnganh_insert, name="admin_chitietnganh_insert"),
+path("admin/chi-tiet-nganh/sua/<str:mactn>/", views.admin_chitietnganh_edit, name="admin_chitietnganh_edit"),
+path("admin/chi-tiet-nganh/xoa/<str:mactn>/", views.admin_chitietnganh_delete, name="admin_chitietnganh_delete"),
 
 # Cấu hình để hiển thị file media (hình ảnh) trong quá trình phát triển
 if settings.DEBUG:
