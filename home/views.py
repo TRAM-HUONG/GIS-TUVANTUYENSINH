@@ -107,6 +107,80 @@ def get_role_user():
 # =========================================================
 # AUTH
 # =========================================================
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+import uuid
+
+# Trang nhập Email để nhận link
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+def forgot_password_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        user = NguoiDung.objects.filter(email=email).first()
+        
+        if user:
+            token = str(uuid.uuid4())
+            request.session['reset_token'] = token
+            request.session['reset_email'] = email
+            
+            # Tạo link reset
+            reset_link = request.build_absolute_uri(f"/dat-lai-mat-khau/?token={token}")
+            
+            # --- PHẦN LÀM ĐẸP EMAIL ---
+            subject = 'Yêu cầu đặt lại mật khẩu - GIS Tuyển Sinh'
+            context = {
+                'user_name': user.hoten, # Giả sử model bạn có trường hoten
+                'reset_link': reset_link,
+            }
+            # Vẽ giao diện từ file html
+            html_message = render_to_string('auth/email_template.html', context)
+            plain_message = strip_tags(html_message) # Nội dung chữ nếu mail ko load đc html
+
+            try:
+                message = EmailMessage(
+                    subject,
+                    html_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                )
+                message.content_subtype = 'html' # Quan trọng: báo cho Mailtrap đây là HTML
+                message.send()
+                
+                messages.success(request, "Vui lòng kiểm tra email để lấy lại mật khẩu!")
+            except Exception as e:
+                print(e)
+                messages.error(request, "Lỗi gửi mail.")
+        else:
+            messages.error(request, "Email không tồn tại.")
+            
+    return render(request, "auth/forgot-password.html")
+# Trang cập nhật mật khẩu mới (giống cái ảnh bạn gửi)
+def reset_password_view(request):
+    token_url = request.GET.get('token')
+    token_session = request.session.get('reset_token')
+    
+    if not token_url or token_url != token_session:
+        return redirect('login')
+
+    if request.method == "POST":
+        pw = request.POST.get("password")
+        cpw = request.POST.get("confirm_password")
+        if pw == cpw:
+            email = request.session.get('reset_email')
+            user = NguoiDung.objects.get(email=email)
+            user.matkhau = make_password(pw) # Lưu mật khẩu đã mã hóa
+            user.save()
+            del request.session['reset_token']
+            messages.success(request, "Đổi mật khẩu thành công!")
+            return redirect('login')
+        else:
+            messages.error(request, "Mật khẩu không khớp!")
+            
+    return render(request, "auth/reset-password.html")
 
 def register_view(request):
     if request.method == "POST":

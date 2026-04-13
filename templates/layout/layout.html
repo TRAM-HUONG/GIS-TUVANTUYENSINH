@@ -215,69 +215,71 @@
   </footer>
 
   <div id="chat-circle">💬</div>
-<div id="chat-options-menu" style="display: none; position: fixed; bottom: 80px; right: 20px; z-index: 1000;">
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-        <a href="https://zalo.me/09xxxxxxxx" target="_blank" class="opt-btn" style="background: #0068ff; color: white;">
-            🔵 Chat với Zalo
-        </a>
-        <div id="btn-chat-ai" class="opt-btn" style="background: #333; color: white; cursor: pointer;">
-            🤖 Chat nhanh (AI)
-        </div>
-    </div>
-</div>
 
-<div class="chat-box" style="display: none;">
-    <div class="chat-box-header">
-        Tư vấn Tuyển sinh 
-        <span class="chat-box-toggle">✕</span>
-    </div>
-    <div class="chat-box-body">
-        <div class="chat-logs">
-            <div class="chat-msg bot">
-                <div class="cm-msg-text">Xin chào! Bạn cần AI hỗ trợ gì không?</div>
-            </div>
-        </div>
-    </div>
-    <div class="chat-input-holder">
-        <form id="chat-form" style="display:flex; width:100%;">
-            <input type="text" id="chat-input" placeholder="Nhập câu hỏi..."/>
-            <button type="submit" class="chat-submit">✈️</button>
-        </form>
-    </div>
-</div>
+  <div id="chat-options-menu" style="display: none; position: fixed; bottom: 90px; right: 20px; z-index: 1000;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="https://zalo.me/0972380225" target="_blank" class="opt-btn" style="background: #0068ff; color: white;">
+              🔵 Chat với Zalo
+          </a>
+          <div id="btn-chat-ai" class="opt-btn" style="background: #333; color: white; cursor: pointer;">
+              🤖 Chat nhanh (AI)
+          </div>
+      </div>
+  </div>
+
+  <div class="chat-box">
+      <div class="chat-box-header">
+          Trợ lý Tuyển sinh AI
+          <span class="chat-box-toggle">✕</span>
+      </div>
+      <div class="chat-box-body">
+          <div class="chat-logs">
+              <div class="chat-msg bot">
+                  <div class="cm-msg-text">Xin chào! Bạn cần mình dẫn đường đến thông tin nào?</div>
+              </div>
+          </div>
+      </div>
+      <div class="chat-input-holder">
+          <form id="chat-form" style="display:flex; width:100%;">
+              <input type="text" id="chat-input" placeholder="Nhập câu hỏi..." autocomplete="off"/>
+              <button type="submit" class="chat-submit">✈️</button>
+          </form>
+      </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
         const chatCircle = document.getElementById('chat-circle');
-        const optionsMenu = document.getElementById('chat-options-menu'); // ID của menu lựa chọn
-        const btnChatAi = document.getElementById('btn-chat-ai');        // ID của nút "Chat nhanh"
+        const optionsMenu = document.getElementById('chat-options-menu');
+        const btnChatAi = document.getElementById('btn-chat-ai');
         const chatBox = document.querySelector('.chat-box');
         const chatToggle = document.querySelector('.chat-box-toggle');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const chatLogs = document.querySelector('.chat-logs');
 
-        // 1. Bấm nút tròn: Hiện/Ẩn menu lựa chọn (không hiện thẳng khung chat nữa)
+        // 1. Toggle Menu lựa chọn
         chatCircle.addEventListener('click', () => {
             if (optionsMenu.style.display === 'none' || optionsMenu.style.display === '') {
                 optionsMenu.style.display = 'block';
-                chatBox.style.display = 'none'; // Đóng khung chat nếu đang mở
+                chatBox.style.display = 'none';
             } else {
                 optionsMenu.style.display = 'none';
             }
         });
 
-        // 2. Bấm nút "Chat nhanh (AI)": Hiện khung chat và ẩn menu đi
+        // 2. Mở khung chat AI
         btnChatAi.addEventListener('click', () => {
             chatBox.style.display = 'block';
             optionsMenu.style.display = 'none';
         });
 
-        // 3. Bấm nút đóng (X) trên khung chat
+        // 3. Đóng khung chat
         chatToggle.addEventListener('click', () => {
             chatBox.style.display = 'none';
         });
 
-        // --- Logic gửi tin nhắn (Giữ nguyên của bạn) ---
+        // 4. Xử lý gửi tin nhắn
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const msg = chatInput.value.trim();
@@ -300,19 +302,22 @@
             })
             .catch(error => {
                 console.error("Lỗi:", error);
-                appendMessage("Lỗi kết nối máy chủ!", 'bot');
+                appendMessage("Xin lỗi, hệ thống đang bận. Bạn vui lòng thử lại sau!", 'bot');
             });
         });
 
+        // HÀM QUAN TRỌNG: Dùng innerHTML để link có thể bấm được
         function appendMessage(msg, type) {
             const div = document.createElement('div');
             div.className = `chat-msg ${type}`;
+            // innerHTML cho phép các thẻ <a> từ services.py hoạt động
             div.innerHTML = `<div class="cm-msg-text">${msg}</div>`;
             chatLogs.appendChild(div);
             chatLogs.scrollTop = chatLogs.scrollHeight;
         }
     });
-</script>
+  </script>
+
   {% block extra_js %}{% endblock %}
 </body>
 </html>
