@@ -159,7 +159,7 @@ def forgot_password_view(request):
             messages.error(request, "Email không tồn tại.")
             
     return render(request, "auth/forgot-password.html")
-# Trang cập nhật mật khẩu mới (giống cái ảnh bạn gửi)
+
 def reset_password_view(request):
     token_url = request.GET.get('token')
     token_session = request.session.get('reset_token')
@@ -499,24 +499,31 @@ def map_data_api(request):
 
 # =========================================================
 # KHẢO SÁT
+import json
+import uuid
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import KhaoSat, LuaChonKhaoSat, KetQuaKhaoSat, NguoiDung
+
+@login_required_custom
 def khao_sat_view(request):
-    # Lấy danh sách câu hỏi
+    # Lấy danh sách câu hỏi kèm theo các lựa chọn
     questions = KhaoSat.objects.prefetch_related("luachons").order_by("maks")
 
     if request.method == "POST":
         total_score = 0
-        counts = {}  # Lưu tổng điểm cho từng ngành: { 'Tên Ngành': tổng_điểm }
+        counts = {}          # Lưu điểm thực tế của từng ngành: { 'Tên Ngành': điểm_đạt_được }
+        nganh_appearance = {} # Đếm số lần ngành xuất hiện để tính điểm tối đa
 
         for question in questions:
             selected_malc = request.POST.get(question.maks)
             
-            # Kiểm tra xem người dùng đã chọn hết chưa
             if not selected_malc:
                 messages.error(request, "Vui lòng trả lời đầy đủ tất cả câu hỏi.")
-                # LƯU Ý: Phải khớp với name trong urls.py. Nếu urls.py là name="khao_sat" thì giữ nguyên
                 return redirect("khao_sat") 
 
             try:
+                # Lấy lựa chọn kèm theo thông tin ngành gợi ý
                 luachon = LuaChonKhaoSat.objects.select_related("manganhgoiy").get(
                     malc=selected_malc,
                     maks=question
@@ -527,52 +534,72 @@ def khao_sat_view(request):
                 
                 if luachon.manganhgoiy:
                     ten_nganh = luachon.manganhgoiy.tennganh
-                    # Cộng dồn điểm vào ngành được gợi ý
+                    # Cộng dồn điểm thực tế
                     counts[ten_nganh] = counts.get(ten_nganh, 0) + score
+                    # Đếm số lần ngành này làm mục tiêu gợi ý (mỗi câu max là 5đ)
+                    nganh_appearance[ten_nganh] = nganh_appearance.get(ten_nganh, 0) + 1
                 
             except LuaChonKhaoSat.DoesNotExist:
                 continue
 
-        # Tính toán phần trăm cho từng ngành
+        # Tính toán phần trăm dựa trên trọng số thực tế
         results_percent = []
         for nganh, nganh_score in counts.items():
-            # GIẢ ĐỊNH: Điểm tối đa của 1 ngành trong 1 câu hỏi là 5đ
-            # Nếu ngành đó xuất hiện ở nhiều câu, bạn cần chia cho (số câu * 5)
-            max_score_per_nganh = 5 
-            
-            # Tính % và giới hạn tối đa 100%
-            raw_percent = (nganh_score / max_score_per_nganh) * 100
-            percent = min(round(raw_percent, 1), 100.0)
+            # Điểm tối đa của ngành đó = (Số lần xuất hiện trong các câu đã trả lời) * 5
+            max_possible = nganh_appearance.get(nganh, 1) * 5
+            percent = (nganh_score / max_possible) * 100
             
             results_percent.append({
                 'name': nganh,
-                'percent': percent
+                'percent': min(round(percent, 1), 100.0)
             })
 
-        # 1. Sắp xếp ngành có % cao nhất lên đầu
+        # Sắp xếp và lấy Top 3
         results_percent = sorted(results_percent, key=lambda x: x['percent'], reverse=True)
-
-        # 2. CHỈ LẤY 3 NGÀNH CAO NHẤT
         top_3_results = results_percent[:3]
 
-        # 3. Lưu vào session để trang kết quả hiển thị
+        # --- LƯU VÀO DATABASE ---
+        try:
+            # Lấy thông tin user hiện tại từ session (giả định session lưu 'user_id')
+            user_id = request.session.get('user_id')
+            user_obj = NguoiDung.objects.get(mand=user_id)
+            
+            # Tạo mã kết quả mới (ví dụ dùng UUID ngắn hoặc format KQxxx)
+            new_makq = "KQ" + str(uuid.uuid4()).upper()[:8]
+            
+            KetQuaKhaoSat.objects.create(
+                makq=new_makq,
+                mand=user_obj,
+                tongdiem=total_score,
+                ketqua=json.dumps(top_3_results, ensure_ascii=False) # Lưu dưới dạng chuỗi JSON
+            )
+        except Exception as e:
+            print(f"Lỗi lưu database: {e}")
+
+        # Lưu session để hiển thị ngay trang kết quả
         request.session["khao_sat_total"] = total_score
         request.session["khao_sat_results"] = top_3_results 
         
-        # Chuyển hướng sang trang kết quả (name="ketqua_khaosat" trong urls.py)
         return redirect("ketqua_khaosat")
 
     return render(request, "khaosat/khaosat.html", {"questions": questions})
+
+
 def ketqua_khao_sat_view(request):
-    total = request.session.get("khao_sat_total")
+    # Lấy dữ liệu từ session sau khi redirect
+    total = request.session.get("khao_sat_total", 0)
     results = request.session.get("khao_sat_results", [])
+
+    if not results:
+        # Nếu user truy cập trực tiếp mà chưa làm khảo sát
+        return redirect("khao_sat")
 
     return render(
         request,
-"khaosat/ketqua.html",
+        "khaosat/ketqua.html",
         {
             "total": total,
-            "results": results, # Danh sách các ngành và %
+            "results": results,
         },
     )
 import json
@@ -674,53 +701,68 @@ def admin_truong_list(request):
 @admin_required
 def admin_truong_insert(request):
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
+    
     if request.method == "POST":
+        # Lấy dữ liệu từ form
         tentruong = request.POST.get("tentruong", "").strip()
         madvhc = request.POST.get("madvhc", "").strip()
-        loaitruong = request.POST.get("loaitruong")
+        loaitruong = request.POST.get("loaitruong", "").strip()
+        dienthoai = request.POST.get("dienthoai", "").strip()
         diachi = request.POST.get("diachi", "").strip()
         lat = request.POST.get("lat", "").strip()
         lng = request.POST.get("lng", "").strip()
         mota = request.POST.get("mota", "").strip()
 
-        # 1. Kiểm tra trống
-        if not tentruong or not madvhc:
-            messages.error(request, "Tên trường và đơn vị hành chính không được để trống.")
-            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
+        # 1. Kiểm tra các trường bắt buộc
+        if not tentruong or not madvhc or not lat or not lng:
+            messages.error(request, "Vui lòng nhập đầy đủ tên trường, đơn vị hành chính và tọa độ.")
+            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
 
-        # 2. Xử lý tọa độ
+        # 2. Xử lý logic tọa độ
         try:
-            lat_val = float(lat) if lat else None
-            lng_val = float(lng) if lng else None
+            lat_val = float(lat)
+            lng_val = float(lng)
             
-            if lat_val is not None and (lat_val < 0 or lng_val < 0):
+            # --- CHẶN TRÙNG TỌA ĐỘ TẠI ĐÂY ---
+            # Kiểm tra xem có trường nào đã dùng tọa độ này chưa
+            exists = TruongDaiHoc.objects.filter(lat=lat_val, lng=lng_val).exists()
+            if exists:
+                messages.error(request, f"Lỗi: Tọa độ ({lat_val}, {lng_val}) đã được sử dụng cho một trường khác!")
+                return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
+            # ---------------------------------
+
+            if lat_val < 0 or lng_val < 0:
                 messages.error(request, "Tọa độ không được là số âm.")
-                return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
+                return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
         except ValueError:
             messages.error(request, "Định dạng tọa độ không hợp lệ.")
-            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
+            return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
 
-        # 3. Lưu dữ liệu
-        truong = TruongDaiHoc.objects.create(
-            matruong=generate_matruong(),
-            tentruong=tentruong,
-            loaitruong=loaitruong,
-            madvhc_id=madvhc,
-            diachi=diachi,
-            lat=lat_val,
-            lng=lng_val
-        )
-
-        if mota:
-            ChiTietTruong.objects.create(
-                mactt=generate_mactt(), 
-                matruong=truong, 
-                mota=mota
+        # 3. Lưu dữ liệu nếu mọi thứ hợp lệ
+        try:
+            truong = TruongDaiHoc.objects.create(
+                matruong=generate_matruong(),
+                tentruong=tentruong,
+                loaitruong=loaitruong,
+                madvhc_id=madvhc,
+                diachi=diachi,
+                dienthoai=dienthoai,
+                lat=lat_val,
+                lng=lng_val
             )
 
-        messages.success(request, "Thêm trường thành công.")
-        return redirect("admin_truong_list")
-        
+            if mota:
+                ChiTietTruong.objects.create(
+                    mactt=generate_mactt(), 
+                    matruong=truong, 
+                    mota=mota
+                )
+
+            messages.success(request, f"Thêm trường {tentruong} thành công.")
+            return redirect("admin_truong_list")
+        except Exception as e:
+            messages.error(request, f"Lỗi hệ thống: {str(e)}")
+            
     return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc})
 
 @admin_required
@@ -735,6 +777,7 @@ def admin_truong_edit(request, matruong):
             truong.loaitruong = request.POST.get("loaitruong")
             truong.madvhc_id = request.POST.get("madvhc")
             truong.diachi = request.POST.get("diachi")
+            dienthoai = request.POST.get("dienthoai", "").strip()
             truong.lat = float(request.POST.get("lat")) if request.POST.get("lat") else None
             truong.lng = float(request.POST.get("lng")) if request.POST.get("lng") else None
             truong.save()
@@ -1193,3 +1236,4 @@ def admin_hinhanh_nganh_delete(request, mahinh):
     
 def admin_khaosat_list(request):
     return render(request, "admin/khaosat/list.html")
+

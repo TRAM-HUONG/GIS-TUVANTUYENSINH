@@ -85,9 +85,13 @@ urlpatterns = [
    
     path('admin/hinhanh_nganh/edit/<str:mahinh>/', views.admin_hinhanh_nganh_edit, name='admin_hinhanh_nganh_edit'),
     path('admin/hinhanh_nganh/delete/<str:mahinh>/', views.admin_hinhanh_nganh_delete, name='admin_hinhanh_nganh_delete'),
+    
+        # =========================
+    # ADMIN - QUẢN LÝ KHẢO SÁT
+    # =========================
+    path("admin/khao-sat/", views.admin_khaosat_list, name="admin_khaosat_list"),
+    
 ]
-
-
 
 # Cấu hình để hiển thị file media (hình ảnh) trong quá trình phát triển
 if settings.DEBUG:

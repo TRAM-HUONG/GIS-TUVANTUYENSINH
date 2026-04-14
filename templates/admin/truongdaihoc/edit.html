@@ -30,25 +30,25 @@
             <form method="POST">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label">Tên trường đại học *</label>
+                    <label class="form-label fw-bold">Tên trường đại học *</label>
                     <input type="text" name="tentruong" class="form-control" value="{{ truong.tentruong }}" required>
                 </div>
 
                 <div class="coord-group">
                     <div class="row g-2">
                         <div class="col-6">
-                            <label class="form-label text-primary small">Vĩ độ</label>
+                            <label class="form-label text-primary small fw-bold">Vĩ độ</label>
                             <input type="number" step="any" id="lat" name="lat" class="form-control coord-input" value="{{ truong.lat|stringformat:'.6f' }}" required>
                         </div>
                         <div class="col-6">
-                            <label class="form-label text-primary small">Kinh độ</label>
+                            <label class="form-label text-primary small fw-bold">Kinh độ</label>
                             <input type="number" step="any" id="lng" name="lng" class="form-control coord-input" value="{{ truong.lng|stringformat:'.6f' }}" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Đơn vị hành chính *</label>
+                    <label class="form-label fw-bold">Đơn vị hành chính *</label>
                     <select name="madvhc" class="form-select" required>
                         {% for dv in dshc %}
                             <option value="{{ dv.madvhc }}" {% if truong.madvhc.madvhc == dv.madvhc %}selected{% endif %}>{{ dv.tendvhc }}</option>
@@ -56,11 +56,25 @@
                     </select>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Địa chỉ</label>
-                    <textarea name="diachi" class="form-control" rows="2">{{ truong.diachi|default:'' }}</textarea>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Loại trường</label>
+                        <select name="loaitruong" class="form-select">
+                            <option value="Công lập" {% if truong.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
+                            <option value="Tư thục" {% if truong.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
+                            <option value="Dân lập" {% if truong.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Số điện thoại</label>
+                        <input type="text" name="dienthoai" class="form-control" value="{{ truong.dienthoai|default:'' }}" placeholder="028...">
+                    </div>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Địa chỉ</label>
+                    <textarea name="diachi" class="form-control" rows="2">{{ truong.diachi|default:'' }}</textarea>
+                </div>
                 <button type="submit" class="btn-update mb-2"><i class="fas fa-check me-2"></i> LƯU THAY ĐỔI</button>
                 <a href="{% url 'admin_truong_list' %}" class="btn btn-light w-100 border text-muted fw-bold">Hủy bỏ</a>
             </form>
@@ -76,7 +90,6 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-
     var initialLat = parseFloat("{{ truong.lat|default:'10.762622' }}");
     var initialLng = parseFloat("{{ truong.lng|default:'106.660172' }}");
 

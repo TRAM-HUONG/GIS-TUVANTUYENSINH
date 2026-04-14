@@ -289,23 +289,18 @@ class LuaChonKhaoSat(models.Model):
 
 
 class KetQuaKhaoSat(models.Model):
-    makq = models.CharField(db_column="MAKQ", max_length=5, primary_key=True)
-    diemtu = models.IntegerField(db_column="DIEMTU")
-    diemden = models.IntegerField(db_column="DIEMDEN")
-    manganh = models.ForeignKey(
-        NganhHoc,
-        db_column="MANGANH",
-        on_delete=models.CASCADE,
-        related_name="ketqua_goiy"
-    )
-    mota = models.CharField(db_column="MOTA", max_length=200, null=True, blank=True)
+    makq = models.CharField(db_column="MAKQ", primary_key=True, max_length=10)
+    mand = models.ForeignKey('NguoiDung', on_delete=models.CASCADE, db_column="MAND")
+    tongdiem = models.IntegerField(db_column="TONGDIEM")
+    ketqua = models.TextField(db_column="KETQUA") # Lưu JSON top 3 ngành
+    ngaylam = models.DateTimeField(db_column="NGAYLAM", auto_now_add=True)
 
     class Meta:
         managed = False
         db_table = "KETQUAKHAOSAT"
 
     def __str__(self):
-        return f"{self.diemtu} - {self.diemden}"
+        return f"{self.makq} - {self.mand_id}"
 
 
 class VaiTro(models.Model):
