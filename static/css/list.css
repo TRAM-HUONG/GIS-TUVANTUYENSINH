@@ -30,6 +30,54 @@
 
   --wrap: 1800px;
 }/* Cấu trúc giao diện */
+
+    /* 1. Tự động sửa lỗi Bảng bị tràn trên điện thoại */
+    table {
+        display: block;
+        width: 100% !important;
+        overflow-x: auto; /* Cho phép vuốt ngang nếu bảng quá rộng */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 2. Ép tất cả các khung chia cột (main-row, main-layout) về 1 cột trên Mobile */
+    @media (max-width: 768px) {
+        /* Chuyển Flexbox sang hàng dọc */
+        .main-row, .main-layout, .d-flex {
+            flex-direction: column !important;
+            display: flex !important;
+        }
+
+        /* Ép các cột Form và Map/Image chiếm 100% chiều rộng */
+        .form-column, .map-column, .detail-info-card, .detail-image-full, .image-gallery {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+
+        /* Chỉnh lại các ô input/select để không bị bé quá */
+        input, select, textarea {
+            width: 100% !important;
+            font-size: 16px !important; /* Tránh iOS tự động zoom khi click */
+        }
+
+        /* Chỉnh lại nút bấm */
+        .btn, button {
+            width: 100% !important;
+            margin-bottom: 10px;
+        }
+
+        /* Tiêu đề trang */
+        h2 {
+            font-size: 1.5rem !important;
+            text-align: center;
+        }
+
+        /* Danh sách ảnh trong list.html */
+        .image-gallery {
+            justify-content: center;
+        }
+    }
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f7fa;

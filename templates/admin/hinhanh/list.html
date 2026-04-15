@@ -54,44 +54,50 @@
             </tr>
         </thead>
         <tbody>
-            {% for truong in page_obj %}
-            <tr>
-                <td>{{ truong.matruong }}</td>
-                <td><strong>{{ truong.tentruong }}</strong></td>
-                <td>
-                    <div class="image-gallery">
-                        {% for ha in truong.hinh_anh_truong.all %}
-                        <div class="image-item">
-                            <img src="{% static 'img/TDH/'|add:ha.tenfile %}" alt="{{ ha.tenfile }}" width="100" height="70">
-                            <div class="img-actions">
-                                <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}" title="Sửa">Sửa</a> | 
-                                <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}" title="Xóa" style="color:red;">Xóa</a>
-                
-                            </div>
-                            <td>
-    {% if truong.hinh_anh_truong.all %}
-        {% with first_img=truong.hinh_anh_truong.all.0 %}
-            <a href="{% url 'admin_hinhanh_delete' first_img.mahinh_truong %}?scope=all" 
-               class="btn btn-outline-danger btn-sm" 
-               style="font-size: 0.75rem; padding: 2px 8px;">
-                <i class="fas fa-trash-alt me-1"></i> Xóa tất cả ảnh
-            </a>
-        {% endwith %}
-    {% endif %}
-</td>
-                        </div>
-                        {% empty %}
-                        <span style="color: #999; font-style: italic;">Chưa có hình ảnh nào.</span>
-                        {% endfor %}
-                    </div>
-                </td>
-            </tr>
+    {% for truong in page_obj %}
+    <tr>
+        <td>{{ truong.matruong }}</td>
+        <td><strong>{{ truong.tentruong }}</strong></td>
+        <td style="vertical-align: top;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+        
+        <div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 15px; flex: 1;">
+            {% for ha in truong.hinh_anh_truong.all %}
+            <div class="image-item" style="border: 1px solid #eee; padding: 4px; border-radius: 6px; background: #fff;">
+                <img src="{% static 'img/TDH/'|add:ha.tenfile %}" 
+                     alt="{{ ha.tenfile }}" 
+                     style="width: 100px; height: 70px; object-fit: cover; display: block; border-radius: 4px;">
+                <div class="img-actions" style="text-align: center; margin-top: 5px; font-size: 0.85rem;">
+                    <a href="{% url 'admin_hinhanh_edit' ha.mahinh_truong %}" style="text-decoration: none; color: #007bff;">Sửa</a> 
+                    <span style="color: #ccc;">|</span> 
+                    <a href="{% url 'admin_hinhanh_delete' ha.mahinh_truong %}" style="text-decoration: none; color: red;">Xóa</a>
+                </div>
+            </div>
             {% empty %}
-            <tr>
-                <td colspan="3" style="text-align:center;">Không tìm thấy trường nào.</td>
-            </tr>
+            <span style="color: #999; font-style: italic;">Chưa có hình ảnh nào.</span>
             {% endfor %}
-        </tbody>
+        </div>
+
+        {% if truong.hinh_anh_truong.all %}
+            {% with first_img=truong.hinh_anh_truong.all.0 %}
+            <div style="margin-left: 20px;">
+                <a href="{% url 'admin_hinhanh_delete' first_img.mahinh_truong %}?scope=all" 
+                   class="btn btn-outline-danger btn-sm" 
+                   style="white-space: nowrap; font-size: 0.75rem; padding: 6px 12px; border-radius: 20px; font-weight: 500; display: inline-flex; align-items: center;">
+                    <i class="fas fa-trash-alt" style="margin-right: 5px;"></i> Xóa tất cả ảnh
+                </a>
+            </div>
+            {% endwith %}
+        {% endif %}
+    </div>
+</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3" style="text-align:center;">Không tìm thấy trường nào.</td>
+    </tr>
+    {% endfor %}
+</tbody>
     </table>
 
     {% if page_obj.has_other_pages %}

@@ -21,7 +21,7 @@
     #major-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 5px; margin-top: 10px; }
     #major-chips .chip { color: #000000; border: 1px solid #1a73e8; border-radius: 8px; padding: 8px 5px; font-size: 11px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; }
     .popup-route-btn { display: inline-block; margin-top: 10px; padding: 8px 12px; border-radius: 8px; border: none; background: #0d6efd; color: white; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; }
-
+   
     .card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); border-color: #1a73e8; }
     .card__title { font-weight: 700; color: #1f2937; }
     .card__meta { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
@@ -72,6 +72,16 @@
         align-items: center;
         
     }
+    /* Tùy chỉnh bảng chọn lớp bản đồ giống Google */
+.leaflet-control-layers {
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    border: none !important;
+}
+.leaflet-control-layers-list {
+    font-size: 13px;
+    font-weight: 600;
+}
 
     @media (max-width: 480px) { #major-chips { grid-template-columns: repeat(2, 1fr); } }
 </style>
@@ -160,26 +170,57 @@
     }
 
     function initMap() {
-        const voyager = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { attribution: "© CartoDB" });
-        const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' });
-        
-        map = L.map("real-map", {
-            center: [userLocation.lat, userLocation.lng],
-            zoom: 12,
-            layers: [voyager]
+        // --- CẤU HÌNH CÁC LỚP BẢN ĐỒ CHI TIẾT TỪ GOOGLE ---
+        const googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Maps'
         });
 
-        const baseMaps = { "🎨 Mặc định": voyager, "🛰️ Vệ tinh": satellite };
-        markerLayer = L.layerGroup().addTo(map);
-        L.control.layers(baseMaps, { "📍 Trường học": markerLayer }).addTo(map);
+        const googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Hybrid'
+        });
 
-        const geocoder = L.Control.geocoder({ defaultMarkGeocode: false, placeholder: "Nhập địa chỉ..." })
-            .on("markgeocode", function (e) {
-                userLocation = e.geocode.center;
-                drawUserMarker();
-                map.setView(userLocation, 14);
-                applyFilters();
-            });
+        const googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Satellite'
+        });
+
+        const googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], attribution: 'Google Terrain'
+        });
+
+        // Khởi tạo bản đồ với lớp Hỗn hợp (Hybrid) mặc định để thấy chi tiết nhất
+        map = L.map("real-map", {
+            center: [userLocation.lat, userLocation.lng],
+            zoom: 14, // Tăng độ zoom mặc định
+            layers: [googleHybrid],
+            zoomControl: false // Tắt để tùy chỉnh vị trí nút zoom
+        });
+
+        // Thêm nút Zoom ở góc dưới bên phải cho giống Google Maps
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // Bảng điều khiển các loại bản đồ
+        const baseMaps = { 
+            "🗺️ Đường phố": googleStreets, 
+            "🛰️ Vệ tinh": googleSat,
+            "🌍 Hỗn hợp": googleHybrid,
+            "⛰️ Địa hình": googleTerrain
+        };
+        
+        markerLayer = L.layerGroup().addTo(map);
+        L.control.layers(baseMaps, { "📍 Trường học": markerLayer }, { position: 'topright' }).addTo(map);
+
+        // Geocoder tìm kiếm địa chỉ
+        const geocoder = L.Control.geocoder({ 
+            defaultMarkGeocode: false, 
+            placeholder: "Tìm địa chỉ chi tiết...",
+            geocoder: L.Control.Geocoder.photon() // Sử dụng photon để tìm kiếm mượt hơn
+        })
+        .on("markgeocode", function (e) {
+            userLocation = e.geocode.center;
+            drawUserMarker();
+            map.flyTo(userLocation, 16); // Hiệu ứng lướt mượt mà khi tìm thấy
+            applyFilters();
+        });
         
         document.getElementById("geocoder-input").appendChild(geocoder.onAdd(map));
         drawUserMarker();
@@ -198,7 +239,7 @@
         if (routingControl) map.removeControl(routingControl);
         routingControl = L.Routing.control({
             waypoints: [L.latLng(userLocation.lat, userLocation.lng), L.latLng(destLat, destLng)],
-            lineOptions: { styles: [{ color: "#0d6efd", weight: 6 }] },
+            lineOptions: { styles: [{ color: "#0d6efd", weight: 6, opacity: 0.8 }] },
             addWaypoints: false,
             show: false,
             createMarker: function() { return null; }
@@ -251,14 +292,22 @@
         list.innerHTML = "";
         document.getElementById("result-count").textContent = filtered.length;
 
+        // Định nghĩa Icon cho trường học chuyên nghiệp hơn
+        const schoolIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', // Icon trường học
+            iconSize: [35, 35],
+            iconAnchor: [17, 35],
+            popupAnchor: [0, -35]
+        });
+
         filtered.forEach(s => {
-            const m = L.marker([s.lat, s.lng]).addTo(markerLayer).bindPopup(buildPopup(s, s._dist));
+            const m = L.marker([s.lat, s.lng], { icon: schoolIcon }).addTo(markerLayer).bindPopup(buildPopup(s, s._dist));
             
             const item = document.createElement("div");
             item.className = "card";
             item.innerHTML = `<div class="card__title">${s.tentruong}</div><div class="card__meta">${s._dist.toFixed(2)} km - ~${getETA(s._dist)}</div>`;
             item.onclick = () => {
-                map.setView([s.lat, s.lng], 15);
+                map.flyTo([s.lat, s.lng], 16, { animate: true, duration: 1.5 }); // Hiệu ứng lướt mượt mà
                 m.openPopup();
             };
             list.appendChild(item);
@@ -293,11 +342,13 @@
     document.getElementById("btn-apply").onclick = applyFilters;
     document.getElementById("btn-reset").onclick = () => location.reload();
     document.getElementById("btn-clear-route").onclick = () => routingControl && map.removeControl(routingControl);
+    
     document.getElementById("btn-my-location").onclick = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(p => {
                 userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
-                drawUserMarker(); map.setView(userLocation, 13);
+                drawUserMarker(); 
+                map.flyTo(userLocation, 15);
                 applyFilters();
             });
         }

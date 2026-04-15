@@ -3,7 +3,33 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/insert.css' %}">
-    
+    <style>
+    /* Khung chứa ảnh preview */
+    #map {
+        display: flex; /* Kích hoạt flexbox */
+        flex-wrap: wrap; /* Tự động xuống dòng */
+        align-content: flex-start; /* Dồn ảnh lên phía trên */
+        gap: 15px; /* Khoảng cách giữa các ảnh */
+        padding: 20px;
+        overflow-y: auto; /* Cho phép cuộn nếu quá nhiều ảnh */
+        background: rgba(255, 255, 255, 0.5);
+        border: 2px dashed #ccc; /* Tạo viền nét đứt cho đẹp */
+        min-height: 400px;
+    }
+
+    .preview-item {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .preview-item:hover {
+        transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi di chuột */
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -60,9 +86,9 @@
     document.getElementById('imgInput').onchange = function (evt) {
         const files = evt.target.files;
         const placeholder = document.getElementById('placeholder');
-        const mapColumn = document.querySelector('.map-column #map');
+        const mapColumn = document.getElementById('map');
         
-        // Xóa các ảnh preview cũ nếu có
+        // Xóa các ảnh preview cũ
         const oldPreviews = mapColumn.querySelectorAll('.preview-item');
         oldPreviews.forEach(img => img.remove());
 
@@ -71,8 +97,7 @@
             Array.from(files).forEach(file => {
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(file);
-                img.className = 'preview-item';
-                img.style = "width:100px; height:100px; object-fit:cover; margin:5px; border-radius:8px;";
+                img.className = 'preview-item'; // Sử dụng class CSS đã định nghĩa ở trên
                 mapColumn.appendChild(img);
             });
         } else {

@@ -12,6 +12,7 @@ urlpatterns = [
     path("dang-xuat/", views.logout_view, name="logout"),
     path("quen-mat-khau/", views.forgot_password_view, name="forgot_password"),
     path("dat-lai-mat-khau/", views.reset_password_view, name="reset_password"),
+    path("xac-nhan-dang-ky/", views.confirm_registration_view, name="confirm_registration"),
 
     # =========================
     # USER PAGE

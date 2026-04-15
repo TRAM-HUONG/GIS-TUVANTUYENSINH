@@ -173,7 +173,7 @@ def reset_password_view(request):
         if pw == cpw:
             email = request.session.get('reset_email')
             user = NguoiDung.objects.get(email=email)
-            user.matkhau = make_password(pw) # Lưu mật khẩu đã mã hóa
+            user.matkhau = pw
             user.save()
             del request.session['reset_token']
             messages.success(request, "Đổi mật khẩu thành công!")
@@ -191,6 +191,7 @@ def register_view(request):
         password = request.POST.get("password", "").strip()
         password_confirmation = request.POST.get("password_confirmation", "").strip()
 
+        # 1. Kiểm tra nhập liệu
         if not all([full_name, email, phone_number, password, password_confirmation]):
             messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
             return render(request, "auth/dang-ky.html")
@@ -199,6 +200,7 @@ def register_view(request):
             messages.error(request, "Mật khẩu xác nhận không khớp.")
             return render(request, "auth/dang-ky.html")
 
+        # 2. Kiểm tra tồn tại
         if NguoiDung.objects.filter(email=email).exists():
             messages.error(request, "Email đã tồn tại.")
             return render(request, "auth/dang-ky.html")
@@ -207,29 +209,91 @@ def register_view(request):
             messages.error(request, "Số điện thoại đã tồn tại.")
             return render(request, "auth/dang-ky.html")
 
+        # 3. Độ mạnh mật khẩu
         if len(password) < 8 or not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
             messages.error(request, "Mật khẩu phải ít nhất 8 ký tự, bao gồm cả chữ và số.")
             return render(request, "auth/dang-ky.html")
 
-        role_user = get_role_user()
-        if not role_user:
-            messages.error(request, "Hệ thống chưa có vai trò USER.")
-            return render(request, "auth/dang-ky.html")
+        # 4. Lưu tạm vào session và gửi mail
+        # Lưu dữ liệu vào dictionary để sau này lấy ra tạo user
+        registration_data = {
+            'full_name': full_name,
+            'email': email,
+            'phone_number': phone_number,
+            'password': password, # Lưu ý: Nếu muốn an toàn hơn hãy dùng make_password(password) tại đây
+        }
+        
+        token = str(uuid.uuid4())
+        request.session['temp_reg_data'] = registration_data
+        request.session['reg_token'] = token
+        
+        # Tạo link xác nhận
+        confirm_link = request.build_absolute_uri(f"/xac-nhan-dang-ky/?token={token}")
+        
+        # Gửi email
+        subject = "Xác nhận đăng ký tài khoản"
+        context = {
+            'user_name': full_name,
+            'confirm_link': confirm_link,
+        }
+        # Bạn có thể tạo file html riêng hoặc dùng chung email_template nhưng đổi nội dung
+        html_message = render_to_string('auth/email_confirm_template.html', context)
+        
+        try:
+            email_msg = EmailMessage(subject, html_message, settings.DEFAULT_FROM_EMAIL, [email])
+            email_msg.content_subtype = 'html'
+            email_msg.send()
+            messages.success(request, f"Một link xác nhận đã được gửi đến {email}. Vui lòng kiểm tra Mailtrap!")
+        except Exception as e:
+            messages.error(request, "Lỗi gửi mail xác nhận. Vui lòng thử lại.")
+            print(f"Mail error: {e}")
 
-        username = generate_username_from_email(email)
+        return redirect("login")
+
+    return render(request, "auth/dang-ky.html")
+
+
+def confirm_registration_view(request):
+    token_url = request.GET.get('token')
+    token_session = request.session.get('reg_token')
+    data = request.session.get('temp_reg_data')
+
+    if not token_url or token_url != token_session or not data:
+        messages.error(request, "Liên kết xác nhận không hợp lệ hoặc đã hết hạn.")
+        return redirect('register')
+
+    # Kiểm tra lại email lần nữa cho chắc chắn trước khi tạo
+    if NguoiDung.objects.filter(email=data['email']).exists():
+        messages.error(request, "Email này đã được đăng ký trước đó.")
+        return redirect('login')
+
+    role_user = get_role_user()
+    if not role_user:
+        messages.error(request, "Lỗi hệ thống: Không tìm thấy vai trò người dùng.")
+        return redirect('register')
+
+    # Tiến hành tạo tài khoản thật vào Database
+    username = generate_username_from_email(data['email'])
+    try:
         NguoiDung.objects.create(
             mand=generate_mand(),
-            hoten=full_name,
-            email=email,
-            sodienthoai=phone_number,
+            hoten=data['full_name'],
+            email=data['email'],
+            sodienthoai=data['phone_number'],
             tendangnhap=username,
-            matkhau=password,
+            matkhau=data['password'], # Nếu ở register_view chưa hash thì dùng make_password(data['password'])
             mavaitro=role_user,
             trangthai="HOATDONG",
         )
-        messages.success(request, "Đăng ký thành công. Vui lòng đăng nhập.")
-        return redirect("login")
-    return render(request, "auth/dang-ky.html")
+        # Xóa session sau khi hoàn tất
+        del request.session['temp_reg_data']
+        del request.session['reg_token']
+        
+        messages.success(request, "Xác thực thành công! Bạn có thể đăng nhập ngay.")
+        return redirect('login')
+    except Exception as e:
+        messages.error(request, "Có lỗi xảy ra trong quá trình tạo tài khoản.")
+        return redirect('register')
 
 
 def login_view(request):
@@ -720,19 +784,21 @@ def admin_truong_list(request):
 @admin_required
 def admin_truong_insert(request):
     dshc = DonViHanhChinh.objects.all().order_by("tendvhc")
-    
     if request.method == "POST":
-        # Lấy dữ liệu từ form
+        # 1. Lấy thêm dữ liệu email và website từ form
         tentruong = request.POST.get("tentruong", "").strip()
         madvhc = request.POST.get("madvhc", "").strip()
         loaitruong = request.POST.get("loaitruong", "").strip()
         dienthoai = request.POST.get("dienthoai", "").strip()
+        
+        # Thêm 2 dòng này
+        email = request.POST.get("email", "").strip()
+        website = request.POST.get("website", "").strip()
+        
         diachi = request.POST.get("diachi", "").strip()
         lat = request.POST.get("lat", "").strip()
         lng = request.POST.get("lng", "").strip()
         mota = request.POST.get("mota", "").strip()
-
-        # 1. Kiểm tra các trường bắt buộc
         if not tentruong or not madvhc or not lat or not lng:
             messages.error(request, "Vui lòng nhập đầy đủ tên trường, đơn vị hành chính và tọa độ.")
             return render(request, "admin/truongdaihoc/insert.html", {"dshc": dshc, "old_data": request.POST})
@@ -766,6 +832,8 @@ def admin_truong_insert(request):
                 madvhc_id=madvhc,
                 diachi=diachi,
                 dienthoai=dienthoai,
+                email=email,
+                website=website,
                 lat=lat_val,
                 lng=lng_val
             )
