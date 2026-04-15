@@ -9,120 +9,71 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 <style>
-    /* Ẩn bảng text hướng dẫn của Routing Machine để bản đồ thoáng hơn */
-    .leaflet-routing-container, .leaflet-routing-error {
-        display: none !important;
-    }
-
+    /* --- PHẦN GIỮ NGUYÊN CỦA BẠN --- */
+    .leaflet-routing-container, .leaflet-routing-error { display: none !important; }
     .popup-content { min-width: 250px; font-family: sans-serif; }
-    .popup-img {
-        width: 100%;
-        height: 140px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        cursor: pointer;
-
-    }
-    .popup-title {
-        font-weight: bold;
-        color: #000000;
-        font-size: 15px;
-        margin-bottom: 5px;
-        display: block;
-        text-decoration: none;
-    }
-    .popup-info {
-        font-size: 13px;
-        line-height: 1.5;
-        color: #333;
-    }
+    .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+    .popup-title { font-weight: bold; color: #000000; font-size: 15px; margin-bottom: 5px; display: block; text-decoration: none; }
+    .popup-info { font-size: 13px; line-height: 1.5; color: #333; }
     .popup-info b { color: #555; }
-    
-    .popup-link { 
-        color: #d93025; 
-        font-weight: bold; 
-        text-decoration: none; 
-        display: block; 
-        margin-top: 10px; 
-        
-        padding-top: 8px; 
-    }
+    .popup-link { color: #d93025; font-weight: bold; text-decoration: none; display: block; margin-top: 10px; padding-top: 8px; }
+    .field:has(#major-chips) { background: rgba(255, 255, 255, 0.03); border-radius: 12px; padding: 15px; margin-top: 10px; }
+    #major-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 5px; margin-top: 10px; }
+    #major-chips .chip { color: #000000; border: 1px solid #1a73e8; border-radius: 8px; padding: 8px 5px; font-size: 11px; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .popup-route-btn { display: inline-block; margin-top: 10px; padding: 8px 12px; border-radius: 8px; border: none; background: #0d6efd; color: white; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; }
 
-    /* Container Ngành quan tâm */
-    .field:has(#major-chips) {
-        background: rgba(255, 255, 255, 0.03);
-       
-        border-radius: 12px;
-        padding: 15px;
-        margin-top: 10px;
-    }
-
-    #major-chips {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-        gap: 8px;
-        max-height: 200px;
-        overflow-y: auto;
-        padding-right: 5px;
-        margin-top: 10px;
-    }
-
-    #major-chips .chip {
-       
-        color: #000000;
-        border: 1px solid #1a73e8;
-        border-radius: 8px;
-        padding: 8px 5px;
-        font-size: 11px;
-        font-weight: 600;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
- 
- 
-
-    .popup-route-btn {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: none;
-        background: #0d6efd;
-       
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        width: 100%;
-    }
-
-    .card {
-        padding: 12px;
-        border-radius: 12px;
- 
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: 0.2s ease;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); border-color: #1a73e8; }
     .card__title { font-weight: 700; color: #1f2937; }
     .card__meta { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+    #real-map { width: 100%; height: 100%; min-height: 650px; z-index: 1; }
 
-    #real-map {
-        width: 100%;
-        height: 100%;
-        min-height: 650px;
-        z-index: 1;
+    /* --- PHẦN THÊM ĐỂ HIỆN DANH SÁCH (KHÔNG ĐỔI LOGIC) --- */
+    .filter {
+        display: flex;
+        flex-direction: column;
+        height: 100vh; /* Cố định chiều cao sidebar */
+        overflow: hidden;
     }
 
-    @media (max-width: 480px) {
-        #major-chips { grid-template-columns: repeat(2, 1fr); }
+  .filter__inputs-wrapper {
+        flex-shrink: 0; 
+        max-height: 60vh; /* Bộ lọc tối đa chiếm 60% màn hình */
+        overflow-y: auto;
+        padding: 15px;
+    
     }
+    
+    .tab__panel--active {
+        max-height: 350px; /* Giới hạn chiều cao bộ lọc */
+        overflow-y: auto;
+    }
+
+    /* Vùng kết quả: Tự động chiếm diện tích còn lại và hiện danh sách */
+    .result {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-top: 2px solid #1a73e8;
+     
+    }
+
+    .result__list {
+        flex-grow: 1;
+        overflow-y: auto; /* Tạo thanh cuộn riêng cho danh sách trường */
+        padding: 15px;
+    }
+
+    .result__head {
+        padding: 10px 15px;
+        
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+    }
+
+    @media (max-width: 480px) { #major-chips { grid-template-columns: repeat(2, 1fr); } }
 </style>
 {% endblock %}
 
@@ -170,10 +121,11 @@
 
         <div class="result" id="result-box">
             <div class="result__head">
-                <h3>📌 Kết quả</h3>
-                <span class="badge" id="result-count">0</span>
+                <h3 style="margin:0; font-size: 16px;">📌 Kết quả</h3>
+                <span class="badge" id="result-count" style="background: #1a73e8; color: white; padding: 2px 8px; border-radius: 10px;">0</span>
             </div>
-            <div class="result__list" id="result-list"></div>
+            <div class="result__list" id="result-list">
+                </div>
         </div>
     </aside>
 
@@ -256,7 +208,6 @@
     function buildPopup(s, dist) {
         const detailUrl = `/truong/${s.matruong}/`;
         const eta = getETA(dist);
-        const userScore = parseFloat(document.getElementById("score").value || 0);
         const maxDiem = (s.diem_chuan && s.diem_chuan.length > 0) ? Math.max(...s.diem_chuan.map(d => Number(d.diem) || 0)) : "---";
 
         return `

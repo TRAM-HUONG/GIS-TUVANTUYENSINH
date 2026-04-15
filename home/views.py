@@ -505,6 +505,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import KhaoSat, LuaChonKhaoSat, KetQuaKhaoSat, NguoiDung
 
+
 @login_required_custom
 def khao_sat_view(request):
     # Lấy danh sách câu hỏi kèm theo các lựa chọn
@@ -602,6 +603,24 @@ def ketqua_khao_sat_view(request):
             "results": results,
         },
     )
+import json
+from django.shortcuts import render
+from .models import KetQuaKhaoSat
+
+@login_required_custom # Sử dụng decorator phân quyền hiện có của bạn
+def lich_su_khao_sat(request):
+    mand = request.session.get("mand")
+    # Lấy danh sách kết quả của người dùng hiện tại
+    ds_ketqua = KetQuaKhaoSat.objects.filter(mand_id=mand).order_by('-makq')
+    
+    # Giải mã chuỗi JSON kết quả để template có thể đọc được
+    for item in ds_ketqua:
+        try:
+            item.parsed_results = json.loads(item.ketqua)
+        except:
+            item.parsed_results = []
+            
+    return render(request, "khaosat/lichsu.html", {"ds_ketqua": ds_ketqua})
 import json
 from django.http import JsonResponse
 from .services import get_ai_response

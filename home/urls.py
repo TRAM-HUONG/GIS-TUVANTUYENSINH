@@ -28,7 +28,8 @@ urlpatterns = [
     path("khao-sat/", views.khao_sat_view, name="khao_sat"),
     path("ket-qua-khao-sat/", views.ketqua_khao_sat_view, name="ketqua_khaosat"),
     path("chat-ai/", views.chat_with_ai, name="chat_ai"),
-
+    # Thêm dòng này vào urlpatterns
+    path("lich-su-khao-sat/", views.lich_su_khao_sat, name="lich_su_khao_sat"),
     # =========================
     # ADMIN DASHBOARD
     # =========================

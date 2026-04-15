@@ -9,141 +9,153 @@
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --accent-color: #667eea;
-            --bg-light: #f4f7fe;
-            --border-radius-lg: 20px;
-            --border-radius-md: 12px;
-        }
+  /* Palette màu sắc */
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --accent-color: #667eea;
+  --bg-light: #f4f7fe;
+  --ink: #0b1b33;
+  --card: #ffffff;
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --shadow: 0 10px 25px rgba(0,0,0,0.05);
+  --shadow-strong: 0 15px 40px rgba(0,0,0,0.12);
+}
 
-        body {
-            background: var(--bg-light);
-            font-family: 'Segoe UI', sans-serif;
-        }
+body {
+    background-color: var(--bg-light);
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
 
-        /* Container rộng tối đa */
-        .insert-container-fluid {
-            padding: 20px 30px;
-        }
+/* Container chính */
+.insert-container-fluid {
+    padding: 20px 30px;
+}
 
-        /* Header Style */
-        .header-banner {
-            background: var(--primary-gradient);
-            padding: 25px 40px;
-            color: white;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 25px;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
-        }
+/* Banner tiêu đề */
+.header-banner {
+    background: var(--primary-gradient);
+    padding: 25px 40px;
+    color: white;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 25px;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+}
 
-        /* Layout Flexbox để đẩy Map rộng ra */
-        .main-wrapper {
-            display: flex;
-            gap: 25px;
-            align-items: flex-start;
-        }
+/* Bố cục chính Flexbox */
+.main-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
 
-        /* Cột Form: Cố định độ rộng để không bị loãng */
-        .form-sidebar {
-            flex: 0 0 420px;
-            background: white;
-            padding: 30px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.05);
-            animation: slideInLeft 0.5s ease-out;
-        }
+/* Cột bên trái: Form nhập liệu */
+.form-sidebar {
+    flex: 0 0 600px;
+    background: var(--card);
+    padding: 25px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+}
 
-        /* Cột Map: Chiếm toàn bộ không gian còn lại */
-        .map-display {
-            flex: 1;
-            position: relative;
-            animation: fadeIn 0.8s ease-out;
-        }
+/* Cột bên phải: Bản đồ */
+.map-display {
+    flex: 1; /* Chiếm toàn bộ phần còn lại */
+    position: relative;
+}
 
-        #map { 
-            height: 750px !important; /* Tăng chiều cao map */
-            width: 100%; 
-            border-radius: var(--border-radius-lg);
-            border: 5px solid white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
+#map { 
+    height: 780px !important; /* Tăng chiều cao để cân đối với form dài */
+    width: 100%; 
+    border-radius: var(--border-radius-lg);
+    border: 5px solid white;
+    box-shadow: var(--shadow-strong);
+}
 
-        /* Input & Label */
-        .form-label {
-            font-weight: 700;
-            color: #2d3748;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            display: block;
-        }
+/* Tùy chỉnh các ô Input */
+.form-label {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
 
-        .form-control, .form-select {
-            border: 2px solid #edf2f7;
-            border-radius: var(--border-radius-md);
-            padding: 12px;
-            background: #f8fafc;
-            transition: 0.3s;
-        }
+.form-control, .form-select {
+    border: 2px solid #edf2f7;
+    border-radius: var(--border-radius-md);
+    padding: 10px 15px;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+}
 
-        .form-control:focus {
-            border-color: var(--accent-color);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
+.form-control:focus {
+    border-color: var(--accent-color);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
 
-        /* Tọa độ box */
-        .coord-group {
-            background: #fff5f5;
-            padding: 20px;
-            border-radius: var(--border-radius-md);
-            border: 2px dashed #feb2b2;
-            margin-bottom: 20px;
-        }
+/* Nhóm tọa độ nổi bật */
+.coord-group {
+    background: #fff5f5;
+    padding: 15px;
+    border-radius: var(--border-radius-md);
+    border: 2px dashed #feb2b2;
+    margin: 20px 0;
+}
 
-        .coord-input {
-            text-align: center;
-            font-weight: bold;
-            color: #e53e3e;
-            font-family: 'Courier New', monospace;
-        }
+.coord-input {
+    text-align: center;
+    font-weight: bold;
+    color: #e53e3e;
+    font-family: 'Courier New', monospace;
+}
 
-        /* Nút bấm */
-        .btn-save {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: var(--border-radius-md);
-            font-weight: bold;
-            width: 100%;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
-        }
+/* Nút bấm */
+.btn-save {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: var(--border-radius-md);
+    font-weight: bold;
+    width: 100%;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3);
+    cursor: pointer;
+}
 
-        .btn-save:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4);
-            color: white;
-        }
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4);
+}
 
-        /* Custom Search Box trên Map */
-        .leaflet-control-geocoder {
-            margin-top: 15px !important;
-            margin-right: 15px !important;
-            border-radius: 10px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
-        }
+/* Search Box trên bản đồ */
+.leaflet-control-geocoder {
+    min-width: 350px !important;
+    background: white;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+    margin-top: 20px !important;
+}
 
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+.leaflet-control-geocoder-form input {
+    padding: 10px !important;
+    border-radius: 12px !important;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 1100px) {
+    .main-wrapper {
+        flex-direction: column;
+    }
+    .form-sidebar {
+        flex: 1 0 auto;
+        width: 100%;
+    }
+}
     </style>
 {% endblock %}
 
@@ -177,20 +189,35 @@
                     <label class="form-label">Tên trường đại học *</label>
                     <input type="text" name="tentruong" class="form-control" value="{{ old_data.tentruong }}" placeholder="Nhập tên trường..." required>
                 </div>
-                <div class="mb-3">
-    <label class="form-label">Loại trường *</label>
-    <select name="loaitruong" class="form-select" required>
-        <option value="">-- Chọn loại trường --</option>
-        <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
-        <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
-        <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
-        <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
-    </select>
-</div>
-<div class="col-md-6 mb-3">
-        <label class="form-label fw-bold">Số điện thoại</label>
-        <input type="text" name="dienthoai" class="form-control" placeholder="Nhập số điện thoại...">
-    </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Loại trường *</label>
+                        <select name="loaitruong" class="form-select" required>
+                            <option value="">-- Chọn loại trường --</option>
+                            <option value="Công lập" {% if old_data.loaitruong == "Công lập" %}selected{% endif %}>Công lập</option>
+                            <option value="Dân lập" {% if old_data.loaitruong == "Dân lập" %}selected{% endif %}>Dân lập</option>
+                            <option value="Tư thục" {% if old_data.loaitruong == "Tư thục" %}selected{% endif %}>Tư thục</option>
+                            <option value="Quốc tế" {% if old_data.loaitruong == "Quốc tế" %}selected{% endif %}>Quốc tế</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" name="dienthoai" class="form-control" value="{{ old_data.dienthoai }}" placeholder="Nhập số điện thoại...">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ old_data.email }}" placeholder="Nhập email...">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Website</label>
+                        <input type="text" name="website" class="form-control" value="{{ old_data.website }}" placeholder="Nhập website...">
+                    </div>
+                </div>
+
                 <div class="coord-group">
                     <div class="row g-2">
                         <div class="col-6">
@@ -219,8 +246,6 @@
                     <textarea name="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
                 </div>
 
-    
-
                 <button type="submit" class="btn-save mb-2">
                     <i class="fas fa-check-circle me-2"></i> LƯU THÔNG TIN
                 </button>
@@ -241,19 +266,51 @@
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
 <script>
-    // 1. Init Map (Focus vào Việt Nam)
+    // 1. Định nghĩa các lớp bản đồ "thật" từ Google
+    var googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: 'Google Maps'
+    });
+
+    var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: 'Google Satellite'
+    });
+
+    var googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: 'Google Hybrid'
+    });
+
+    var googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: 'Google Terrain'
+    });
+
+    // 2. Khởi tạo bản đồ
     var map = L.map('map', {
+        center: [10.762622, 106.660172],
+        zoom: 13,
+        layers: [googleHybrid], 
         zoomControl: false
-    }).setView([10.762622, 106.660172], 13);
+    });
+
+    // 3. Điều khiển lớp bản đồ
+    var baseMaps = {
+        "<span style='color: #2d3748'><i class='fas fa-road'></i> Đường phố</span>": googleStreets,
+        "<span style='color: #2d3748'><i class='fas fa-globe'></i> Vệ tinh</span>": googleSat,
+        "<span style='color: #2d3748'><i class='fas fa-map-marked-alt'></i> Hỗn hợp</span>": googleHybrid,
+        "<span style='color: #2d3748'><i class='fas fa-mountain'></i> Địa hình</span>": googleTerrain
+    };
     
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; CARTO'
-    }).addTo(map);
-
     var marker;
-
     function placeMarker(latlng, moveCamera = false) {
         if (marker) {
             marker.setLatLng(latlng);
@@ -267,10 +324,7 @@
                     iconAnchor: [12, 41]
                 })
             }).addTo(map);
-            
-            marker.on('dragend', function() {
-                updateInputs(marker.getLatLng());
-            });
+            marker.on('dragend', function() { updateInputs(marker.getLatLng()); });
         }
         if (moveCamera) map.panTo(latlng);
         updateInputs(latlng);
@@ -281,39 +335,32 @@
         document.getElementById('lng').value = latlng.lng.toFixed(6);
     }
 
-    // Sync 2 chiều: Nhập số -> Nhảy Map
     function syncMapFromInputs() {
         var lat = parseFloat(document.getElementById('lat').value);
         var lng = parseFloat(document.getElementById('lng').value);
-        if (!isNaN(lat) && !isNaN(lng)) {
-            placeMarker([lat, lng], true);
-        }
+        if (!isNaN(lat) && !isNaN(lng)) { placeMarker([lat, lng], true); }
     }
 
     document.getElementById('lat').addEventListener('input', syncMapFromInputs);
     document.getElementById('lng').addEventListener('input', syncMapFromInputs);
+    map.on('click', function(e) { placeMarker(e.latlng); });
 
-    map.on('click', function(e) {
-        placeMarker(e.latlng);
-    });
-
-    // Geocoder Search
     var geocoder = L.Control.geocoder({
         defaultMarkGeocode: false,
-        placeholder: "🔍 Tìm kiếm địa điểm...",
-        collapsed: false
+        placeholder: "🔍 Tìm địa chỉ chi tiết...",
+        collapsed: false,
+        geocoder: L.Control.Geocoder.photon() 
     })
     .on('markgeocode', function(e) {
         var center = e.geocode.center;
-        map.setView(center, 17);
+        map.setView(center, 18); 
         placeMarker(center);
     })
     .addTo(map);
 
-    // Old data recovery
     var oldLat = "{{ old_data.lat }}";
     var oldLng = "{{ old_data.lng }}";
-    if (oldLat && oldLng && oldLat !== "None") {
+    if (oldLat && oldLng && oldLat !== "None" && oldLat !== "") {
         placeMarker([parseFloat(oldLat), parseFloat(oldLng)], true);
     }
 </script>

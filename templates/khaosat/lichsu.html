@@ -1,0 +1,60 @@
+{% extends "layout/layout.html" %}
+{% load static %}
+
+{% block title %}Lịch sử khảo sát{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ketqua.css' %}">
+<style>
+    .history-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .history-meta { display: flex; justify-content: space-between; color: #666; font-size: 0.9em; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+    .top-result-tag { background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; margin-right: 5px; display: inline-block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="ks-wrap">
+    <div class="kq-head">
+        <h1 class="ks-title">🕒 Lịch sử khảo sát của bạn</h1>
+        <p class="ks-sub">Xem lại các định hướng nghề nghiệp bạn đã thực hiện.</p>
+    </div>
+
+    <div class="history-list">
+        {% for kq in ds_ketqua %}
+        <div class="history-card">
+            <div class="history-meta">
+                <span>Mã lượt: <strong>{{ kq.makq }}</strong></span>
+                <span>Tổng điểm: <strong>{{ kq.tongdiem }}</strong></span>
+            </div>
+            
+            <div class="history-results">
+                <p style="margin-bottom: 10px; font-weight: bold;">Top ngành phù hợp nhất:</p>
+                {% for res in kq.parsed_results %}
+                    <div class="result-item" style="margin-bottom: 15px;">
+                        <div class="nganh-info">
+                            <span>{{ res.name }}</span>
+                            <span>{{ res.percent }}%</span>
+                        </div>
+                        <div class="progress-bg">
+                            <div class="progress-fill" style="width: {{ res.percent }}%;"></div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Không có dữ liệu chi tiết.</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="kq-card" style="text-align: center; padding: 40px;">
+            <p>Bạn chưa thực hiện bài khảo sát nào.</p>
+            <br>
+            <a href="{% url 'khao_sat' %}" class="ks-btn" style="text-decoration: none; display: inline-block;">Làm khảo sát ngay</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'home' %}" class="ks-sub" style="color: #666;">← Quay lại trang chủ</a>
+    </div>
+</section>
+{% endblock %}
