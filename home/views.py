@@ -29,6 +29,7 @@ from .models import (
     KhaoSat,
     LuaChonKhaoSat,
     KetQuaKhaoSat,
+    ChitietKetqua
 )
 
 # =========================================================
@@ -572,84 +573,88 @@ from .models import KhaoSat, LuaChonKhaoSat, KetQuaKhaoSat, NguoiDung
 
 @login_required_custom
 def khao_sat_view(request):
-    # Lấy danh sách câu hỏi kèm theo các lựa chọn
     questions = KhaoSat.objects.prefetch_related("luachons").order_by("maks")
 
     if request.method == "POST":
         total_score = 0
-        counts = {}          # Lưu điểm thực tế của từng ngành: { 'Tên Ngành': điểm_đạt_được }
-        nganh_appearance = {} # Đếm số lần ngành xuất hiện để tính điểm tối đa
+        counts = {}           
+        nganh_appearance = {}  
+        selected_choices = [] # Danh sách để lưu các đối tượng lựa chọn đã chọn
 
         for question in questions:
             selected_malc = request.POST.get(question.maks)
-            
             if not selected_malc:
                 messages.error(request, "Vui lòng trả lời đầy đủ tất cả câu hỏi.")
                 return redirect("khao_sat") 
 
             try:
-                # Lấy lựa chọn kèm theo thông tin ngành gợi ý
-                luachon = LuaChonKhaoSat.objects.select_related("manganhgoiy").get(
+                luachon_obj = LuaChonKhaoSat.objects.select_related("manganh").get(
                     malc=selected_malc,
                     maks=question
                 )
+                selected_choices.append(luachon_obj) # Lưu lại để tí nữa lưu vào bảng chi tiết
                 
-                score = luachon.diem
+                score = luachon_obj.diem
                 total_score += score
                 
-                if luachon.manganhgoiy:
-                    ten_nganh = luachon.manganhgoiy.tennganh
-                    # Cộng dồn điểm thực tế
+                if luachon_obj.manganh:
+                    ten_nganh = luachon_obj.manganh.tennganh
                     counts[ten_nganh] = counts.get(ten_nganh, 0) + score
-                    # Đếm số lần ngành này làm mục tiêu gợi ý (mỗi câu max là 5đ)
                     nganh_appearance[ten_nganh] = nganh_appearance.get(ten_nganh, 0) + 1
-                
             except LuaChonKhaoSat.DoesNotExist:
                 continue
 
-        # Tính toán phần trăm dựa trên trọng số thực tế
+        # Tính toán top 3 (giữ nguyên logic của bạn)
         results_percent = []
-        for nganh, nganh_score in counts.items():
-            # Điểm tối đa của ngành đó = (Số lần xuất hiện trong các câu đã trả lời) * 5
-            max_possible = nganh_appearance.get(nganh, 1) * 5
+        for nganh_name, nganh_score in counts.items():
+            nganh_obj = NganhHoc.objects.filter(tennganh=nganh_name).first()
+            max_possible = nganh_appearance.get(nganh_name, 1) * 5
             percent = (nganh_score / max_possible) * 100
-            
             results_percent.append({
-                'name': nganh,
+                'manganh': nganh_obj.manganh if nganh_obj else "", 
+                'name': nganh_name,
                 'percent': min(round(percent, 1), 100.0)
             })
-
-        # Sắp xếp và lấy Top 3
-        results_percent = sorted(results_percent, key=lambda x: x['percent'], reverse=True)
-        top_3_results = results_percent[:3]
+        top_3_results = sorted(results_percent, key=lambda x: x['percent'], reverse=True)[:3]
 
         # --- LƯU VÀO DATABASE ---
+        # --- LƯU VÀO DATABASE ---
         try:
-            # Lấy thông tin user hiện tại từ session (giả định session lưu 'user_id')
-            user_id = request.session.get('user_id')
+            # 1. Sửa 'user_id' thành 'mand' cho đúng với session khi login
+            user_id = request.session.get('mand') 
             user_obj = NguoiDung.objects.get(mand=user_id)
-            
-            # Tạo mã kết quả mới (ví dụ dùng UUID ngắn hoặc format KQxxx)
+
+            # 2. Tạo mã kết quả mới
             new_makq = "KQ" + str(uuid.uuid4()).upper()[:8]
             
-            KetQuaKhaoSat.objects.create(
+            # 3. Lưu vào bảng KetQuaKhaoSat
+            kq_obj = KetQuaKhaoSat.objects.create(
                 makq=new_makq,
                 mand=user_obj,
                 tongdiem=total_score,
-                ketqua=json.dumps(top_3_results, ensure_ascii=False) # Lưu dưới dạng chuỗi JSON
+                ketqua=json.dumps(top_3_results, ensure_ascii=False),
+                ngaylam=timezone.now() # Thêm dòng này để chắc chắn dữ liệu có ngày
             )
+
+            # 4. QUAN TRỌNG: Lưu chi tiết từng câu trả lời vào bảng ChitietKetqua
+            for question in questions:
+                selected_malc = request.POST.get(question.maks)
+                if selected_malc:
+                    luachon_obj = LuaChonKhaoSat.objects.get(malc=selected_malc)
+                    ChitietKetqua.objects.create(
+                        makq=kq_obj,       # Khóa ngoại tới KetQuaKhaoSat
+                        malc=luachon_obj   # Khóa ngoại tới LuaChonKhaoSat
+                    )
+
         except Exception as e:
             print(f"Lỗi lưu database: {e}")
+            # Bạn nên thêm messages.error để biết lỗi cụ thể khi test
 
-        # Lưu session để hiển thị ngay trang kết quả
         request.session["khao_sat_total"] = total_score
         request.session["khao_sat_results"] = top_3_results 
-        
         return redirect("ketqua_khaosat")
 
     return render(request, "khaosat/khaosat.html", {"questions": questions})
-
-
 def ketqua_khao_sat_view(request):
     # Lấy dữ liệu từ session sau khi redirect
     total = request.session.get("khao_sat_total", 0)
@@ -671,20 +676,46 @@ import json
 from django.shortcuts import render
 from .models import KetQuaKhaoSat
 
-@login_required_custom # Sử dụng decorator phân quyền hiện có của bạn
+@login_required_custom
 def lich_su_khao_sat(request):
-    mand = request.session.get("mand")
-    # Lấy danh sách kết quả của người dùng hiện tại
-    ds_ketqua = KetQuaKhaoSat.objects.filter(mand_id=mand).order_by('-makq')
-    
-    # Giải mã chuỗi JSON kết quả để template có thể đọc được
+    mand = request.session.get('mand')
+    if not mand:
+        return redirect('login')
+
+    # Sửa '-ngaytao' thành '-ngaylam'
+    ds_ketqua = KetQuaKhaoSat.objects.filter(mand=mand).order_by('-ngaylam')
+
     for item in ds_ketqua:
-        try:
-            item.parsed_results = json.loads(item.ketqua)
-        except:
-            item.parsed_results = []
-            
-    return render(request, "khaosat/lichsu.html", {"ds_ketqua": ds_ketqua})
+        # Xử lý JSON kết quả (nếu có)
+        if item.ketqua:
+            import json
+            try:
+                item.parsed_results = json.loads(item.ketqua)
+            except:
+                item.parsed_results = []
+        
+        # Lấy chi tiết thủ công để tránh lỗi KeyError do kiểu dữ liệu CHAR
+        item.chi_tiet_phieu = ChitietKetqua.objects.filter(makq=item).select_related('malc__maks')
+
+    return render(request, 'khaosat/lichsu.html', {'ds_ketqua': ds_ketqua})
+# Nhớ kiểm tra xem đầu file có dòng này chưa, nếu chưa thì thêm vào:
+# from django.shortcuts import render, get_object_or_404, redirect
+
+def xoa_lich_su_khao_sat(request, makq):
+    # Lấy mã người dùng từ session
+    mand = request.session.get('mand')
+    if not mand:
+        return redirect('login')
+
+    # Tìm bản ghi: phải khớp cả mã kết quả và mã người dùng để tránh xóa nhầm của người khác
+    ketqua = get_object_or_404(KetQuaKhaoSat, makq=makq, mand=mand)
+    
+    if request.method == "POST":
+        ketqua.delete()
+        messages.success(request, "Đã xóa lịch sử khảo sát thành công.")
+    
+    return redirect('lich_su_khao_sat')
+#=========AI====================
 import json
 from django.http import JsonResponse
 from .services import get_ai_response

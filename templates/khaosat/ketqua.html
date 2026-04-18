@@ -29,27 +29,33 @@
 
     <div class="kq-divider"></div>
 
-<div class="kq-main">
-  {% if results %}
-    <div class="results-grid">
-      {% for item in results %}
-      <div class="result-card-item">
-        <div class="result-card-content">
-          <span class="nganh-name">{{ item.name }}</span>
-          <div class="nganh-percent-wrapper">
-            <span class="nganh-percent">{{ item.percent }}</span>
-            <span class="percent-unit">%</span>
-          </div>
+    {% if results %}
+        <div class="results-grid">
+          {% for item in results %}
+          <a href="{% url 'nganh_detail' item.manganh %}" class="result-card-link">
+            <div class="result-card-item">
+              <div class="result-card-content">
+                <span class="nganh-name">{{ item.name }}</span>
+                <div class="nganh-percent-wrapper">
+                  <span class="nganh-percent">{{ item.percent }}</span>
+                  <span class="percent-unit">%</span>
+                </div>
+              </div>
+              
+              <div class="progress-bg">
+                <div class="progress-fill" style="width: {{ item.percent }}%;"></div>
+              </div>
+              
+              <small style="color: #4caf50; display: block; margin-top: 10px;">Xem chi tiết ngành →</small>
+            </div>
+          </a>
+          {% endfor %}
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="kq-desc">Vui lòng làm khảo sát để xem kết quả.</p>
-  {% endif %}
-</div>
+    {% else %}
+        <p class="kq-desc" style="text-align: center; padding: 20px;">Vui lòng làm khảo sát để xem kết quả.</p>
+    {% endif %}
 
-    <div class="kq-actions">
+    <div class="kq-actions" style="margin-top: 20px; text-align: center;">
       <a class="ks-btn ks-btn--ghost" href="{% url 'khao_sat' %}">↩️ Làm lại khảo sát</a>
     </div>
   </div>

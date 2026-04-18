@@ -702,6 +702,96 @@ main{ padding: 26px 0 44px; }
     border: none;
     outline: none;
 }
+/* =========================================================
+   BỔ SUNG TỐI ƯU MOBILE (CHỈ SỬA MOBILE)
+   ========================================================= */
+
+@media (max-width: 820px) {
+    /* 1. Thu nhỏ Header/Hero để không bị quá cao trên mobile */
+    .hero-slider {
+        height: auto !important;
+        min-height: 180px;
+        padding-bottom: 20px;
+    }
+
+    /* 2. Căn chỉnh lại logo và các nút đăng nhập trên cùng 1 hàng cho gọn */
+    .hero-top .row:first-child {
+        flex-direction: row !important; /* Giữ logo và login cùng hàng */
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .logo {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .brand-text {
+        font-size: 16px !important;
+    }
+
+    /* 3. Tối ưu Menu và Ô tìm kiếm */
+    .menu {
+        flex-direction: column !important; /* Menu và Search xếp chồng nhau */
+        gap: 10px !important;
+    }
+
+    .nav-links {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr); /* Chia menu thành 2 cột cho gọn */
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .nav-links .btn {
+        width: 100% !important;
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        justify-content: center !important; /* Chữ ra giữa nút */
+    }
+
+    /* 4. Sửa ô tìm kiếm bị tràn */
+    .header-search {
+        margin-left: 0 !important;
+        width: 100% !important;
+        margin-top: 5px;
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-form input {
+        width: 100% !important; /* Ô tìm kiếm dãn hết chiều ngang */
+    }
+
+    /* 5. Tối ưu các nút đăng nhập/đăng ký */
+    .auth .btn {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+
+    /* 6. Card nội dung chính */
+    main {
+        padding: 15px 0 !important;
+    }
+    
+    .card {
+        padding: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Với màn hình cực nhỏ, cho menu hiển thị 2 cột nhỏ hơn */
+    .nav-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .falling-flowers.right {
+        display: none; /* Ẩn hoa rơi để không che nội dung trên màn hình rất nhỏ */
+    }
+}
 
 .chat-msg.bot .cm-msg-text { background: #e1e1e1; color: #333; margin-bottom: 10px; padding: 8px; border-radius: 5px; width: fit-content; }
 .chat-msg.user .cm-msg-text { background: #0056b3; color: white; margin-left: auto; margin-bottom: 10px; padding: 8px; border-radius: 5px; width: fit-content; }

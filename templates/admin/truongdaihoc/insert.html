@@ -243,7 +243,7 @@ body {
 
                 <div class="mb-3">
                     <label class="form-label">Địa chỉ</label>
-                    <textarea name="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
+                    <textarea name="diachi" id="diachi" class="form-control" rows="2">{{ old_data.diachi }}</textarea>
                 </div>
 
                 <button type="submit" class="btn-save mb-2">
@@ -264,7 +264,6 @@ body {
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-
 <script>
     // 1. Định nghĩa các lớp bản đồ "thật" từ Google
     var googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
@@ -310,6 +309,22 @@ body {
     L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+    // Khởi tạo Geocoder trước để có thể truy cập được từ hàm updateInputs
+    var geocoderControl = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        placeholder: "🔍 Tìm địa chỉ chi tiết...",
+        collapsed: false,
+        geocoder: L.Control.Geocoder.photon() 
+    })
+    .on('markgeocode', function(e) {
+        var center = e.geocode.center;
+        map.setView(center, 18); 
+        placeMarker(center);
+        // Khi tìm kiếm xong, cũng cập nhật luôn vào ô textarea Địa chỉ
+        document.getElementById('diachi').value = e.geocode.name;
+    })
+    .addTo(map);
+
     var marker;
     function placeMarker(latlng, moveCamera = false) {
         if (marker) {
@@ -333,6 +348,17 @@ body {
     function updateInputs(latlng) {
         document.getElementById('lat').value = latlng.lat.toFixed(6);
         document.getElementById('lng').value = latlng.lng.toFixed(6);
+
+        // Thuật toán Reverse Geocoding: Lấy địa chỉ từ tọa độ
+        geocoderControl.options.geocoder.reverse(latlng, map.options.crs.scale(map.getZoom()), function(results) {
+            if (results && results.length > 0) {
+                var address = results[0].name;
+                // Hiển thị lên thanh tìm kiếm của Geocoder
+                document.querySelector('.leaflet-control-geocoder-form input').value = address;
+                // Tự động cập nhật vào ô nhập Địa chỉ trong form
+                document.getElementById('diachi').value = address;
+            }
+        });
     }
 
     function syncMapFromInputs() {
@@ -344,19 +370,6 @@ body {
     document.getElementById('lat').addEventListener('input', syncMapFromInputs);
     document.getElementById('lng').addEventListener('input', syncMapFromInputs);
     map.on('click', function(e) { placeMarker(e.latlng); });
-
-    var geocoder = L.Control.geocoder({
-        defaultMarkGeocode: false,
-        placeholder: "🔍 Tìm địa chỉ chi tiết...",
-        collapsed: false,
-        geocoder: L.Control.Geocoder.photon() 
-    })
-    .on('markgeocode', function(e) {
-        var center = e.geocode.center;
-        map.setView(center, 18); 
-        placeMarker(center);
-    })
-    .addTo(map);
 
     var oldLat = "{{ old_data.lat }}";
     var oldLng = "{{ old_data.lng }}";

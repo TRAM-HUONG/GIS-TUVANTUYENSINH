@@ -138,67 +138,6 @@ class DiemChuan(models.Model):
     def __str__(self):
         return f"{self.madiem} - {self.nam}"
 
-
-class KhaoSat(models.Model):
-    maks = models.CharField(db_column="MAKS", primary_key=True, max_length=5)
-    cauhoi = models.CharField(db_column="CAUHOI", max_length=400)
-    hinhanh = models.CharField(db_column="HINHANH", max_length=255, null=True, blank=True)
-
-    class Meta:
-        managed = False
-        db_table = "KHAOSAT"
-
-    def __str__(self):
-        return f"{self.maks} - {self.cauhoi}"
-
-
-class LuaChonKhaoSat(models.Model):
-    malc = models.CharField(db_column="MALC", primary_key=True, max_length=5)
-    maks = models.ForeignKey(
-        KhaoSat,
-        on_delete=models.CASCADE,
-        db_column="MAKS",
-        related_name="lua_chons",
-    )
-    noidung = models.CharField(db_column="NOIDUNG", max_length=300)
-    diem = models.IntegerField(db_column="DIEM")
-    manganhgoiy = models.ForeignKey(
-        NganhHoc,
-        on_delete=models.SET_NULL,
-        db_column="MANGANHGOIY",
-        null=True,
-        blank=True,
-        related_name="lua_chon_goi_y",
-    )
-
-    class Meta:
-        managed = False
-        db_table = "LUACHONKHAOSAT"
-
-    def __str__(self):
-        return f"{self.malc} - {self.noidung}"
-
-
-class KetQuaKhaoSat(models.Model):
-    makq = models.CharField(db_column="MAKQ", primary_key=True, max_length=5)
-    diemtu = models.IntegerField(db_column="DIEMTU")
-    diemden = models.IntegerField(db_column="DIEMDEN")
-    manganh = models.ForeignKey(
-        NganhHoc,
-        on_delete=models.CASCADE,
-        db_column="MANGANH",
-        related_name="ket_qua_khao_sat",
-    )
-    mota = models.CharField(db_column="MOTA", max_length=200, null=True, blank=True)
-
-    class Meta:
-        managed = False
-        db_table = "KETQUAKHAOSAT"
-
-    def __str__(self):
-        return f"{self.makq} - {self.manganh_id}"
-
-
 class HinhAnhTruong(models.Model):
     mahinh_truong = models.CharField(
         db_column="MAHINH_TRUONG", primary_key=True, max_length=5
@@ -246,38 +185,35 @@ class HinhAnhNganh(models.Model):
 
 
         return self.tennganh
-
-
 class KhaoSat(models.Model):
-    maks = models.CharField(db_column="MAKS", max_length=5, primary_key=True)
+    maks = models.CharField(db_column="MAKS", primary_key=True, max_length=5)
     cauhoi = models.CharField(db_column="CAUHOI", max_length=400)
-    hinhanh = models.CharField(db_column="HINHANH", max_length=255, null=True, blank=True)
 
     class Meta:
         managed = False
         db_table = "KHAOSAT"
 
     def __str__(self):
-        return self.cauhoi
+        return f"{self.maks} - {self.cauhoi[:50]}"
 
 
 class LuaChonKhaoSat(models.Model):
-    malc = models.CharField(db_column="MALC", max_length=5, primary_key=True)
+    malc = models.CharField(db_column="MALC", primary_key=True, max_length=5)
     maks = models.ForeignKey(
-        KhaoSat,
+        'KhaoSat', 
+        on_delete=models.CASCADE, 
         db_column="MAKS",
-        on_delete=models.CASCADE,
-        related_name="luachons"
+        related_name="luachons"  # <--- THÊM DÒNG NÀY ĐỂ FIX LỖI VIEW
     )
     noidung = models.CharField(db_column="NOIDUNG", max_length=300)
     diem = models.IntegerField(db_column="DIEM")
-    manganhgoiy = models.ForeignKey(
-        NganhHoc,
-        db_column="MANGANHGOIY",
-        on_delete=models.SET_NULL,
-        null=True,
+    manganh = models.ForeignKey(
+        'NganhHoc', 
+        on_delete=models.SET_NULL, 
+        db_column="MANGANH", 
+        null=True, 
         blank=True,
-        related_name="luachon_goiy"
+        related_name="lua_chon_goiy"
     )
 
     class Meta:
@@ -285,15 +221,26 @@ class LuaChonKhaoSat(models.Model):
         db_table = "LUACHONKHAOSAT"
 
     def __str__(self):
-        return self.noidung
+        return f"{self.malc} - {self.noidung[:30]}"
 
 
 class KetQuaKhaoSat(models.Model):
-    makq = models.CharField(db_column="MAKQ", primary_key=True, max_length=10)
-    mand = models.ForeignKey('NguoiDung', on_delete=models.CASCADE, db_column="MAND")
-    tongdiem = models.IntegerField(db_column="TONGDIEM")
-    ketqua = models.TextField(db_column="KETQUA") # Lưu JSON top 3 ngành
+    makq = models.CharField(db_column="MAKQ", primary_key=True, max_length=5)
+    mand = models.ForeignKey(
+        'NguoiDung', 
+        on_delete=models.CASCADE, 
+        db_column="MAND"
+    )
+    tongdiem = models.IntegerField(db_column="TONGDIEM", null=True, blank=True)
+    ketqua = models.TextField(db_column="KETQUA", null=True, blank=True)
     ngaylam = models.DateTimeField(db_column="NGAYLAM", auto_now_add=True)
+
+    # Quan hệ nhiều-nhiều với Luachonkhaosat thông qua bảng trung gian
+    luachon = models.ManyToManyField(
+        'Luachonkhaosat',
+        through='ChitietKetqua',
+        related_name='ket_qua_khao_sat'
+    )
 
     class Meta:
         managed = False
@@ -301,7 +248,30 @@ class KetQuaKhaoSat(models.Model):
 
     def __str__(self):
         return f"{self.makq} - {self.mand_id}"
+    
+class ChitietKetqua(models.Model):
+    # Chỉ duy nhất trường này là primary_key
+    mact = models.CharField(db_column="MACT", primary_key=True, max_length=5) 
+    
+    makq = models.ForeignKey(
+        'KetQuaKhaoSat', # Lưu ý tên Class phải khớp với class đã định nghĩa (thường là KetQuaKhaoSat)
+        on_delete=models.CASCADE, 
+        db_column="MAKQ"
+    )
+    malc = models.ForeignKey(
+        'LuaChonKhaoSat', 
+        on_delete=models.CASCADE, 
+        db_column="MALC"
+    )
 
+    class Meta:
+        managed = False
+        db_table = "CHITIET_KETQUA"
+        # Giữ unique_together để đảm bảo 1 kết quả không bị lặp lại 1 lựa chọn
+        unique_together = (('makq', 'malc'),) 
+
+    def __str__(self):
+        return f"CT: {self.mact} - KQ: {self.makq_id}"
 
 class VaiTro(models.Model):
     mavaitro = models.CharField(db_column="MAVAITRO", max_length=5, primary_key=True)

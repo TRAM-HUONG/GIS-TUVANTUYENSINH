@@ -31,6 +31,7 @@ urlpatterns = [
     path("chat-ai/", views.chat_with_ai, name="chat_ai"),
     # Thêm dòng này vào urlpatterns
     path("lich-su-khao-sat/", views.lich_su_khao_sat, name="lich_su_khao_sat"),
+    path("xoa-lich-su-khao-sat/<str:makq>/", views.xoa_lich_su_khao_sat, name="xoa_lich_su_khao_sat"),
     # =========================
     # ADMIN DASHBOARD
     # =========================

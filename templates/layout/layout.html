@@ -85,6 +85,35 @@
     .chat-msg.bot { background: #e1e1e1; color: #333; align-self: flex-start; }
     .chat-msg.user { background: #0056b3; color: white; margin-left: auto; text-align: right; }
     .chat-logs { display: flex; flex-direction: column; }
+
+    /* --- PHẦN THÊM MỚI: CSS CHO BANNER CHUYỂN ĐỘNG --- */
+    .hero-slider {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    .hero-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+        z-index: 1;
+    }
+    .hero-slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+    .hero-overlay { z-index: 3; }
+    .hero-content { z-index: 4; position: relative; }
+    .dot { cursor: pointer; }
+    /* ----------------------------------------------- */
+
   </style>
 
   {% block extra_css %}{% endblock %}
@@ -119,6 +148,7 @@
 
           <div class="row row-2">
             <nav class="menu">
+              <button class="menu-toggle">☰</button>
               <div class="nav-links">
                 <a class="btn primary" href="{% url 'home' %}">🏠 Trang Chủ</a>
                 <a class="btn" href="{% url 'gioithieu' %}">📌 Giới thiệu</a>
@@ -249,6 +279,7 @@
   </div>
 
   <script>
+
     document.addEventListener('DOMContentLoaded', function() {
         const chatCircle = document.getElementById('chat-circle');
         const optionsMenu = document.getElementById('chat-options-menu');
@@ -258,6 +289,50 @@
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const chatLogs = document.querySelector('.chat-logs');
+
+    // --- CODE MENU MỚI THÊM ---
+       const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+if (menuToggle && navLinks) {
+    menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active'); // Thêm/xóa class active
+        menuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+    });
+}
+    // -------------------------
+
+    // --- PHẦN THÊM MỚI: LOGIC CHUYỂN HÌNH BANNER (3S/LẦN) ---
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.dot');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Tự động chuyển hình sau 3 giây
+        let slideTimer = setInterval(nextSlide, 3000);
+
+        // Cho phép click vào dot để chuyển hình thủ công
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => {
+                currentSlide = idx;
+                showSlide(currentSlide);
+                clearInterval(slideTimer); // Reset lại timer khi click
+                slideTimer = setInterval(nextSlide, 3000);
+            });
+        });
+    // ------------------------------------------------------
 
         // 1. Toggle Menu lựa chọn
         chatCircle.addEventListener('click', () => {

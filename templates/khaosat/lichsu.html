@@ -8,7 +8,18 @@
 <style>
     .history-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .history-meta { display: flex; justify-content: space-between; color: #666; font-size: 0.9em; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-    .top-result-tag { background: #e8f5e9; color: #2e7d32; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; margin-right: 5px; display: inline-block; }
+    
+    .detail-section { display: none; margin-top: 15px; background: #f9f9f9; border: 1px solid #eee; padding: 15px; border-radius: 8px; }
+    .detail-list { list-style: none; padding: 0; margin: 0; }
+    .detail-item { margin-bottom: 12px; border-left: 3px solid #4caf50; padding-left: 10px; font-size: 0.95em; }
+    
+    .btn-detail { background: #4a90e2; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; transition: 0.3s; }
+    .btn-detail:hover { background: #357abd; }
+
+    /* Style cho nút xóa */
+    .btn-delete { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em; transition: 0.3s; margin-left: 10px; }
+    .btn-delete:hover { background: #c0392b; }
+    .actions-wrapper { display: flex; align-items: center; margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px; }
 </style>
 {% endblock %}
 
@@ -19,11 +30,20 @@
         <p class="ks-sub">Xem lại các định hướng nghề nghiệp bạn đã thực hiện.</p>
     </div>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; background: #d4edda; color: #155724; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="history-list">
         {% for kq in ds_ketqua %}
         <div class="history-card">
             <div class="history-meta">
                 <span>Mã lượt: <strong>{{ kq.makq }}</strong></span>
+                <span>Ngày thực hiện: <strong>{{ kq.ngaylam|date:"d/m/Y H:i" }}</strong></span>
                 <span>Tổng điểm: <strong>{{ kq.tongdiem }}</strong></span>
             </div>
             
@@ -40,21 +60,59 @@
                         </div>
                     </div>
                 {% empty %}
-                    <p>Không có dữ liệu chi tiết.</p>
+                    <p>Không có dữ liệu kết quả.</p>
                 {% endfor %}
+            </div>
+
+            <div class="actions-wrapper">
+                <button class="btn-detail" onclick="toggleDetail('detail-{{ kq.makq }}')">
+                    🔍 Xem chi tiết câu trả lời
+                </button>
+
+                <form action="{% url 'xoa_lich_su_khao_sat' kq.makq %}" method="POST" 
+                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa lượt khảo sát này không?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete">
+                        🗑️ Xóa lịch sử
+                    </button>
+                </form>
+            </div>
+
+            <div id="detail-{{ kq.makq }}" class="detail-section">
+                <h4 style="margin-bottom: 10px; color: #333;">Nội dung phiếu đã trả lời:</h4>
+                <ul class="detail-list">
+                    {% for detail in kq.chi_tiet_phieu %}
+                    <li class="detail-item">
+                        <div style="font-weight: bold;">Câu hỏi: {{ detail.malc.maks.cauhoi }}</div>
+                        <div style="color: #666;">➔ Lựa chọn: <span style="color: #2e7d32;">{{ detail.malc.noidung }}</span></div>
+                    </li>
+                    {% empty %}
+                    <li style="color: #999; font-style: italic;">Không tìm thấy chi tiết từng câu hỏi.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
         {% empty %}
-        <div class="kq-card" style="text-align: center; padding: 40px;">
+        <div class="history-card" style="text-align: center; padding: 40px;">
             <p>Bạn chưa thực hiện bài khảo sát nào.</p>
-            <br>
-            <a href="{% url 'khao_sat' %}" class="ks-btn" style="text-decoration: none; display: inline-block;">Làm khảo sát ngay</a>
+            <a href="{% url 'khao_sat' %}" class="btn-detail" style="text-decoration: none; display: inline-block; margin-top: 10px;">Làm khảo sát ngay</a>
         </div>
         {% endfor %}
     </div>
 
     <div style="text-align: center; margin-top: 20px;">
-        <a href="{% url 'home' %}" class="ks-sub" style="color: #666;">← Quay lại trang chủ</a>
+        <a href="{% url 'home' %}" style="text-decoration: none; color: #666;">← Quay lại trang chủ</a>
     </div>
 </section>
+
+<script>
+function toggleDetail(id) {
+    var element = document.getElementById(id);
+    if (element.style.display === "none" || element.style.display === "") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
+</script>
 {% endblock %}

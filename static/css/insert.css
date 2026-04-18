@@ -104,11 +104,7 @@ form button:hover { background-color: var(--accent2); }
 
 /* Ô tìm kiếm to rõ */
 .leaflet-control-geocoder {
-<<<<<<< HEAD
-    min-width: 300px !important;
-=======
     min-width: 100px !important;
->>>>>>> feature/admin
     background: white;
     border: 2px solid var(--c6) !important;
     border-radius: var(--r14) !important;

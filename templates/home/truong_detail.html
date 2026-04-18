@@ -59,10 +59,44 @@
         border: 2px solid #2563eb !important;
         box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
     }
+    /* Modal xem ảnh full màn hình */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
 </style>
 {% endblock %}
 
 {% block content %}
+<div id="schoolImageModal" class="image-modal">
+    <span class="close-modal" onclick="closeImageModal()">&times;</span>
+    <img class="modal-content" id="fullResImage">
+</div>
 <section class="td-wrap">
   <div class="td-hero">
     <div class="td-hero-left">
@@ -473,6 +507,80 @@
         originalChangeImage(img);
     };
 });
+// --- LOGIC XỬ LÝ ẢNH: SLIDESHOW & XEM FULL MÀN HÌNH ---
+(function() {
+    let slideIndex = 0;
+    let slideInterval;
+    const mainImage = document.getElementById("mainSchoolImage");
+    const thumbnails = document.querySelectorAll(".td-thumb-list img");
+
+    if (!mainImage || thumbnails.length === 0) return;
+
+    // 1. Hàm chuyển ảnh
+    window.changeMainImage = function(img) {
+        // Cập nhật ảnh chính
+        mainImage.src = img.src;
+
+        // Cập nhật trạng thái thumbnail active
+        thumbnails.forEach((item, index) => {
+            item.classList.remove("active-thumb");
+            if (item.src === img.src) {
+                item.classList.add("active-thumb");
+                slideIndex = index; // Cập nhật lại chỉ số slide hiện tại
+            }
+        });
+
+        // Reset lại zoom nếu đang có logic zoom
+        if (typeof scale !== 'undefined') {
+            scale = 1;
+            mainImage.style.transform = `scale(1) translate(0px, 0px)`;
+        }
+    };
+
+    // 2. Tự động chuyển ảnh sau 3 giây
+    function startSlideshow() {
+        slideInterval = setInterval(() => {
+            slideIndex++;
+            if (slideIndex >= thumbnails.length) slideIndex = 0;
+            changeMainImage(thumbnails[slideIndex]);
+        }, 2000);
+    }
+
+    function stopSlideshow() {
+        clearInterval(slideInterval);
+    }
+
+    // Chạy slideshow ngay khi load
+    startSlideshow();
+
+    // Dừng slideshow khi người dùng di chuột vào vùng ảnh hoặc thumbnails
+    const heroRight = document.querySelector(".td-hero-right");
+    heroRight.addEventListener("mouseenter", stopSlideshow);
+    heroRight.addEventListener("mouseleave", startSlideshow);
+
+    // 3. Xem ảnh Full màn hình (Lightbox)
+    mainImage.onclick = function() {
+        const modal = document.getElementById("schoolImageModal");
+        const modalImg = document.getElementById("fullResImage");
+        modal.style.display = "flex";
+        modalImg.src = this.src;
+        stopSlideshow(); // Dừng khi đang xem
+    };
+
+    window.closeImageModal = function() {
+        document.getElementById("schoolImageModal").style.display = "none";
+        startSlideshow();
+    };
+
+    // Đóng modal khi bấm ra ngoài ảnh
+    window.onclick = function(event) {
+        const modal = document.getElementById("schoolImageModal");
+        if (event.target == modal) {
+            closeImageModal();
+        }
+    };
+})();
+
 </script>
 {% endif %}
 {% endblock %}
