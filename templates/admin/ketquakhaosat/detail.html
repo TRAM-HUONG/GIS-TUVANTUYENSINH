@@ -1,0 +1,242 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block title %}Chi tiết Kết quả Khảo sát{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --glass-bg: rgba(255, 255, 255, 0.95);
+    }
+
+    .detail-container {
+        padding: 40px 0;
+        background: #f8f9fc;
+        min-height: 100vh;
+    }
+
+    /* Card tổng thể */
+    .custom-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        background: var(--glass-bg);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    /* Header với Gradient */
+    .card-header-gradient {
+        background: var(--primary-gradient);
+        padding: 30px;
+        border: none;
+        position: relative;
+    }
+
+    .card-header-gradient h4 {
+        color: white;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin: 0;
+        font-weight: 800;
+    }
+
+    /* Item hiển thị thông tin */
+    .info-box {
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #edf2f7;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .info-box:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: #a0aec0;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-value i {
+        width: 35px;
+        color: #667eea;
+    }
+
+    /* Badge điểm số */
+    .score-badge {
+        background: #ebfbf2;
+        color: #2f855a;
+        padding: 12px 25px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        border: 1px solid #c6f6d5;
+    }
+
+    /* Khu vực nhận xét */
+    .comment-area {
+        background: #fff;
+        border-left: 5px solid #667eea;
+        border-radius: 12px;
+        padding: 25px;
+        position: relative;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #4a5568;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .comment-area::before {
+        content: "\f10d";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        color: #edf2f7;
+        font-size: 2rem;
+    }
+
+    /* Nút bấm */
+    .btn-back {
+        background: white;
+        color: #4a5568;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-back:hover {
+        background: #f7fafc;
+        transform: translateX(-5px);
+    }
+
+    .btn-delete-custom {
+        background: #fff5f5;
+        color: #c53030;
+        border: 1px solid #feb2b2;
+        padding: 12px 30px;
+        border-radius: 14px;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .btn-delete-custom:hover {
+        background: #c53030;
+        color: white;
+        box-shadow: 0 8px 20px rgba(197, 48, 48, 0.2);
+    }
+</style>
+
+<div class="detail-container">
+    <div class="container">
+        <div class="mb-5">
+            <a href="{% url 'admin_ketqua_list' %}" class="btn btn-back">
+                <i class="fa-solid fa-arrow-left-long me-2"></i>QUAY LẠI DANH SÁCH
+            </a>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header card-header-gradient text-center">
+                <h4><i class="fa-solid fa-file-invoice me-2"></i> Hồ Sơ Kết Quả Khảo Sát</h4>
+            </div>
+
+            <div class="card-body p-lg-5 p-4">
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="info-box text-center">
+                            <span class="info-label">MÃ KẾT QUẢ</span>
+                            <div class="info-value justify-content-center">
+                                <span class="text-primary">#{{ ketqua.makq }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="info-box">
+                            <span class="info-label">NGƯỜI THỰC HIỆN</span>
+                            <div class="info-value">
+                                <i class="fa-solid fa-circle-user"></i> {{ ketqua.mand.hoten }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3">
+                        <div class="info-box">
+                            <span class="info-label">THỜI GIAN LÀM BÀI</span>
+                            <div class="info-value">
+                                <i class="fa-solid fa-clock"></i> {{ ketqua.ngaylam|date:"H:i - d/m/Y" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-3 text-center">
+                        <div class="score-badge">
+                            <i class="fa-solid fa-award fa-lg"></i>
+                            <span>{{ ketqua.tongdiem|default:"0" }} ĐIỂM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="fw-bold text-dark mb-3">
+                            <i class="fa-solid fa-quote-left me-2 text-primary"></i>KẾT LUẬN & NHẬN XÉT CHI TIẾT
+                        </h6>
+                        <div class="comment-area shadow-sm">
+                            {{ ketqua.ketqua|linebreaks|default:"Hệ thống chưa ghi nhận nhận xét cụ thể cho trường hợp này." }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light border-0 py-4 text-center">
+                <p class="text-muted small mb-3">Lưu ý: Hành động xóa sẽ gỡ bỏ vĩnh viễn dữ liệu này khỏi hệ thống.</p>
+                <button class="btn btn-delete-custom" onclick="confirmDelete()">
+                    <i class="fa-solid fa-trash-can me-2"></i>XÓA DỮ LIỆU KẾT QUẢ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: "Dữ liệu này sẽ biến mất vĩnh viễn!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#c53030',
+            cancelButtonColor: '#a0aec0',
+            confirmButtonText: 'Vâng, xóa nó!',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Thêm URL xóa ở đây nếu bạn đã có view delete
+                // window.location.href = "{% url 'admin_ketqua_delete' ketqua.makq %}";
+            }
+        })
+    }
+</script>
+{% endblock %}

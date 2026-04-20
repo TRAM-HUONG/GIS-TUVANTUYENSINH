@@ -734,10 +734,18 @@ def chat_with_ai(request):
 # =========================================================
 # ADMIN - DASHBOARD & MANAGEMENT
 # =========================================================
+from django.shortcuts import render
+from django.contrib.admin.models import LogEntry
 
-@admin_required
 def admin_dashboard(request):
-    return render(request, "admin/dashboard.html")
+    # Lấy 10 hoạt động gần nhất từ hệ thống log mặc định của Django
+    # Cái này không cần model của bạn, nó có sẵn trong core Django
+    recent_logs = LogEntry.objects.all().select_related('user', 'content_type')[:10]
+    
+    context = {
+        'recent_logs': recent_logs,
+    }
+    return render(request, 'admin/dashboard.html', context)
 
 @admin_required
 def admin_nguoidung_list(request):
@@ -1287,10 +1295,10 @@ def admin_hinhanh_nganh_insert(request):
             count = 0
             for file_anh in files:
                 current_number += 1
-                new_id = f"HAN{current_number:03d}"
+                new_id = f"HA{current_number:03d}"
                 while HinhAnhNganh.objects.filter(mahinh_nganh=new_id).exists():
                     current_number += 1
-                    new_id = f"HAN{current_number:03d}"
+                    new_id = f"HA{current_number:03d}"
 
                 saved_filename = save_uploaded_nganh_image(file_anh)
                 HinhAnhNganh.objects.create(
@@ -1351,7 +1359,164 @@ def admin_hinhanh_nganh_delete(request, mahinh):
         "hinhanh": hinhanh, "nganh": nganh, "is_delete_all": is_delete_all
     })
     
-    
+#============== ADMIN KHAO SAT================
+# 1. Danh sách câu hỏi
+@admin_required
 def admin_khaosat_list(request):
-    return render(request, "admin/khaosat/list.html")
+    keyword = request.GET.get('keyword', '')
+    # Sửa: filter theo 'cauhoi'
+    ds_khaosat = KhaoSat.objects.filter(cauhoi__icontains=keyword).order_by('maks')
+    return render(request, "admin/khaosat/list.html", {"ds_khaosat": ds_khaosat, "keyword": keyword})
 
+# 2. Chi tiết câu hỏi
+@admin_required
+def admin_khaosat_detail(request, maks):
+    khaosat = get_object_or_404(KhaoSat, pk=maks)
+    ds_luachon = LuaChonKhaoSat.objects.filter(maks=khaosat)
+    return render(request, "admin/khaosat/detail.html", {"khaosat": khaosat, "ds_luachon": ds_luachon})
+
+# 3. Thêm mới câu hỏi
+@admin_required
+def admin_khaosat_insert(request):
+    if request.method == "POST":
+        # Sửa: lấy từ name="cauhoi" trong form
+        cauhoi_text = request.POST.get("cauhoi")
+        last_ks = KhaoSat.objects.order_by("-maks").first()
+        new_id = f"KS{int(last_ks.maks[2:]) + 1:03d}" if last_ks else "KS001"
+        
+        # Sửa: lưu vào trường 'cauhoi'
+        KhaoSat.objects.create(maks=new_id, cauhoi=cauhoi_text)
+        messages.success(request, "Thêm câu hỏi mới thành công!")
+        return redirect("admin_khaosat_list")
+    return render(request, "admin/khaosat/insert.html")
+
+# 4. Chỉnh sửa câu hỏi
+@admin_required
+def admin_khaosat_edit(request, maks):
+    khaosat = get_object_or_404(KhaoSat, pk=maks)
+    if request.method == "POST":
+        # Sửa: cập nhật trường 'cauhoi'
+        khaosat.cauhoi = request.POST.get("cauhoi")
+        khaosat.save()
+        messages.success(request, "Cập nhật câu hỏi thành công!")
+        return redirect("admin_khaosat_list")
+    return render(request, "admin/khaosat/edit.html", {"khaosat": khaosat})
+# 5. Xóa câu hỏi
+@admin_required
+def admin_khaosat_delete(request, maks):
+    khaosat = get_object_or_404(KhaoSat, pk=maks)
+    if request.method == "POST":
+        khaosat.delete()
+        messages.success(request, "Đã xóa câu hỏi.")
+        return redirect("admin_khaosat_list")
+    return render(request, "admin/khaosat/delete.html", {"khaosat": khaosat})
+
+
+#======= ADMIN KETQUAKHAOSAT================
+# views.py
+
+@admin_required
+def admin_ketqua_list(request):
+    keyword = request.GET.get('keyword', '').strip()
+    # SỬA TẠI ĐÂY: đổi -ngaythuchien thành -ngaylam
+    ds_ketqua = KetQuaKhaoSat.objects.select_related('mand').all().order_by('-ngaylam')
+    
+    if keyword:
+        ds_ketqua = ds_ketqua.filter(
+            Q(mand__hoten__icontains=keyword) | Q(makq__icontains=keyword)
+        )
+    
+    paginator = Paginator(ds_ketqua, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    
+    return render(request, "admin/ketquakhaosat/list.html", {
+        "ds_ketqua": page_obj, 
+        "keyword": keyword
+    })
+@admin_required
+def admin_ketqua_detail(request, makq):
+    # Chỉ lấy thông tin từ bảng KetQuaKhaoSat
+    ketqua = get_object_or_404(KetQuaKhaoSat.objects.select_related('mand'), pk=makq)
+    return render(request, "admin/ketquakhaosat/detail.html", {"ketqua": ketqua})
+
+@admin_required
+def admin_ketqua_delete(request, makq):
+    """Xóa một kết quả khảo sát"""
+    ketqua = get_object_or_404(KetQuaKhaoSat, pk=makq)
+    if request.method == "POST":
+        ketqua.delete()
+        messages.success(request, f"Đã xóa kết quả khảo sát {makq} thành công.")
+        return redirect("admin_ketqua_list")
+    
+    return render(request, "admin/ketquakhaosat/delete.html", {"ketqua": ketqua})
+#============ADMIN LUACHONKHAOSAT================
+# Hàm tự sinh mã lựa chọn (giống logic ND, MAT của bạn)
+def generate_malc():
+    last = LuaChonKhaoSat.objects.order_by("-malc").first()
+    if not last: return "LC001"
+    number = int(last.malc[2:])
+    return f"LC{number + 1:03d}"
+
+@admin_required
+def admin_luachon_list(request):
+    keyword = request.GET.get('keyword', '').strip()
+    # Lấy kèm câu hỏi và ngành để tối ưu query
+    ds_luachon = LuaChonKhaoSat.objects.select_related('maks', 'manganh').all().order_by('maks', 'malc')
+    
+    if keyword:
+        ds_luachon = ds_luachon.filter(
+            # SỬA TẠI ĐÂY: noidunglc -> noidung
+            Q(noidung__icontains=keyword) | Q(maks__cauhoi__icontains=keyword)
+        )
+    
+    paginator = Paginator(ds_luachon, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    return render(request, "admin/luachon/list.html", {"ds_luachon": page_obj, "keyword": keyword})
+@admin_required
+def admin_luachon_insert(request):
+    ds_cauhoi = KhaoSat.objects.all()
+    ds_nganh = NganhHoc.objects.all()
+    
+    if request.method == "POST":
+        noidung = request.POST.get("noidunglc")
+        maks = request.POST.get("maks")
+        manganh = request.POST.get("manganh")
+        diem = request.POST.get("diem")
+        
+        LuaChonKhaoSat.objects.create(
+            malc=generate_malc(),
+            noidunglc=noidung,
+            maks_id=maks,
+            manganh_id=manganh,
+            diem=diem
+        )
+        messages.success(request, "Thêm lựa chọn thành công!")
+        return redirect("admin_luachon_list")
+        
+    return render(request, "admin/luachon/insert.html", {"ds_cauhoi": ds_cauhoi, "ds_nganh": ds_nganh})
+
+@admin_required
+def admin_luachon_edit(request, malc):
+    luachon = get_object_or_404(LuaChonKhaoSat, pk=malc)
+    ds_cauhoi = KhaoSat.objects.all()
+    ds_nganh = NganhHoc.objects.all()
+    
+    if request.method == "POST":
+        luachon.noidunglc = request.POST.get("noidunglc")
+        luachon.maks_id = request.POST.get("maks")
+        luachon.manganh_id = request.POST.get("manganh")
+        luachon.diem = request.POST.get("diem")
+        luachon.save()
+        messages.success(request, "Cập nhật thành công!")
+        return redirect("admin_luachon_list")
+        
+    return render(request, "admin/luachon/edit.html", {"luachon": luachon, "ds_cauhoi": ds_cauhoi, "ds_nganh": ds_nganh})
+
+@admin_required
+def admin_luachon_delete(request, malc):
+    luachon = get_object_or_404(LuaChonKhaoSat, pk=malc)
+    if request.method == "POST":
+        luachon.delete()
+        messages.success(request, "Đã xóa lựa chọn.")
+        return redirect("admin_luachon_list")
+    return render(request, "admin/luachon/delete.html", {"luachon": luachon})

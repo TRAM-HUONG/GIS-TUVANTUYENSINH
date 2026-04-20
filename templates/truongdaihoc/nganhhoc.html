@@ -1,115 +1,125 @@
 {% extends "layout/layout.html" %}
 {% load static %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/nganhhoc.css' %}">
+{% endblock %}
 {% block content %}
+
+
 <link rel="stylesheet" href="{% static 'css/nganhoc.css' %}">
 
 <section class="nganh-wrap">
   <div class="nganh-layout">
 
-    <!-- HERO -->
     <header class="nganh-hero">
       <div class="hero-left">
-        <div class="hero-badge">🎓 Chi tiết ngành</div>
+        <div class="hero-badge">🎓 Thông tin chi tiết</div>
         <h1 class="nganh-title">
-          {% if nganh.tennganh %}
-            {{ nganh.tennganh }}
-          {% else %}
-            <span class="muted">Chưa có tên ngành</span>
-          {% endif %}
+          {% if nganh.tennganh %}{{ nganh.tennganh }}{% else %}Đang cập nhật tên{% endif %}
         </h1>
-
         <p class="nganh-desc">
-          {% if nganh.linhvuc %}
-            Lĩnh vực: <strong>{{ nganh.linhvuc }}</strong>
-          {% else %}
-            <span class="muted">Chưa có lĩnh vực</span>
-          {% endif %}
+          Lĩnh vực: <strong style="color: var(--accent);">{{ nganh.linhvuc|default:"Chưa xác định" }}</strong>
         </p>
       </div>
 
-      <!-- Optional gallery -->
-      {% if hinh_nganh %}
       <div class="hero-right">
-        <div class="nganh-gallery">
-          {% for img in hinh_nganh %}
-            <div class="nganh-img">
-              <img src="{% static 'img/NGANHHOC/' %}{{ img.tenfile }}" alt="{{ nganh.tennganh }}">
+        {% if hinh_nganh %}
+        <div class="slider-container">
+          <div class="main-view" onclick="openLightbox()">
+            <img id="currentImg" src="{% static 'img/NGANHHOC/' %}{{ hinh_nganh.0.tenfile }}" alt="Main View">
+          </div>
+          <div class="thumb-bar">
+            {% for img in hinh_nganh %}
+            <div class="thumb-item {% if forloop.first %}active{% endif %}" 
+                 onclick="changeImg(this, '{% static 'img/NGANHHOC/' %}{{ img.tenfile }}')">
+              <img src="{% static 'img/NGANHHOC/' %}{{ img.tenfile }}" alt="Thumbnail">
             </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
+        {% else %}
+        <div class="main-view">
+          <img src="{% static 'img/default_nganh.jpg' %}" alt="No Image">
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
     </header>
 
-    <!-- 3 THÔNG TIN -->
-    <section id="thongtin" class="card">
-      <div class="card-head">
-        <h2 class="box-title">Thông tin ngành</h2>
-        <div class="card-hint">Tóm tắt 3 phần chính</div>
-      </div>
-
-      <div class="info-grid">
-
-        <!-- TENNGANH -->
-        <div class="info-item">
-          <div class="info-label">Tên ngành</div>
-          <div class="info-value">
-            {% if nganh.tennganh %}
-              {{ nganh.tennganh }}
-            {% else %}
-              <span class="muted">Đang cập nhật</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- LINHVUC -->
-        <div class="info-item">
-          <div class="info-label">Lĩnh vực</div>
-          <div class="info-value">
-            {% if nganh.linhvuc %}
-              {{ nganh.linhvuc }}
-            {% else %}
-              <span class="muted">Đang cập nhật</span>
-            {% endif %}
-          </div>
-        </div>
-
-        <!-- MOTA -->
-        <div class="info-item info-item--full">
-          <div class="info-label">Mô tả</div>
-          <div class="info-value">
-            {% if nganh.mota %}
-              {{ nganh.mota }}
-            {% else %}
-              <span class="muted">Đang cập nhật</span>
-            {% endif %}
-          </div>
-        </div>
-
-      </div>
-    </section>
-    <!-- SCHOOLS -->
-      <section id="truong" class="card">
+    <div class="nganh-grid">
+      <section class="card">
         <div class="card-head">
-          <h2 class="box-title">Trường đại học đào tạo ngành </h2>
+          <h2 class="box-title">Giới thiệu ngành</h2>
         </div>
-
-        <div class="school-list">
-          {% for row in ds_truong %}
-            <a class="school-item" href="{% url 'truong_detail' row.matruong.matruong %}">
-              <div class="school-top">
-                <div class="school-name">{{ row.matruong.tentruong }}</div>
-              </div>
-            </a>
-          {% empty %}
-            <p class="empty">Chưa có trường nào gắn với ngành này.</p>
-          {% endfor %}
+        <div class="info-grid">
+          <div class="info-item info-item--full">
+            <div class="info-label">Nội dung mô tả</div>
+            <div class="info-value" style="line-height: 1.8;">
+              {{ nganh.mota|default:"Nội dung đang được cập nhật..."|linebreaks }}
+            </div>
+          </div>
         </div>
       </section>
 
+      <section class="card">
+        <div class="card-head">
+          <h2 class="box-title">Cơ sở đào tạo</h2>
+          <span class="card-hint">Danh sách các trường đại học</span>
+        </div>
+        <div class="school-list">
+          {% for row in ds_truong %}
+          <a class="school-item" href="{% url 'truong_detail' row.matruong.matruong %}">
+            <div class="school-name">{{ row.matruong.tentruong }}</div>
+          </a>
+          {% empty %}
+          <p class="empty">Chưa có dữ liệu trường học cho ngành này.</p>
+          {% endfor %}
+        </div>
+      </section>
     </div>
+
   </div>
 </section>
-{% endblock %} 
 
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="">
+</div>
+
+<script>
+  let images = [{% for img in hinh_nganh %}"{% static 'img/NGANHHOC/' %}{{ img.tenfile }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  let currentIndex = 0;
+  const mainImg = document.getElementById('currentImg');
+  const thumbs = document.querySelectorAll('.thumb-item');
+
+  // Hàm đổi ảnh khi click thumbnail
+  function changeImg(el, src) {
+    mainImg.style.opacity = '0.3'; // Hiệu ứng fade out
+    setTimeout(() => {
+      mainImg.src = src;
+      mainImg.style.opacity = '1'; // Hiệu ứng fade in
+    }, 200);
+
+    thumbs.forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentIndex = Array.from(thumbs).indexOf(el);
+  }
+
+  // Tự động chuyển ảnh sau mỗi 3 giây
+  if (images.length > 1) {
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % images.length;
+      changeImg(thumbs[currentIndex], images[currentIndex]);
+    }, 3000);
+  }
+
+  // Lightbox functions
+  function openLightbox() {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightboxImg').src = mainImg.src;
+    lb.classList.add('active');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+</script>
+{% endblock %}

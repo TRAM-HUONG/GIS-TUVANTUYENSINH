@@ -1,163 +1,146 @@
 {% extends 'layout/layout.html' %}
 {% load static %}
 
-{% block title %}Trang quản trị{% endblock %}
+{% block title %}Bảng điều khiển hệ thống{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/admin-dashboard.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    /* Giữ nguyên phần style bổ trợ */
+    .history-list { list-style: none; padding: 0; margin: 0; }
+    .history-item {
+        display: flex; align-items: center; gap: 15px;
+        padding: 15px; border-bottom: 1px solid var(--border);
+        transition: all 0.2s ease;
+    }
+    .history-item:hover { background: rgba(0, 153, 255, 0.04); }
+    .history-item:last-child { border-bottom: none; }
+    .history-icon {
+        width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .history-info { flex: 1; }
+    .history-info p { margin: 0; font-size: 14px; color: var(--ink); }
+    .history-info span { font-size: 12px; color: var(--muted); }
+    .tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+    .tag-add { background: #e8f5e9; color: #2e7d32; }
+    .tag-change { background: #e3f2fd; color: #1976d2; }
+    .tag-delete { background: #ffebee; color: #d32f2f; }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="admin-page">
     <div class="admin-wrapper">
 
-        <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <div class="brand-logo">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                </div>
+                <div class="brand-logo"><i class="fa-solid fa-gears"></i></div>
                 <div>
                     <h3>GIS TVTS</h3>
-                    <p>Quản trị hệ thống</p>
+                    <p>Hệ thống Quản trị</p>
                 </div>
             </div>
 
             <nav class="admin-menu">
-                <a href="#" class="active">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Tổng quan</span>
-                </a>
-
-                <a href="{% url 'admin_truong_list' %}">
-                    <i class="fa-solid fa-school"></i>
-                    <span>Trường đại học</span>
-                </a>
-                <a href="{% url 'admin_hinhanh_list' %}">
-                        <i class="fa-solid fa-images"></i>
-                        <span>Hình ảnh trường</span>
-                </a>
-                <a href="{% url 'admin_chitiettruong_list' %}">
-                    <i class="fa-solid fa-file-lines"></i>
-                    <span>Chi tiết trường</span>
-                </a>
-                <a href="{% url 'admin_nganh_list' %}">
-                    <i class="fa-solid fa-file-lines"></i>
-                    <span>Ngành học </span>
-                </a>
-                <a href="{% url 'admin_hinhanh_nganh_list' %}" class="menu-item">
-                     <i class="fa-solid fa-camera-retro"></i>
-                     <span>Hình ảnh ngành</span>
-                </a>
+                <a href="#" class="active"><i class="fa-solid fa-chart-pie"></i><span>Tổng quan</span></a>
+                
+                <div class="menu-label" style="padding: 15px 20px 5px; font-size: 11px; opacity: 0.6; text-transform: uppercase; font-weight: bold; color: var(--ink);">Quản lý Trường</div>
+                <a href="{% url 'admin_truong_list' %}"><i class="fa-solid fa-school"></i><span>Trường đại học</span></a>
+                <a href="{% url 'admin_hinhanh_list' %}"><i class="fa-solid fa-images"></i><span>Hình ảnh trường</span></a>
+                <a href="{% url 'admin_chitiettruong_list' %}"><i class="fa-solid fa-file-lines"></i><span>Chi tiết trường</span></a>
+                
+                <div class="menu-label" style="padding: 15px 20px 5px; font-size: 11px; opacity: 0.6; text-transform: uppercase; font-weight: bold; color: var(--ink);">Quản lý Ngành</div>
+                <a href="{% url 'admin_nganh_list' %}"><i class="fa-solid fa-book"></i><span>Ngành học</span></a>
+                <a href="{% url 'admin_hinhanh_nganh_list' %}"><i class="fa-solid fa-camera-retro"></i><span>Hình ảnh ngành</span></a>
+                
+                <div class="menu-label" style="padding: 15px 20px 5px; font-size: 11px; opacity: 0.6; text-transform: uppercase; font-weight: bold; color: var(--ink);">Khảo sát & Dữ liệu</div>
+                <a href="{% url 'admin_khaosat_list' %}"><i class="fa-solid fa-clipboard-question"></i><span>Quản lý khảo sát</span></a>
+                <a href="{% url 'admin_luachon_list' %}"><i class="fa-solid fa-list-check"></i><span>Lựa chọn khảo sát</span></a>
+                <a href="{% url 'admin_ketqua_list' %}"><i class="fa-solid fa-square-poll-vertical"></i><span>Kết quả khảo sát</span></a>
             </nav>
         </aside>
 
-        <!-- Main content -->
         <main class="admin-main">
             <div class="admin-header">
                 <div>
-                    <h2>Trang quản trị hệ thống</h2>
-                    <p>Quản lý dữ liệu website tư vấn tuyển sinh GIS</p>
+                    <h2>Bảng điều khiển trung tâm</h2>
+                    <p>Chào mừng <strong>{{ request.user.username|default:"Quản trị viên" }}</strong>. Hệ thống đang hoạt động tốt.</p>
                 </div>
-
                 <div class="admin-user">
-                    <div class="admin-avatar">
-                        <i class="fa-solid fa-user-shield"></i>
-                    </div>
+                    <div class="admin-avatar"><i class="fa-solid fa-user-gear"></i></div>
                     <div>
-                        <strong>Admin</strong>
-                        <p>System Manager</p>
+                        <strong>{{ request.user.last_name }} {{ request.user.first_name }}</strong>
+                        <p>Administrator</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Cards thống kê -->
-            <section class="stats-grid">
-                <div class="stat-card pink">
-                    <div class="stat-icon"><i class="fa-solid fa-school"></i></div>
-                    <div>
-                        <h3>12</h3>
-                        <p>Trường đại học</p>
-                    </div>
-                </div>
-
-                <div class="stat-card blue">
-                    <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
-                    <div>
-                        <h3>36</h3>
-                        <p>Ngành học</p>
-                    </div>
-                </div>
-
-                <div class="stat-card green">
-                    <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <div>
-                        <h3>24</h3>
-                        <p>Bản ghi điểm chuẩn</p>
-                    </div>
-                </div>
-
-                <div class="stat-card orange">
-                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                    <div>
-                        <h3>08</h3>
-                        <p>Người dùng</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Khối chính -->
             <section class="dashboard-grid">
-                <div class="dashboard-panel panel-large">
+                
+                <div class="dashboard-panel">
                     <div class="panel-header">
-                        <h3>Danh mục quản trị</h3>
-                        <span>Hệ thống GIS tuyển sinh</span>
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Nhật ký hoạt động mới nhất</h3>
                     </div>
 
-                    <div class="action-grid">
-                        <a href="{% url 'admin_truong_list' %}" class="action-card">
-                            <div class="action-icon school">
-                                <i class="fa-solid fa-school"></i>
+                    <ul class="history-list">
+                        {% for log in recent_logs %}
+                        <li class="history-item">
+                            <div class="history-icon 
+                                {% if log.is_addition %}tag-add{% elif log.is_change %}tag-change{% else %}tag-delete{% endif %}">
+                                {% if log.is_addition %}<i class="fa-solid fa-plus"></i>
+                                {% elif log.is_change %}<i class="fa-solid fa-pen"></i>
+                                {% else %}<i class="fa-solid fa-trash"></i>{% endif %}
                             </div>
-                            <h4>Quản lý Trường đại học</h4>
-                            <p>Thêm, sửa, xóa và tra cứu thông tin trường.</p>
-                        </a>
-
-                        <a href="{% url 'admin_chitiettruong_list' %}" class="action-card">
-                            <div class="action-icon detail">
-                                <i class="fa-solid fa-file-lines"></i>
+                            <div class="history-info">
+                                <p><strong>{{ log.user.username }}</strong> {{ log.get_change_message|default:"đã thực hiện thay đổi" }} <strong>{{ log.object_repr }}</strong></p>
+                                <span><i class="fa-regular fa-clock"></i> {{ log.action_time|timesince }} trước</span>
                             </div>
-                            <h4>Quản lý Chi tiết trường</h4>
-                            <p>Quản lý mô tả, website, địa chỉ, tọa độ, nội dung chi tiết.</p>
-                        </a>
-                    </div>
+                            <span class="tag {% if log.is_addition %}tag-add{% elif log.is_change %}tag-change{% else %}tag-delete{% endif %}">
+                                {% if log.is_addition %}Thêm mới{% elif log.is_change %}Sửa đổi{% else %}Xóa{% endif %}
+                            </span>
+                        </li>
+                        {% empty %}
+                        <li style="padding: 40px; text-align: center; color: var(--muted);">
+                            <i class="fa-solid fa-database" style="font-size: 30px; margin-bottom: 10px; display: block;"></i>
+                            <p>Chưa có dữ liệu hoạt động thực tế nào.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
 
                 <div class="dashboard-panel panel-side">
                     <div class="panel-header">
-                        <h3>Thông tin nhanh</h3>
+                        <h3>Trạng thái máy chủ</h3>
                     </div>
-
-                    <ul class="quick-info">
+                    
+                    <ul class="quick-info" style="position: relative; z-index: 2;">
                         <li>
-                            <span class="label">Tên hệ thống</span>
-                            <strong>GIS Tư Vấn Tuyển Sinh</strong>
+                            <span class="label">Kết nối cơ sở dữ liệu</span>
+                            <strong style="color: #2e7d32;">● Đang kết nối (PostgreSQL)</strong>
                         </li>
                         <li>
-                            <span class="label">Nền tảng</span>
-                            <strong>Django + PostgreSQL</strong>
-                        </li>
-                        <li>
-                            <span class="label">Mục tiêu</span>
-                            <strong>Tra cứu trường, ngành, điểm chuẩn</strong>
-                        </li>
-                        <li>
-                            <span class="label">Vai trò</span>
-                            <strong>Quản trị viên</strong>
+                            <span class="label">Thời gian máy chủ</span>
+                            <strong>{% now "d/m/Y H:i" %}</strong>
                         </li>
                     </ul>
+
+                    <div class="panel-header" style="margin-top: 30px;">
+                        <h3>Truy cập nhanh</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2;">
+                        <a href="{% url 'admin_truong_list' %}" class="action-card" style="padding: 12px; text-decoration: none; background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-plus-circle" style="color: var(--c6);"></i>
+                            <span style="font-weight: 600; font-size: 13px;">Thêm trường mới</span>
+                        </a>
+                        <a href="/admin/" class="action-card" style="padding: 12px; text-decoration: none; background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-user-shield" style="color: var(--p1);"></i>
+                            <span style="font-weight: 600; font-size: 13px;">Hệ thống gốc Django</span>
+                        </a>
+                    </div>
                 </div>
+
             </section>
         </main>
     </div>

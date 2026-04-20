@@ -1,0 +1,52 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/edit.css' %}">{% endblock %}
+
+{% block content %}
+<div class="insert-container">
+    <h2 class="mb-4">Chỉnh Sửa Lựa Chọn</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Mã lựa chọn</label>
+            <input type="text" value="{{ luachon.malc }}" readonly class="form-control bg-light">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Nội dung lựa chọn</label>
+            <input type="text" name="noidunglc" class="form-control" value="{{ luachon.noidunglc }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Thuộc câu hỏi</label>
+            <select name="maks" class="form-select" required>
+                {% for ks in ds_cauhoi %}
+                <option value="{{ ks.maks }}" {% if ks.maks == luachon.maks_id %}selected{% endif %}>
+                    {{ ks.cauhoi }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                <label class="form-label fw-bold">Ngành học</label>
+                <select name="manganh" class="form-select" required>
+                    {% for nganh in ds_nganh %}
+                    <option value="{{ nganh.manganh }}" {% if nganh.manganh == luachon.manganh_id %}selected{% endif %}>
+                        {{ nganh.tennganh }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Điểm</label>
+                <input type="number" name="diem" class="form-control" value="{{ luachon.diem }}" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-warning w-100 py-2 fw-bold mt-3">CẬP NHẬT THAY ĐỔI</button>
+        <a href="{% url 'admin_luachon_list' %}" class="btn btn-link w-100 text-muted mt-2">HỦY BỎ</a>
+    </form>
+</div>
+{% endblock %}

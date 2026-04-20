@@ -1,0 +1,17 @@
+{% extends 'layout/layout.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card mx-auto shadow-sm" style="max-width: 500px; border-radius: 15px;">
+        <div class="card-body p-5">
+            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+            <h3>Xác nhận xóa?</h3>
+            <p>Bạn có chắc chắn muốn xóa vĩnh viễn kết quả khảo sát <strong>{{ ketqua.makq }}</strong> của người dùng <strong>{{ ketqua.mand.hoten }}</strong>?</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger px-4">XÓA NGAY</button>
+                <a href="{% url 'admin_ketqua_list' %}" class="btn btn-link text-muted">Hủy bỏ</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

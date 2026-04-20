@@ -1,0 +1,268 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block title %}Quản lý Kết quả Khảo sát{% endblock %}
+
+{% block content %}
+<style>
+    /* Nền tảng và Container */
+    .admin-wrapper {
+        background: #f0f2f5;
+        min-height: 100vh;
+        padding: 40px 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Tiêu đề phong cách Modern */
+    .header-section {
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    .header-section h2 {
+        font-weight: 800;
+        letter-spacing: -1px;
+        color: #1a1c1e;
+        position: relative;
+        display: inline-block;
+    }
+
+    .header-section h2::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: #1a73e8;
+        border-radius: 10px;
+    }
+
+    /* Thanh tìm kiếm Neumorphism */
+    .search-area {
+        max-width: 800px;
+        margin: 0 auto 50px;
+        display: flex;
+        gap: 15px;
+        background: #f0f2f5;
+        padding: 15px;
+        border-radius: 50px;
+        box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+    }
+
+    .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 10px 25px;
+        font-weight: 500;
+        color: #444;
+        outline: none !important;
+    }
+
+    .btn-search {
+        background: #1a73e8;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 40px;
+        font-weight: 600;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-search:hover {
+        background: #1557b0;
+        transform: translateY(-2px);
+    }
+
+    /* Layout danh sách Card thay vì Table */
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+    }
+
+    .kq-card {
+        background: #f0f2f5;
+        border-radius: 30px;
+        padding: 25px;
+        box-shadow: 15px 15px 30px #bebebe, -15px -15px 30px #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kq-card:hover {
+        transform: translateY(-10px);
+        border-color: #1a73e8;
+    }
+
+    /* Header của Card */
+    .kq-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .kq-id {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #1a73e8;
+        background: #e8f0fe;
+        padding: 5px 15px;
+        border-radius: 50px;
+    }
+
+    .kq-score {
+        text-align: right;
+    }
+
+    .score-value {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #34a853;
+        display: block;
+    }
+
+    /* Body của Card */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
+        color: #1a73e8;
+        font-size: 1.2rem;
+    }
+
+    .user-name {
+        font-weight: 700;
+        color: #202124;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .kq-date {
+        font-size: 0.85rem;
+        color: #70757a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Footer / Actions */
+    .kq-card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 25px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding-top: 20px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        border-radius: 15px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: 0.3s;
+        text-decoration: none !important;
+    }
+
+    .btn-view {
+        background: #f0f2f5;
+        color: #1a73e8;
+        box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
+    }
+
+    .btn-view:hover {
+        box-shadow: inset 2px 2px 5px #d1d9e6, inset -2px -2px 5px #ffffff;
+    }
+
+    .btn-del {
+        background: #fff;
+        color: #d93025;
+        border: 1px solid #f8d7da;
+    }
+
+    .btn-del:hover {
+        background: #d93025;
+        color: white;
+    }
+
+</style>
+
+<div class="admin-wrapper">
+    <div class="container">
+        
+        <div class="header-section">
+            <h2>Hệ Thống Quản Lý Kết Quả</h2>
+        </div>
+
+        <form method="get" class="search-area">
+            <i class="fa-solid fa-magnifying-glass ms-3 my-auto text-muted"></i>
+            <input type="text" name="keyword" value="{{ keyword }}" class="search-input" placeholder="Nhập tên người dùng hoặc mã kết quả...">
+            <button type="submit" class="btn-search">KHÁM PHÁ</button>
+        </form>
+
+        <div class="results-grid">
+            {% for kq in ds_ketqua %}
+            <div class="kq-card">
+                <div class="kq-card-header">
+                    <span class="kq-id">ID: #{{ kq.makq }}</span>
+                    <div class="kq-score">
+                        <span class="score-value">{{ kq.tongdiem|default:"0" }}</span>
+                        <small class="text-muted fw-bold" style="font-size: 0.6rem;">ĐIỂM SỐ</small>
+                    </div>
+                </div>
+
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <p class="user-name">{{ kq.mand.hoten }}</p>
+                        <div class="kq-date">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            {{ kq.ngaylam|date:"d/m/Y - H:i" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kq-card-actions">
+                    <a href="{% url 'admin_ketqua_detail' kq.makq %}" class="btn-action btn-view">
+                        <i class="fa-solid fa-eye me-1"></i> CHI TIẾT
+                    </a>
+                    <a href="{% url 'admin_ketqua_delete' kq.makq %}" class="btn-action btn-del">
+                        <i class="fa-solid fa-trash-can me-1"></i> XÓA
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="kq-card d-inline-block px-5">
+                    <i class="fa-solid fa-box-open fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted fw-bold">Không tìm thấy dữ liệu phù hợp với từ khóa.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

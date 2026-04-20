@@ -1,0 +1,46 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/insert.css' %}">{% endblock %}
+
+{% block content %}
+<div class="insert-container">
+    <h2 class="mb-4">Thêm Lựa Chọn Khảo Sát Mới</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label fw-bold">Nội dung lựa chọn</label>
+            <input type="text" name="noidunglc" class="form-control" placeholder="Ví dụ: Rất quan tâm, Thường xuyên..." required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Thuộc câu hỏi</label>
+            <select name="maks" class="form-select" required>
+                <option value="">-- Chọn câu hỏi khảo sát --</option>
+                {% for ks in ds_cauhoi %}
+                <option value="{{ ks.maks }}">{{ ks.cauhoi }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                <label class="form-label fw-bold">Ngành học hướng đến</label>
+                <select name="manganh" class="form-select" required>
+                    {% for nganh in ds_nganh %}
+                    <option value="{{ nganh.manganh }}">{{ nganh.tennganh }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Số điểm cộng</label>
+                <input type="number" name="diem" class="form-control" value="1" min="1" required>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">LƯU THÔNG TIN</button>
+            <a href="{% url 'admin_luachon_list' %}" class="btn btn-link w-100 text-muted mt-2">QUAY LẠI DANH SÁCH</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

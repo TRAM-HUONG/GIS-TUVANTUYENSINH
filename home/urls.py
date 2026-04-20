@@ -89,11 +89,21 @@ urlpatterns = [
     path('admin/hinhanh_nganh/edit/<str:mahinh>/', views.admin_hinhanh_nganh_edit, name='admin_hinhanh_nganh_edit'),
     path('admin/hinhanh_nganh/delete/<str:mahinh>/', views.admin_hinhanh_nganh_delete, name='admin_hinhanh_nganh_delete'),
     
-        # =========================
-    # ADMIN - QUẢN LÝ KHẢO SÁT
-    # =========================
-    path("admin/khao-sat/", views.admin_khaosat_list, name="admin_khaosat_list"),
-    
+  # ADMIN - QUẢN LÝ CÂU HỎI KHẢO SÁT (KhaoSat)
+# Cần copy đúng đoạn này vào urlpatterns
+path("admin/khaosat/", views.admin_khaosat_list, name="admin_khaosat_list"),
+path("admin/khaosat/insert/", views.admin_khaosat_insert, name="admin_khaosat_insert"),
+path("admin/khaosat/edit/<str:maks>/", views.admin_khaosat_edit, name="admin_khaosat_edit"),
+path("admin/khaosat/delete/<str:maks>/", views.admin_khaosat_delete, name="admin_khaosat_delete"),
+# ADMIN - QUẢN LÝ KẾT QUẢ KHẢO SÁT
+path("admin/ket-qua-khao-sat/", views.admin_ketqua_list, name="admin_ketqua_list"),
+path("admin/ket-qua-khao-sat/chi-tiet/<str:makq>/", views.admin_ketqua_detail, name="admin_ketqua_detail"),
+path("admin/ket-qua-khao-sat/xoa/<str:makq>/", views.admin_ketqua_delete, name="admin_ketqua_delete"),
+# ADMIN - QUẢN LÝ LỰA CHỌN KHẢO SÁT
+path("admin/luachon/", views.admin_luachon_list, name="admin_luachon_list"),
+path("admin/luachon/insert/", views.admin_luachon_insert, name="admin_luachon_insert"),
+path("admin/luachon/edit/<str:malc>/", views.admin_luachon_edit, name="admin_luachon_edit"),
+path("admin/luachon/delete/<str:malc>/", views.admin_luachon_delete, name="admin_luachon_delete"),  
 ]
 
 # Cấu hình để hiển thị file media (hình ảnh) trong quá trình phát triển
